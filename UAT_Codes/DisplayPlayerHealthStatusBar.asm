@@ -42,7 +42,7 @@ macro WriteTileAddress(TileLocation, PropLocation)
 	endif
 endmacro
 
-macro WriteAlignedDigitsToStatusBar()
+macro WriteAlignedDigitsToLayer3()
 	if !StatusbarFormat == $01
 		%UberRoutine(WriteStringDigitsToHUD)
 	else
@@ -151,7 +151,7 @@ main:
 						%UberRoutine(ConvertToRightAlignedFormat2)
 					endif
 				endif
-				%WriteAlignedDigitsToStatusBar()
+				%WriteAlignedDigitsToLayer3()
 				
 			endif
 	endif
