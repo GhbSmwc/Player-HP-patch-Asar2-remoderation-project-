@@ -168,10 +168,11 @@ incsrc "StatusBarDefines.asm"
 		;^Same as above, but for overworld
 
 	!Setting_PlayerHP_DigitsAlignLevel		= 1
-		;0 = allow leading spaces (digit place values are fixed)
-		;1 = left align (positions the character (numbers and "/") to the left as much
-		;    as possible), no leading spaces before digits.
-		;2 = right align (to the right as possible). No leading spaces before digits.
+		;^How digits are displayed in levels.
+		; 0 = allow leading spaces (digit place values are fixed)
+		; 1 = left align (positions the character (numbers and "/") to the left as much
+		;     as possible), no leading spaces before digits.
+		; 2 = right align (to the right as possible). No leading spaces before digits.
 		;
 		;Notes:
 		;-The number of digits extends the 8x8 area RIGHTWARDS, therefore setting
@@ -205,19 +206,13 @@ incsrc "StatusBarDefines.asm"
 		;Same as above but for overworld border
 			!PlayerHP_StringPos_Owb_x = 7
 			!PlayerHP_StringPos_Owb_y = 1
-
-	;Overworld tile properties for blank tiles (these are for CCC and TT of YXPCCCTT):
-		!PlayerHP_DigitBlankTileProp_Page = 0		;>Enter only values 0-3
-		!PlayerHP_DigitBlankTileProp_Palette = 6	;>Enter only values 0-7
-		;Tile properties for "/"
-			!PlayerHP_MaxHPPrefixTileProp_Overworld_Page = 1	;>Enter only values 0-3
-			!PlayerHP_MaxHPPrefixTileProp_Overworld_Palette = 6	;>Enter only values 0-7
-
-	;Overworld digit tile properties (note that for status bar tile properties,
-	;you have to manually edit them, there are comments that provide a
-	;template).
-		!PlayerHP_DigitTileProp_Overworld_Page = 1		;>Enter only values 0-3
-		!PlayerHP_DigitTileProp_Overworld_Palette = 6		;>Enter only values 0-7
+			
+	;Tile properties of the digits and slash (only used when !StatusBar_UsingCustomProperties == 1 in StatusBarDefines.asm)
+		!PlayerHP_TileProp_Level_Text_Page = 0		;>Valid values: 0-3
+		!PlayerHP_TileProp_Level_Text_Palette = 6	;>Valid values: 0-7
+		
+		!PlayerHP_TileProp_Ow_Text_Page = 0		;>Valid values: 0-3
+		!PlayerHP_TileProp_Ow_Text_Palette = 6		;>Valid values: 0-7
 
 	;small and Large HP settings:
 		;Size of the player's HP:
@@ -500,12 +495,12 @@ incsrc "StatusBarDefines.asm"
 			!Setting_PlayerHP_BarPosLevel = VanillaStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Lvl_x, !PlayerHP_GraphicalBarPos_Lvl_y, !RAM_0EF9)
 			if !UsingCustomStatusBar != 0
 				!PlayerHP_Digit_StatBarPos = PatchedStatusBarXYToAddress(!PlayerHP_StringPos_Lvl_x, !PlayerHP_StringPos_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
+				!PlayerHP_Digit_StatBarPosProp = PatchedStatusBarXYToAddress(!PlayerHP_StringPos_Lvl_x, !PlayerHP_StringPos_Lvl_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
 				!Setting_PlayerHP_BarPosLevel = PatchedStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Lvl_x, !PlayerHP_GraphicalBarPos_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
 			endif
 		;Calculate tile properties
-			!PlayerHP_DigitBlankTilePropertiesOverworld = GetLayer3YXPCCCTT(0, 0, 1, !PlayerHP_DigitBlankTileProp_Palette, !PlayerHP_DigitBlankTileProp_Page)
-			!PlayerHP_MaxHPPrefixTilePropertiesOverworld = GetLayer3YXPCCCTT(0, 0, 1, !PlayerHP_MaxHPPrefixTileProp_Overworld_Palette, !PlayerHP_MaxHPPrefixTileProp_Overworld_Page)
-			!PlayerHP_DigitTilePropertiesOverworld = GetLayer3YXPCCCTT(0, 0, 1, !PlayerHP_DigitTileProp_Overworld_Palette, !PlayerHP_DigitTileProp_Overworld_Page)
+			!PlayerHP_TileProp_Level_Text = GetLayer3YXPCCCTT(0, 0, 1, !PlayerHP_TileProp_Level_Text_Palette, !PlayerHP_TileProp_Level_Text_Page)
+			!PlayerHP_TileProp_Ow_Text = GetLayer3YXPCCCTT(0, 0, 1, !PlayerHP_TileProp_Ow_Text_Palette, !PlayerHP_TileProp_Ow_Text_Page)
 
 	;Failsafe
 		assert !Setting_playerHP_MidwayRecoveryDividend != 0, "Invalid Dividend"
