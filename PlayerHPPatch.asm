@@ -11,7 +11,7 @@
 ;
 ;^Use CTRL+F to find them.
 
-incsrc "Defines/SA1Stuff.asm"
+incsrc "Defines/SA1StuffDefines.asm"
 incsrc "Defines/PlayerHPDefines.asm"
 incsrc "Defines/MotherHPDefines.asm"
 
@@ -610,7 +610,7 @@ freecode
 		STA !Freeram_PlayerCurrHP+1
 	endif
 	.TransperentDamageOnBar
-	if and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!PlayerHP_BarRecordDelay, 0))	;\display transparent segment when the player gets killed
+	if and(and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!PlayerHP_BarRecordDelay, 0)), !Setting_PlayerHP_DisplayBarLevel)	;\display transparent segment when the player gets killed
 		LDA.b #!PlayerHP_BarRecordDelay								;|
 		STA !Freeram_PlayerHP_BarRecordDelayTmr							;|
 	endif												;/
@@ -925,7 +925,7 @@ endif
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	DamageEffect:
 	.TransperentDamageOnBar
-	if and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!PlayerHP_BarRecordDelay, 0))
+	if and(and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!PlayerHP_BarRecordDelay, 0)), !Setting_PlayerHP_DisplayBarLevel)
 		LDA.b #!PlayerHP_BarRecordDelay
 		STA !Freeram_PlayerHP_BarRecordDelayTmr
 	endif
@@ -1128,7 +1128,7 @@ endif
 			STA !Freeram_PlayerCurrHP
 			SEP #$20
 		endif
-		if and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!Setting_PlayerHP_ShowHealedTransparent, 0))
+		if and(and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!Setting_PlayerHP_ShowHealedTransparent, 0)), !Setting_PlayerHP_DisplayBarLevel)
 			if !PlayerHP_BarRecordDelay != 0
 				LDA.b #!PlayerHP_BarRecordDelay
 				STA !Freeram_PlayerHP_BarRecordDelayTmr
@@ -1172,7 +1172,7 @@ endif
 		STA !Freeram_PlayerHP_MotherHPDirection
 		LDA #$00						;\Initially start out with first increment immediately.
 		STA !Freeram_PlayerHP_MotherHPDelayFrameTimer		;/
-		if and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!Setting_PlayerHP_ShowHealedTransparent, 0))
+		if and(and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!Setting_PlayerHP_ShowHealedTransparent, 0)), !Setting_PlayerHP_DisplayBarLevel)
 			if !PlayerHP_BarRecordDelay != 0
 				LDA.b #!PlayerHP_BarRecordDelay
 				STA !Freeram_PlayerHP_BarRecordDelayTmr

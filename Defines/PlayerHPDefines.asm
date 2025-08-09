@@ -97,8 +97,9 @@ incsrc "StatusBarDefines.asm"
 ;[BytesUsed = RecordTimerEnabled]
 ;A timer that indicates how long the bar shows the previous HP prior
 ;heal or damage before it moves towards the player's current HP.
-;RecordTimerEnabled = 1 if both !Setting_PlayerHP_BarAnimation
-;and !PlayerHP_BarRecordDelay are non-zero values and 0 otherwise.
+;RecordTimerEnabled = 1 if !Setting_PlayerHP_BarAnimation,
+;!PlayerHP_BarRecordDelay and !Setting_PlayerHP_DisplayBarLevel are
+;non-zero values and 0 otherwise.
 	if !sa1 == 0
 		!Freeram_PlayerHP_BarRecordDelayTmr	= $7FAD4E
 	else
@@ -244,7 +245,7 @@ incsrc "StatusBarDefines.asm"
 			;^0 = HP bar instantly updates when the player heals or take damage
 			;     (!Freeram_PlayerHP_BarRecord is no longer used).
 			; 1 = HP bar displays a changing animation (transparent segment to
-			;     indicate the amount of damage)
+			;     indicate the amount of damage or recovery)
 
 		!PlayerHP_BarFillUpSpeed				= $00
 			;^Speed that the bar fills up. Only use these values:
