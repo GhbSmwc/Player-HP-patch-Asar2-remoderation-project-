@@ -163,6 +163,9 @@ incsrc "StatusBarDefines.asm"
 		;^0 = display no numbers.
 		; 1 = display only current HP.
 		; 2 = display Current/Max.
+	!Setting_PlayerHP_DisplayBarLevel = 1
+		;^0 = don't display percentage bar
+		; 1 = display a percentage bar
 
 	!Setting_PlayerHP_DisplayNumericalOverworld	= 2
 		;^Same as above, but for overworld
@@ -423,6 +426,9 @@ incsrc "StatusBarDefines.asm"
 	;Bar direction for level and overworld.
 		!Setting_PlayerHP_LeftwardsBarLevel     = 0             ;>Have the bar fill leftwards. Note that end tiles are also mirrored.
 		!Setting_PlayerHP_LeftwardsBarOverworld = 0             ;>Same as above but overworld.
+	;Tile props
+		!Setting_PlayerHP_BarProps_Lvl_Page = 0                 ;>Use only values 0-3
+		!Setting_PlayerHP_BarProps_Lvl_Palette = 6              ;>Use only values 0-7
 
 	;Display empty bar when there is very low HP but not zero:
 		!Setting_PlayerHP_BarAvoidRoundToZero	= 1
@@ -497,10 +503,12 @@ incsrc "StatusBarDefines.asm"
 				!PlayerHP_Digit_StatBarPos = PatchedStatusBarXYToAddress(!PlayerHP_StringPos_Lvl_x, !PlayerHP_StringPos_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
 				!PlayerHP_Digit_StatBarPosProp = PatchedStatusBarXYToAddress(!PlayerHP_StringPos_Lvl_x, !PlayerHP_StringPos_Lvl_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
 				!Setting_PlayerHP_BarPosLevel = PatchedStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Lvl_x, !PlayerHP_GraphicalBarPos_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
+				!Setting_PlayerHP_BarPosLevelProp = PatchedStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Lvl_x, !PlayerHP_GraphicalBarPos_Lvl_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
 			endif
 		;Calculate tile properties
 			!PlayerHP_TileProp_Level_Text = GetLayer3YXPCCCTT(0, 0, 1, !PlayerHP_TileProp_Level_Text_Palette, !PlayerHP_TileProp_Level_Text_Page)
 			!PlayerHP_TileProp_Ow_Text = GetLayer3YXPCCCTT(0, 0, 1, !PlayerHP_TileProp_Ow_Text_Palette, !PlayerHP_TileProp_Ow_Text_Page)
+			!PlayerHP_BarProps_Lvl = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_BarProps_Lvl_Palette, !Setting_PlayerHP_BarProps_Lvl_Page)
 
 	;Failsafe
 		assert !Setting_playerHP_MidwayRecoveryDividend != 0, "Invalid Dividend"
