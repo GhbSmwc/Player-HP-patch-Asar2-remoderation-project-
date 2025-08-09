@@ -66,16 +66,20 @@ endmacro
 if and(equal(!Setting_PlayerHP_DigitsAlignLevel,0), equal(!Setting_PlayerHP_DisplayNumericalLevel, 2))
 	init:
 		LDA #!StatusBarSlashCharacterTileNumb
-		STA !PlayerHP_Digit_StatBarPos+((!Setting_PlayerHP_MaxDigits)*2)
+		STA !PlayerHP_Digit_StatBarPos+((!Setting_PlayerHP_MaxDigits)*!StatusbarFormat)
+		if !StatusBar_UsingCustomProperties != 0
+			LDA.b #!PlayerHP_TileProp_Level_Text
+			STA !PlayerHP_Digit_StatBarPosProp+((!Setting_PlayerHP_MaxDigits)*!StatusbarFormat)
+		endif
 		RTL
 endif
-
 main:
 	;Detect user trying to make a right-aligned single number (which avoids unnecessarily uses suppress leading zeroes)
 		!IsUsingRightAlignedSingleNumber = and(equal(!Setting_PlayerHP_DigitsAlignLevel, 2),equal(!Setting_PlayerHP_DisplayNumericalLevel, 1))
 	;Clear the tiles. To prevent leftover "ghost" tiles that should've
 	;disappear when the number of digits decreases (so when "10" becomes "9",
 	;won't display "90").
+	if !Setting_PlayerHP_DigitsAlignLevel != 0
 		LDX.b #(((!Setting_PlayerHP_MaxDigits*2)+1)-1)*!StatusbarFormat	;>2 Setting_PlayerHP_MaxDigits due to 2 numbers displayed, plus 1 because of the "/" symbol.
 		-
 		LDA #!StatusBarBlankTile
@@ -86,6 +90,7 @@ main:
 		endif
 		DEX #!StatusbarFormat
 		BPL -
+	endif
 	if !Setting_PlayerHP_DisplayNumericalLevel != 0 ;User allows display HP numerically
 		if or(equal(!Setting_PlayerHP_DigitsAlignLevel, 0), equal(!IsUsingRightAlignedSingleNumber, 1)) ;fixed digit location
 			%GetHealthDigits(!Freeram_PlayerCurrHP)
