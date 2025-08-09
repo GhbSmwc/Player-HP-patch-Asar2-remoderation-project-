@@ -3,12 +3,12 @@ incsrc "../PlayerHPDefines.asm"
 incsrc "../StatusBarDefines.asm"
 incsrc "../NumberDisplayRoutinesDefines.asm"
 incsrc "../MotherHPDefines.asm"
-macro WriteFixedDigitsToStatusBar(StatusbarLocation)
+macro WriteFixedDigitsToLayer3(TileLocation)
 	if !StatusbarFormat == $01
 		LDX.b #(!Setting_PlayerHP_MaxDigits-1)
 		-
 		LDA.b !Scratchram_16bitHexDecOutput+$04-(!Setting_PlayerHP_MaxDigits-1),x
-		STA <StatusbarLocation>,x
+		STA <TileLocation>,x
 		DEX
 		BPL -
 	else
@@ -16,30 +16,33 @@ macro WriteFixedDigitsToStatusBar(StatusbarLocation)
 		LDY.b #(!Setting_PlayerHP_MaxDigits-1)
 		-
 		LDA.w !Scratchram_16bitHexDecOutput+$04-(!Setting_PlayerHP_MaxDigits-1)|!dp,y
-		STA <StatusbarLocation>,x
+		STA <TileLocation>,x
 		DEY
 		DEX #2
 		BPL -
 	endif
 endmacro
 
-macro WriteAlignedDigitsToStatusBar(StatusbarLocationTile, StatusbarLocationProp)
-	LDA.b #<StatusbarLocationTile>
+macro WriteTileAddress(TileLocation, PropLocation)
+	LDA.b #<TileLocation>
 	STA $00
-	LDA.b #<StatusbarLocationTile>>>8
+	LDA.b #<TileLocation>>>8
 	STA $01
-	LDA.b #<StatusbarLocationTile>>>16
+	LDA.b #<TileLocation>>>16
 	STA $02
 	if !StatusBar_UsingCustomProperties != 0
-		LDA.b #<StatusbarLocationProp>
+		LDA.b #<PropLocation>
 		STA $03
-		LDA.b #<StatusbarLocationProp>>>8
+		LDA.b #<PropLocation>>>8
 		STA $04
-		LDA.b #<StatusbarLocationProp>>>16
+		LDA.b #<PropLocation>>>16
 		STA $05
 		LDA.b #!PlayerHP_TileProp_Level_Text
 		STA $06
 	endif
+endmacro
+
+macro WriteAlignedDigitsToStatusBar()
 	if !StatusbarFormat == $01
 		%UberRoutine(WriteStringDigitsToHUD)
 	else
@@ -96,10 +99,18 @@ main:
 				LDX.b #(((!Setting_PlayerHP_MaxDigits*2)+1)-1)*!StatusbarFormat	;>2 Setting_PlayerHP_MaxDigits due to 2 numbers displayed, plus 1 because of the "/" symbol.
 				-
 				LDA #!StatusBarBlankTile
-				STA !PlayerHP_Digit_StatBarPos,x
+				if !Setting_PlayerHP_DigitsAlignLevel == 1
+					STA !PlayerHP_Digit_StatBarPos,x
+				elseif !Setting_PlayerHP_DigitsAlignLevel == 2
+					STA !PlayerHP_Digit_StatBarPos_RightAligned-((((!Setting_PlayerHP_MaxDigits*2)+1)-1)*!StatusbarFormat),x
+				endif
 				if !StatusBar_UsingCustomProperties != 0
 					LDA.b #!PlayerHP_TileProp_Level_Text
-					STA !PlayerHP_Digit_StatBarPosProp,x
+					if !Setting_PlayerHP_DigitsAlignLevel == 1
+						STA !PlayerHP_Digit_StatBarPosProp,x
+					elseif !Setting_PlayerHP_DigitsAlignLevel == 2
+						STA !PlayerHP_Digit_StatBarPos_RightAlignedProp-((((!Setting_PlayerHP_MaxDigits*2)+1)-1)*!StatusbarFormat),x
+					endif
 				endif
 				DEX #!StatusbarFormat
 				BPL -
@@ -107,17 +118,17 @@ main:
 			if or(equal(!Setting_PlayerHP_DigitsAlignLevel, 0), equal(!IsUsingRightAlignedSingleNumber, 1)) ;fixed digit location
 				%GetHealthDigits(!Freeram_PlayerCurrHP)
 				%UberRoutine(RemoveLeadingZeroes16Bit)
-				%WriteFixedDigitsToStatusBar(!PlayerHP_Digit_StatBarPos)
+				%WriteFixedDigitsToLayer3(!PlayerHP_Digit_StatBarPos)
 				if !Setting_PlayerHP_DisplayNumericalLevel == 2
 					%GetHealthDigits(!Freeram_PlayerMaxHP)
 					%UberRoutine(RemoveLeadingZeroes16Bit)
-					%WriteFixedDigitsToStatusBar(!PlayerHP_Digit_StatBarPos+((!Setting_PlayerHP_MaxDigits+1)*!StatusbarFormat))
+					%WriteFixedDigitsToLayer3(!PlayerHP_Digit_StatBarPos+((!Setting_PlayerHP_MaxDigits+1)*!StatusbarFormat))
 				endif
 			elseif and(greaterequal(!Setting_PlayerHP_DigitsAlignLevel, 1), lessequal(!Setting_PlayerHP_DigitsAlignLevel, 2)) ;left/right-aligned
 				%GetHealthDigits(!Freeram_PlayerCurrHP)
 				LDX #$00
 				%UberRoutine(SuppressLeadingZeroes)
-				if !Setting_PlayerHP_DisplayNumericalLevel == 2
+				if !Setting_PlayerHP_DisplayNumericalLevel == 2 ;Displaying Current/Max
 					LDA #!StatusBarSlashCharacterTileNumb
 					STA !Scratchram_CharacterTileTable,x
 					INX
@@ -128,7 +139,19 @@ main:
 					CPX.b #(((!Setting_PlayerHP_MaxDigits*2)+1)+1)
 					BCS ..TooMuchChar
 				endif
-				%WriteAlignedDigitsToStatusBar(!PlayerHP_Digit_StatBarPos, !PlayerHP_Digit_StatBarPosProp)
+				if !Setting_PlayerHP_DigitsAlignLevel == 1
+					%WriteTileAddress(!PlayerHP_Digit_StatBarPos, !PlayerHP_Digit_StatBarPosProp)
+				elseif !Setting_PlayerHP_DigitsAlignLevel == 2
+					%WriteTileAddress(!PlayerHP_Digit_StatBarPos_RightAligned, !PlayerHP_Digit_StatBarPos_RightAlignedProp)
+				endif
+				if !Setting_PlayerHP_DigitsAlignLevel == 2 ;Right-aligned
+					if !StatusbarFormat == $01
+						%UberRoutine(ConvertToRightAligned)
+					else
+						%UberRoutine(ConvertToRightAlignedFormat2)
+					endif
+				endif
+				%WriteAlignedDigitsToStatusBar()
 				
 			endif
 	endif

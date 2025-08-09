@@ -202,15 +202,22 @@ incsrc "StatusBarDefines.asm"
 	;Note that if tiles extend past the right edge of the screen, it will wrap to X=0 and Y+1 like text.
 	
 		;Position of the HP display string (which display the numbers). This is where:
-		; - If not aligned or right-aligned (digits at fixed locations), it is where
+		; - If not aligned or right-aligned with only one number (digits at fixed locations), it is where
 		;   the leading zero/space would be at.
 		; - If left-aligned, it is where the leftmost visible digit would be located
 			!PlayerHP_StringPos_Lvl_x = 0
 			!PlayerHP_StringPos_Lvl_y = 0
+		;Position to display for right-aligned HP text (Current/Max) (This is the position of the rightmost
+		;tile, a position entered here will take this position and anything to the left)
+			!PlayerHP_StringPosRightAligned_Lvl_x = 31
+			!PlayerHP_StringPosRightAligned_Lvl_y = 0
+		
 		;Same as above but for overworld border
 			!PlayerHP_StringPos_Owb_x = 7
 			!PlayerHP_StringPos_Owb_y = 1
 			
+			!PlayerHP_StringPosRightAligned_Owb_x = 31
+			!PlayerHP_StringPosRightAligned_Owb_y = 1
 	;Tile properties of the digits and slash (only used when !StatusBar_UsingCustomProperties == 1 in StatusBarDefines.asm)
 		!PlayerHP_TileProp_Level_Text_Page = 0		;>Valid values: 0-3
 		!PlayerHP_TileProp_Level_Text_Palette = 6	;>Valid values: 0-7
@@ -497,12 +504,15 @@ incsrc "StatusBarDefines.asm"
 	;These calculate various user inputs into address or value
 		;Calculate status bar position
 			!PlayerHP_Digit_StatBarPos = VanillaStatusBarXYToAddress(!PlayerHP_StringPos_Lvl_x, !PlayerHP_StringPos_Lvl_y, !RAM_0EF9)
+			!PlayerHP_Digit_StatBarPos_RightAligned = !VanillaStatusBarXYToAddress(!PlayerHP_StringPosRightAligned_Lvl_x, !PlayerHP_StringPosRightAligned_Lvl_y, !RAM_0EF9)
 			!PlayerHP_Digit_OverworldBorderPos = PatchedStatusBarXYToAddress(!PlayerHP_StringPos_Owb_x, !PlayerHP_StringPos_Owb_y, !OverworldBorderPatchAddr_Tile, $02)
 			!Setting_PlayerHP_BarPosOverworld = PatchedStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Owb_x, !PlayerHP_GraphicalBarPos_Owb_y, !OverworldBorderPatchAddr_Tile, $02)
 			!Setting_PlayerHP_BarPosLevel = VanillaStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Lvl_x, !PlayerHP_GraphicalBarPos_Lvl_y, !RAM_0EF9)
 			if !UsingCustomStatusBar != 0
 				!PlayerHP_Digit_StatBarPos = PatchedStatusBarXYToAddress(!PlayerHP_StringPos_Lvl_x, !PlayerHP_StringPos_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
 				!PlayerHP_Digit_StatBarPosProp = PatchedStatusBarXYToAddress(!PlayerHP_StringPos_Lvl_x, !PlayerHP_StringPos_Lvl_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
+				!PlayerHP_Digit_StatBarPos_RightAligned = PatchedStatusBarXYToAddress(!PlayerHP_StringPosRightAligned_Lvl_x, !PlayerHP_StringPosRightAligned_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
+				!PlayerHP_Digit_StatBarPos_RightAlignedProp = PatchedStatusBarXYToAddress(!PlayerHP_StringPosRightAligned_Lvl_x, !PlayerHP_StringPosRightAligned_Lvl_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
 				!Setting_PlayerHP_BarPosLevel = PatchedStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Lvl_x, !PlayerHP_GraphicalBarPos_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
 				!Setting_PlayerHP_BarPosLevelProp = PatchedStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Lvl_x, !PlayerHP_GraphicalBarPos_Lvl_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
 			endif
