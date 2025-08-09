@@ -23,8 +23,40 @@ incsrc "StatusBarDefines.asm"
 			; - WriteStringDigitsToHUD (including the Format2 variant)
 			; - WriteStringAsSpriteOAM (including the OAMOnly variant)
 ;Tile settings:
-	!StatusBarBlankTile = $FC ;>Tile number to use for leading spaces to remove leading zeroes.
-	!StatusBarSlashCharacterTileNumb = $29		;>Slash tile number (status bar, now OWB!)
+	;Status bar and OWB tiles:
+	;Note: These are tile numbers and properties.
+	;-Tile numbers refer to what tile within a page
+	;-Tile properties are YXPCCCTT, in binary (notice the percent symbol prefix).
+		;Status bar and Layer 3 stripe tiles for various symbols
+			!StatusBarSlashCharacterTileNumb = $29		;>Slash tile number (status bar, now OWB!)
+			!StatusBarBlankTile = $FC			;>Don't change! just in case if you installed a status bar patch that relocated the blank tile.
+			!StatusBarDotTile = $24
+			!StatusBarPercentTile = $2A
+			!StatusBarPlusSymbol = $2B
+			!StatusBarMinusSymbol = $27			;>A symbol used to display negative numbers (signed hexdec).
+			!StatusBarColon = $78				;>Used by course clear and this ASM resource's timer
+			;8x16 characters
+				!StatusBar8x16TopSlash = $2C
+				!StatusBar8x16BottomSlash = $2D
+			
+			!StatusBar_TileProp = %00111000
+			
+			!StatusBar_RepeatedSymbols_FullTile = $2E
+			!StatusBar_RepeatedSymbols_FullProp = %00111000
+			!StatusBar_RepeatedSymbols_EmptyTile = $26
+			!StatusBar_RepeatedSymbols_EmptyProp = %00111000
+		;Overworld border tiles for various symbols
+			!OverWorldBorderSlashCharacterTileNumb = $91
+			!OverWorldBorderBlankTile = $1F
+			!OverWorldBorderDotTile = $93
+			!OverWorldBorderPercentTile = $92
+			!OverWorldBorderPlusSymbol = $15
+			!OverWorldBorderMinusSymbol = $14
+			
+			
+			!OverWorldBorder_TileProp = %00111001
+		;Misc
+			!TileNumb_PercentSymbol = $2A
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Other (don't touch)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

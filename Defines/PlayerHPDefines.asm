@@ -169,7 +169,9 @@ incsrc "StatusBarDefines.asm"
 		; 1 = display a percentage bar
 
 	!Setting_PlayerHP_DisplayNumericalOverworld	= 2
-		;^Same as above, but for overworld
+		;^Same as !Setting_PlayerHP_DisplayNumericalLevel, but for overworld
+	!Setting_PlayerHP_DisplayBarOverworld = 1
+		;^Same as !Setting_PlayerHP_DisplayBarLevel, but for overworld
 
 	!Setting_PlayerHP_DigitsAlignLevel		= 1
 		;^How digits are displayed in levels.
@@ -222,7 +224,7 @@ incsrc "StatusBarDefines.asm"
 		!PlayerHP_TileProp_Level_Text_Page = 0		;>Valid values: 0-3
 		!PlayerHP_TileProp_Level_Text_Palette = 6	;>Valid values: 0-7
 		
-		!PlayerHP_TileProp_Ow_Text_Page = 0		;>Valid values: 0-3
+		!PlayerHP_TileProp_Ow_Text_Page = 1		;>Valid values: 0-3
 		!PlayerHP_TileProp_Ow_Text_Palette = 6		;>Valid values: 0-7
 
 	;small and Large HP settings:
@@ -506,6 +508,9 @@ incsrc "StatusBarDefines.asm"
 			!PlayerHP_Digit_StatBarPos = VanillaStatusBarXYToAddress(!PlayerHP_StringPos_Lvl_x, !PlayerHP_StringPos_Lvl_y, !RAM_0EF9)
 			!PlayerHP_Digit_StatBarPos_RightAligned = !VanillaStatusBarXYToAddress(!PlayerHP_StringPosRightAligned_Lvl_x, !PlayerHP_StringPosRightAligned_Lvl_y, !RAM_0EF9)
 			!PlayerHP_Digit_OverworldBorderPos = PatchedStatusBarXYToAddress(!PlayerHP_StringPos_Owb_x, !PlayerHP_StringPos_Owb_y, !OverworldBorderPatchAddr_Tile, $02)
+			!PlayerHP_Digit_OverworldBorderPosProp = PatchedStatusBarXYToAddress(!PlayerHP_StringPos_Owb_x, !PlayerHP_StringPos_Owb_y, !OverworldBorderPatchAddr_Prop, $02)
+			!PlayerHP_Digit_OverworldBorderPos_RightAligned = PatchedStatusBarXYToAddress(!PlayerHP_StringPosRightAligned_Owb_x, !PlayerHP_StringPosRightAligned_Owb_y, !OverworldBorderPatchAddr_Tile, $02)
+			!PlayerHP_Digit_OverworldBorderPos_RightAlignedProp = PatchedStatusBarXYToAddress(!PlayerHP_StringPosRightAligned_Owb_x, !PlayerHP_StringPosRightAligned_Owb_y, !OverworldBorderPatchAddr_Prop, $02)
 			!Setting_PlayerHP_BarPosOverworld = PatchedStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Owb_x, !PlayerHP_GraphicalBarPos_Owb_y, !OverworldBorderPatchAddr_Tile, $02)
 			!Setting_PlayerHP_BarPosLevel = VanillaStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Lvl_x, !PlayerHP_GraphicalBarPos_Lvl_y, !RAM_0EF9)
 			if !UsingCustomStatusBar != 0

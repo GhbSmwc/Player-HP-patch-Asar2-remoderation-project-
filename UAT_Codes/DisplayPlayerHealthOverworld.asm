@@ -1,0 +1,206 @@
+incsrc "../GraphicalBarDefines.asm"
+incsrc "../PlayerHPDefines.asm"
+incsrc "../StatusBarDefines.asm"
+incsrc "../NumberDisplayRoutinesDefines.asm"
+incsrc "../MotherHPDefines.asm"
+macro WriteFixedDigitsToLayer3(TileLocation, TileLocationProp)
+	LDX.b #((!Setting_PlayerHP_MaxDigits-1)*2)
+	LDY.b #(!Setting_PlayerHP_MaxDigits-1)
+	-
+	LDA.w !Scratchram_16bitHexDecOutput+$04-(!Setting_PlayerHP_MaxDigits-1)|!dp,y
+	STA <TileLocation>,x
+	LDA.b #!PlayerHP_TileProp_Ow_Text
+	STA <TileLocationProp>,x
+	DEY
+	DEX #2
+	BPL -
+endmacro
+
+macro WriteTileAddress(TileLocation, PropLocation)
+	LDA.b #<TileLocation>
+	STA $00
+	LDA.b #<TileLocation>>>8
+	STA $01
+	LDA.b #<TileLocation>>>16
+	STA $02
+	if !StatusBar_UsingCustomProperties != 0
+		LDA.b #<PropLocation>
+		STA $03
+		LDA.b #<PropLocation>>>8
+		STA $04
+		LDA.b #<PropLocation>>>16
+		STA $05
+		LDA.b #!PlayerHP_TileProp_Ow_Text
+		STA $06
+	endif
+endmacro
+
+macro GetHealthDigits(ValueToDisplay)
+	if !Setting_PlayerHP_TwoByte == 0
+		LDA <ValueToDisplay>
+		STA $00
+		STZ $01
+		%UberRoutine(SixteenBitHexDecDivision)
+	else
+		REP #$20
+		LDA <ValueToDisplay>
+		STA $00
+		SEP #$20
+		%UberRoutine(SixteenBitHexDecDivision)
+	endif
+endmacro
+
+	!StaticSlashTileExist = and(equal(!Setting_PlayerHP_DigitsAlignOverworld,0), equal(!Setting_PlayerHP_DisplayNumericalOverworld, 2))
+
+
+if !StaticSlashTileExist
+	init:
+		;When displaying 2 numbers without aligned characters (not using left or right aligned, this writes a slash in between the two numbers)
+		if !StaticSlashTileExist
+			LDA #!OverWorldBorderSlashCharacterTileNumb
+			STA !PlayerHP_Digit_OverworldBorderPos+((!Setting_PlayerHP_MaxDigits)*$02)
+			LDA.b #!PlayerHP_TileProp_Ow_Text
+			STA !PlayerHP_Digit_OverworldBorderPosProp+((!Setting_PlayerHP_MaxDigits)*$02)
+		endif
+		;This initializes !Freeram_PlayerHP_BarRecord so that when entering a level, the bar instantly represents just your current HP.
+		if !Setting_PlayerHP_DisplayBarOverworld
+			JSR SetGraphicalBarAttributesAndPercentage
+			LDA $00
+			STA !Freeram_PlayerHP_BarRecord
+		endif
+		RTL
+endif
+main:
+	.WriteHPString
+		wdm
+		;Detect user trying to make a right-aligned single number (which avoids unnecessarily uses suppress leading zeroes)
+			!IsUsingRightAlignedSingleNumber = and(equal(!Setting_PlayerHP_DigitsAlignOverworld, 2),equal(!Setting_PlayerHP_DisplayNumericalOverworld, 1))
+		if !Setting_PlayerHP_DisplayNumericalOverworld != 0 ;User allows display HP numerically
+			;Clear the tiles. To prevent leftover "ghost" tiles that should've
+			;disappear when the number of digits decreases (so when "10" becomes "9",
+			;won't display "90").
+			if !Setting_PlayerHP_DigitsAlignOverworld != 0
+				LDX.b #(((!Setting_PlayerHP_MaxDigits*2)+1)-1)*$02	;>2 Setting_PlayerHP_MaxDigits due to 2 numbers displayed, plus 1 because of the "/" symbol.
+				-
+				LDA #!OverWorldBorderBlankTile
+				if !Setting_PlayerHP_DigitsAlignOverworld == 1
+					STA !PlayerHP_Digit_OverworldBorderPos,x
+				elseif !Setting_PlayerHP_DigitsAlignOverworld == 2
+					STA !PlayerHP_Digit_OverworldBorderPos_RightAligned-((((!Setting_PlayerHP_MaxDigits*2)+1)-1)*$02),x
+				endif
+				LDA.b #!PlayerHP_TileProp_Ow_Text
+				if !Setting_PlayerHP_DigitsAlignOverworld == 1
+					STA !PlayerHP_Digit_OverworldBorderPosProp,x
+				elseif !Setting_PlayerHP_DigitsAlignOverworld == 2
+					STA !PlayerHP_Digit_OverworldBorderPos_RightAlignedProp-((((!Setting_PlayerHP_MaxDigits*2)+1)-1)*$02),x
+				endif
+				DEX #$02
+				BPL -
+			endif
+			if or(equal(!Setting_PlayerHP_DigitsAlignOverworld, 0), equal(!IsUsingRightAlignedSingleNumber, 1)) ;fixed digit location
+				%GetHealthDigits(!Freeram_PlayerCurrHP)
+				%UberRoutine(RemoveLeadingZeroes16Bit)
+				%UberRoutine(SixteenBitHexDecDivisionToOWB)
+				%WriteFixedDigitsToLayer3(!PlayerHP_Digit_OverworldBorderPos, !PlayerHP_Digit_OverworldBorderPosProp)
+				if !Setting_PlayerHP_DisplayNumericalOverworld == 2
+					%GetHealthDigits(!Freeram_PlayerMaxHP)
+					%UberRoutine(RemoveLeadingZeroes16Bit)
+					%UberRoutine(SixteenBitHexDecDivisionToOWB)
+					%WriteFixedDigitsToLayer3(!PlayerHP_Digit_OverworldBorderPos+((!Setting_PlayerHP_MaxDigits+1)*$02), !PlayerHP_Digit_OverworldBorderPosProp+((!Setting_PlayerHP_MaxDigits+1)*$02))
+				endif
+			elseif and(greaterequal(!Setting_PlayerHP_DigitsAlignOverworld, 1), lessequal(!Setting_PlayerHP_DigitsAlignOverworld, 2)) ;left/right-aligned
+				%GetHealthDigits(!Freeram_PlayerCurrHP)
+				LDX #$00
+				%UberRoutine(SuppressLeadingZeroes)
+				if !Setting_PlayerHP_DisplayNumericalOverworld == 2 ;Displaying Current/Max
+					wdm
+					LDA #!StatusBarSlashCharacterTileNumb
+					STA !Scratchram_CharacterTileTable,x
+					INX
+					%GetHealthDigits(!Freeram_PlayerMaxHP)
+					%UberRoutine(SuppressLeadingZeroes)
+				endif
+				%UberRoutine(ConvertAlignedDigitToOWB)
+				if !Setting_PlayerHP_ExcessDigitProt != 0
+					CPX.b #(((!Setting_PlayerHP_MaxDigits*2)+1)+1)
+					BCS ..TooMuchChar
+				endif
+				if !Setting_PlayerHP_DigitsAlignOverworld == 1
+					%WriteTileAddress(!PlayerHP_Digit_OverworldBorderPos, !PlayerHP_Digit_OverworldBorderPosProp)
+				elseif !Setting_PlayerHP_DigitsAlignOverworld == 2
+					%WriteTileAddress(!PlayerHP_Digit_OverworldBorderPos_RightAligned, !PlayerHP_Digit_OverworldBorderPos_RightAlignedProp)
+				endif
+				if !Setting_PlayerHP_DigitsAlignOverworld == 2 ;Right-aligned
+					if $02 == $01
+						%UberRoutine(ConvertToRightAligned)
+					else
+						%UberRoutine(ConvertToRightAlignedFormat2)
+					endif
+				endif
+				%UberRoutine(WriteStringDigitsToHUDFormat2)
+				
+			endif
+	endif
+		..TooMuchChar
+	.WriteGraphicalBar
+	if !Setting_PlayerHP_DisplayBarOverworld
+		..HandleTimersAndPreviousHPDisplay
+			JSR SetGraphicalBarAttributesAndPercentage	;>$00~$01 = current HP percentage
+			%UberRoutine(GraphicalBar_RoundAwayEmptyFull)
+			...WriteBar
+				%UberRoutine(GraphicalBar_DrawGraphicalBarSubtractionLoopEdition)
+			STZ $00					;>Use level sets of fill tiles
+			%UberRoutine(GraphicalBar_ConvertBarFillAmountToTiles)
+		..WriteToHUD
+			LDA.b #!Setting_PlayerHP_BarPosLevel
+			STA $00
+			LDA.b #!Setting_PlayerHP_BarPosLevel>>8
+			STA $01
+			LDA.b #!Setting_PlayerHP_BarPosLevel>>16
+			STA $02
+			if !StatusBar_UsingCustomProperties != 0
+				LDA.b #!Setting_PlayerHP_BarPosLevelProp
+				STA $03
+				LDA.b #!Setting_PlayerHP_BarPosLevelProp>>8
+				STA $04
+				LDA.b #!Setting_PlayerHP_BarPosLevelProp>>16
+				STA $05
+				if !Setting_PlayerHP_LeftwardsBarLevel == 0
+					LDA.b #!PlayerHP_BarProps_Lvl
+				else
+					LDA.b #(!PlayerHP_BarProps_Lvl|(!Setting_PlayerHP_LeftwardsBarLevel<<6))
+				endif
+				STA $06
+			endif
+			if !Setting_PlayerHP_LeftwardsBarLevel == 0
+				%UberRoutine(GraphicalBar_WriteToStatusBar_Format2)
+			else
+				%UberRoutine(GraphicalBar_WriteToStatusBarLeftwards_Format2)
+			endif
+	endif
+	RTL
+	
+	if !Setting_PlayerHP_DisplayBarOverworld
+		SetGraphicalBarAttributesAndPercentage:
+			;$00~$01 = percentage
+			LDA !Freeram_PlayerCurrHP
+			STA !Scratchram_GraphicalBar_FillByteTbl
+			LDA !Freeram_PlayerMaxHP
+			STA !Scratchram_GraphicalBar_FillByteTbl+2
+			if !Setting_PlayerHP_TwoByte != 0
+				LDA !Freeram_PlayerCurrHP+1
+				STA !Scratchram_GraphicalBar_FillByteTbl+1
+				LDA !Freeram_PlayerMaxHP+1
+				STA !Scratchram_GraphicalBar_FillByteTbl+3
+			endif
+			LDA.b #!Default_LeftPieces				;\Left end normally have 3 pieces.
+			STA !Scratchram_GraphicalBar_LeftEndPiece		;/
+			LDA.b #!Default_MiddlePieces				;\Number of pieces in each middle byte/8x8 tile
+			STA !Scratchram_GraphicalBar_MiddlePiece		;/
+			LDA.b #!Default_RightPieces				;\Right end
+			STA !Scratchram_GraphicalBar_RightEndPiece		;/
+			LDA.b #!Default_MiddleLengthLevel			;\length (number of middle tiles)
+			STA !Scratchram_GraphicalBar_TempLength			;/
+			%UberRoutine(GraphicalBar_CalculatePercentage)
+			RTS
+	endif
