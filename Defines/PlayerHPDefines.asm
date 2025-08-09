@@ -439,6 +439,9 @@ incsrc "StatusBarDefines.asm"
 	;Tile props
 		!Setting_PlayerHP_BarProps_Lvl_Page = 0                 ;>Use only values 0-3
 		!Setting_PlayerHP_BarProps_Lvl_Palette = 6              ;>Use only values 0-7
+		
+		!Setting_PlayerHP_BarProps_Owb_Page = 1                 ;>Use only values 0-3
+		!Setting_PlayerHP_BarProps_Owb_Palette = 6              ;>Use only values 0-7
 
 	;Display empty bar when there is very low HP but not zero:
 		!Setting_PlayerHP_BarAvoidRoundToZero	= 1
@@ -512,6 +515,7 @@ incsrc "StatusBarDefines.asm"
 			!PlayerHP_Digit_OverworldBorderPos_RightAligned = PatchedStatusBarXYToAddress(!PlayerHP_StringPosRightAligned_Owb_x, !PlayerHP_StringPosRightAligned_Owb_y, !OverworldBorderPatchAddr_Tile, $02)
 			!PlayerHP_Digit_OverworldBorderPos_RightAlignedProp = PatchedStatusBarXYToAddress(!PlayerHP_StringPosRightAligned_Owb_x, !PlayerHP_StringPosRightAligned_Owb_y, !OverworldBorderPatchAddr_Prop, $02)
 			!Setting_PlayerHP_BarPosOverworld = PatchedStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Owb_x, !PlayerHP_GraphicalBarPos_Owb_y, !OverworldBorderPatchAddr_Tile, $02)
+			!Setting_PlayerHP_BarPosOverworldProp = PatchedStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Owb_x, !PlayerHP_GraphicalBarPos_Owb_y, !OverworldBorderPatchAddr_Prop, $02)
 			!Setting_PlayerHP_BarPosLevel = VanillaStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Lvl_x, !PlayerHP_GraphicalBarPos_Lvl_y, !RAM_0EF9)
 			if !UsingCustomStatusBar != 0
 				!PlayerHP_Digit_StatBarPos = PatchedStatusBarXYToAddress(!PlayerHP_StringPos_Lvl_x, !PlayerHP_StringPos_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
@@ -525,6 +529,7 @@ incsrc "StatusBarDefines.asm"
 			!PlayerHP_TileProp_Level_Text = GetLayer3YXPCCCTT(0, 0, 1, !PlayerHP_TileProp_Level_Text_Palette, !PlayerHP_TileProp_Level_Text_Page)
 			!PlayerHP_TileProp_Ow_Text = GetLayer3YXPCCCTT(0, 0, 1, !PlayerHP_TileProp_Ow_Text_Palette, !PlayerHP_TileProp_Ow_Text_Page)
 			!PlayerHP_BarProps_Lvl = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_BarProps_Lvl_Palette, !Setting_PlayerHP_BarProps_Lvl_Page)
+			!PlayerHP_BarProps_Ow = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_BarProps_Owb_Palette, !Setting_PlayerHP_BarProps_Owb_Page)
 
 	;Failsafe
 		assert !Setting_playerHP_MidwayRecoveryDividend != 0, "Invalid Dividend"

@@ -72,7 +72,6 @@ if !StaticSlashTileExist
 endif
 main:
 	.WriteHPString
-		wdm
 		;Detect user trying to make a right-aligned single number (which avoids unnecessarily uses suppress leading zeroes)
 			!IsUsingRightAlignedSingleNumber = and(equal(!Setting_PlayerHP_DigitsAlignOverworld, 2),equal(!Setting_PlayerHP_DisplayNumericalOverworld, 1))
 		if !Setting_PlayerHP_DisplayNumericalOverworld != 0 ;User allows display HP numerically
@@ -113,7 +112,6 @@ main:
 				LDX #$00
 				%UberRoutine(SuppressLeadingZeroes)
 				if !Setting_PlayerHP_DisplayNumericalOverworld == 2 ;Displaying Current/Max
-					wdm
 					LDA #!StatusBarSlashCharacterTileNumb
 					STA !Scratchram_CharacterTileTable,x
 					INX
@@ -147,32 +145,32 @@ main:
 		..HandleTimersAndPreviousHPDisplay
 			JSR SetGraphicalBarAttributesAndPercentage	;>$00~$01 = current HP percentage
 			%UberRoutine(GraphicalBar_RoundAwayEmptyFull)
-			...WriteBar
-				%UberRoutine(GraphicalBar_DrawGraphicalBarSubtractionLoopEdition)
-			STZ $00					;>Use level sets of fill tiles
+			%UberRoutine(GraphicalBar_DrawGraphicalBarSubtractionLoopEdition)
+			LDA #$02				;\Use overworld sets of fill tiles
+			STA $00					;/
 			%UberRoutine(GraphicalBar_ConvertBarFillAmountToTiles)
 		..WriteToHUD
-			LDA.b #!Setting_PlayerHP_BarPosLevel
+			LDA.b #!Setting_PlayerHP_BarPosOverworld
 			STA $00
-			LDA.b #!Setting_PlayerHP_BarPosLevel>>8
+			LDA.b #!Setting_PlayerHP_BarPosOverworld>>8
 			STA $01
-			LDA.b #!Setting_PlayerHP_BarPosLevel>>16
+			LDA.b #!Setting_PlayerHP_BarPosOverworld>>16
 			STA $02
 			if !StatusBar_UsingCustomProperties != 0
-				LDA.b #!Setting_PlayerHP_BarPosLevelProp
+				LDA.b #!Setting_PlayerHP_BarPosOverworldProp
 				STA $03
-				LDA.b #!Setting_PlayerHP_BarPosLevelProp>>8
+				LDA.b #!Setting_PlayerHP_BarPosOverworldProp>>8
 				STA $04
-				LDA.b #!Setting_PlayerHP_BarPosLevelProp>>16
+				LDA.b #!Setting_PlayerHP_BarPosOverworldProp>>16
 				STA $05
-				if !Setting_PlayerHP_LeftwardsBarLevel == 0
-					LDA.b #!PlayerHP_BarProps_Lvl
+				if !Setting_PlayerHP_LeftwardsBarOverworld == 0
+					LDA.b #!PlayerHP_BarProps_Ow
 				else
-					LDA.b #(!PlayerHP_BarProps_Lvl|(!Setting_PlayerHP_LeftwardsBarLevel<<6))
+					LDA.b #(!PlayerHP_BarProps_Ow|(!Setting_PlayerHP_LeftwardsBarOverworld<<6))
 				endif
 				STA $06
 			endif
-			if !Setting_PlayerHP_LeftwardsBarLevel == 0
+			if !Setting_PlayerHP_LeftwardsBarOverworld == 0
 				%UberRoutine(GraphicalBar_WriteToStatusBar_Format2)
 			else
 				%UberRoutine(GraphicalBar_WriteToStatusBarLeftwards_Format2)
