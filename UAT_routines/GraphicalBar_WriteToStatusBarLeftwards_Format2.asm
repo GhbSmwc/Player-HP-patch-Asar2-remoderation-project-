@@ -1,5 +1,5 @@
-	incsrc "../GraphicalBarDefines/GraphicalBarDefines.asm"
-	incsrc "../GraphicalBarDefines/StatusBarDefines.asm"
+	incsrc "../GraphicalBarDefines.asm"
+	incsrc "../StatusBarDefines.asm"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Same as WriteBarToHUD, but fills leftwards as opposed to
 ;rightwards.

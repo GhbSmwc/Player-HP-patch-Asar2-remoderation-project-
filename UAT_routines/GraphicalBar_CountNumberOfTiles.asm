@@ -1,4 +1,4 @@
-incsrc "../GraphicalBarDefines/GraphicalBarDefines.asm"
+incsrc "../GraphicalBarDefines.asm"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Count tiles.
 ;Input:

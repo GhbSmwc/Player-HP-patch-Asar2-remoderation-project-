@@ -12,8 +12,8 @@
 ;^Use CTRL+F to find them.
 
 incsrc "Defines/SA1Stuff.asm"
-incsrc "Defines/PlayerHPDef.asm"
-incsrc "Defines/MotherHP.asm"
+incsrc "Defines/PlayerHPDefines.asm"
+incsrc "Defines/MotherHPDefines.asm"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;hijacks:
@@ -176,8 +176,6 @@ freecode
 			JSL MathDiv32_16 ;>$00 should be <= $FFFF
 		endif
 		;Rounding to nearest integer
-		
-		math round off
 		
 		.Round
 		REP #$20

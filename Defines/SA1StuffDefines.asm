@@ -1,3 +1,4 @@
+includeonce
 ;Don't touch these unless you know what you're doing.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;SA-1 handling

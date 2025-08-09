@@ -1,5 +1,5 @@
-	incsrc "../GraphicalBarDefines/GraphicalBarDefines.asm"
-	incsrc "../GraphicalBarDefines/StatusBarDefines.asm"
+	incsrc "../GraphicalBarDefines.asm"
+	incsrc "../StatusBarDefines.asm"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;This routine directly writes the tile to the status bar or
 ;overworld border plus, filling left to right.

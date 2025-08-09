@@ -1,4 +1,4 @@
-	incsrc "../GraphicalBarDefines/GraphicalBarDefines.asm"
+	incsrc "../GraphicalBarDefines.asm"
 ?GetMaxBarInAForRoundToMaxCheck:
 	;Must be called with 16-bit A.
 	;Get the full number of pieces (for checking if rounding a number between Max-1 and Max to Max.)

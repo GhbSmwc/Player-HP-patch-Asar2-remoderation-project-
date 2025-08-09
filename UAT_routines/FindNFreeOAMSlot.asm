@@ -1,4 +1,4 @@
-incsrc "../GraphicalBarDefines/GraphicalBarDefines.asm"
+incsrc "../GraphicalBarDefines.asm"
 		?FindNFreeOAMSlot:
 			;Input: $04 = Number of slots open to search for
 			;Output: Carry = Set if not enough slots found, Clear if enough slots found

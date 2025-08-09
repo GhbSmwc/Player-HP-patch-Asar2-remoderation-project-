@@ -1,4 +1,4 @@
-	incsrc "../GraphicalBarDefines/GraphicalBarDefines.asm"
+	incsrc "../GraphicalBarDefines.asm"
 	if !CPUMode == 0
 		;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 		; 16bit * 16bit unsigned Multiplication

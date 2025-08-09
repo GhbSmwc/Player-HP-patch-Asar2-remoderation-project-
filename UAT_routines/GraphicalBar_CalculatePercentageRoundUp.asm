@@ -1,4 +1,4 @@
-incsrc "../GraphicalBarDefines/GraphicalBarDefines.asm"
+incsrc "../GraphicalBarDefines.asm"
 ?CalculateGraphicalBarPercentageRoundUp:
 	%UberRoutine(GraphicalBar_CalculatePercentageRoundDown)
 	REP #$20

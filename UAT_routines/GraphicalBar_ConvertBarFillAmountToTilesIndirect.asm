@@ -1,5 +1,5 @@
-	incsrc "../GraphicalBarDefines/GraphicalBarDefines.asm"
-	incsrc "../GraphicalBarDefines/StatusBarDefines.asm"
+	incsrc "../GraphicalBarDefines.asm"
+	incsrc "../StatusBarDefines.asm"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Convert bar fill amounts to tiles, indirect addressing table edition,
 ;Unlike ConvertBarFillAmountToTiles, which $00 represent which presets

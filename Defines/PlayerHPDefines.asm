@@ -1,3 +1,7 @@
+if defined("sa1") == 0
+	incsrc "SA1StuffDefines.asm"
+endif
+incsrc "StatusBarDefines.asm"
 ;This is the main defines file.
 ;Be sure to check out the others defines for customizations.
 ;
@@ -202,34 +206,9 @@
 			!PlayerHP_StringPos_Owb_x = 7
 			!PlayerHP_StringPos_Owb_y = 1
 
-	;Blank Tile. If you're using an opaque background
-	;and have wrong palettes, look for these defines
-	;in [UberasmToolFiles/library] and add a code to
-	;set the properties for the status bar.
-	;
-	;Tile properties: YXPCCCTT;
-	;Y = Y-flip
-	;X = X-flip
-	;P = priority
-	;CCC = palette
-	;TT = page number
-		!PlayerHP_DigitBlankTileNumberLevel		= $FC
-			;^The blank tile to appear when there are
-			; less digits than the maximum digits to be displayed
-			; (to remove leading zeros and to remove duplicate
-			; tiles when aligned digits are enabled (left or right)).
-
-		!PlayerHP_DigitBlankTileNumberOverworld	= $FE
-			;^Same as above, but for overworld
 	;Overworld tile properties for blank tiles (these are for CCC and TT of YXPCCCTT):
 		!PlayerHP_DigitBlankTileProp_Page = 0		;>Enter only values 0-3
 		!PlayerHP_DigitBlankTileProp_Palette = 6	;>Enter only values 0-7
-	;Prefix max HP (when showing 2 numbers, current and max HP,
-	;writes a tile in between).
-		!PlayerHP_MaxHPPrefixTileNumberLevel		= $48
-			;^The "/" symbol tile number to prefix the player's Max HP.
-		!PlayerHP_MaxHPPrefixTileNumberOverworld	= $91
-			;^Same as above, but for overworld.
 		;Tile properties for "/"
 			!PlayerHP_MaxHPPrefixTileProp_Overworld_Page = 1	;>Enter only values 0-3
 			!PlayerHP_MaxHPPrefixTileProp_Overworld_Palette = 6	;>Enter only values 0-7
@@ -520,8 +499,8 @@
 			!Setting_PlayerHP_BarPosOverworld = PatchedStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Owb_x, !PlayerHP_GraphicalBarPos_Owb_y, !OverworldBorderPatchAddr_Tile, $02)
 			!Setting_PlayerHP_BarPosLevel = VanillaStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Lvl_x, !PlayerHP_GraphicalBarPos_Lvl_y, !RAM_0EF9)
 			if !UsingCustomStatusBar != 0
-				!PlayerHP_Digit_StatBarPos = PatchedStatusBarXYToAddress(!PlayerHP_StringPos_Lvl_x, !PlayerHP_StringPos_Lvl_y, !StatusBarPatchAddr_Tile, !StatusBarFormat)
-				!Setting_PlayerHP_BarPosLevel = PatchedStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Lvl_x, !PlayerHP_GraphicalBarPos_Lvl_y, !StatusBarPatchAddr_Tile, !StatusBarFormat)
+				!PlayerHP_Digit_StatBarPos = PatchedStatusBarXYToAddress(!PlayerHP_StringPos_Lvl_x, !PlayerHP_StringPos_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
+				!Setting_PlayerHP_BarPosLevel = PatchedStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Lvl_x, !PlayerHP_GraphicalBarPos_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
 			endif
 		;Calculate tile properties
 			!PlayerHP_DigitBlankTilePropertiesOverworld = GetLayer3YXPCCCTT(0, 0, 1, !PlayerHP_DigitBlankTileProp_Palette, !PlayerHP_DigitBlankTileProp_Page)

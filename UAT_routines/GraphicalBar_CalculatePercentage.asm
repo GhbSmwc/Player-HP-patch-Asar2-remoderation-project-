@@ -1,4 +1,4 @@
-	incsrc "../GraphicalBarDefines/GraphicalBarDefines.asm"
+	incsrc "../GraphicalBarDefines.asm"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Calculate ratio of Quantity/MaxQuantity to FilledPieces/TotalMaxPieces.
 ;

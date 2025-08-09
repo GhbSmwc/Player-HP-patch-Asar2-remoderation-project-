@@ -1,4 +1,4 @@
-	incsrc "../GraphicalBarDefines/GraphicalBarDefines.asm"
+	incsrc "../GraphicalBarDefines.asm"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Convert amount of fill to each fill per byte, repeated subtraction edition.
 ;

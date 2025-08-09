@@ -1,4 +1,4 @@
-incsrc "../GraphicalBarDefines/GraphicalBarDefines.asm"
+incsrc "../GraphicalBarDefines.asm"
 ?CalculateGraphicalBarPercentageRoundDown:
 	;This is the main calculation for all 3 variations of CalculateGraphicalBarPercentage, prior to modifying the quantity amount.
 	;Integer division always rounds down, by default. Any rounding besides down require checking the remainder.

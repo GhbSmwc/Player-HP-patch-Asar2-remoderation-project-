@@ -2,7 +2,7 @@ includeonce ;>Needed because functions cannot be redefined (asar will error out)
 
 !UsingCustomStatusBar = 1 ;>Set to 0 if you are using vanilla status bar, 1 if using custom status bar patch
 !StatusBar_UsingCustomProperties = 1 ;>Set this to 0 if you don't want to modify tile properties, otherwise set to 1
-!StatusBarFormat = $02
+!StatusbarFormat = $02
 	;^Number of grouped bytes per 8x8 tile for the status bar (not the overworld border):
 	; $01 = each 8x8 tile have two bytes each separated into "tile numbers" and "tile properties" group;
 	;       Minimalist/SMB3 [TTTTTTTT, TTTTTTTT]...[YXPCCCTT, YXPCCCTT] or SMW's default ([TTTTTTTT] only).
