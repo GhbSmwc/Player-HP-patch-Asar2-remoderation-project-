@@ -25,12 +25,23 @@
 				filter: FlipH;
 				-ms-filter: "FlipH";
 			}
+			div.CodeBlock {
+				overflow: auto;
+				width: 1000px;
+				height: 500px;
+				border: 1px solid white;
+				resize: both;
+				background-color: #101010;
+			}
+			pre {
+				margin: 0px;
+			}
 		</style>
 	</head>
 <body style="max-width: 1000px; margin: auto; padding: 15px">
 
 <center><h1>Player HP meter</h1></center>
-<center><h2>By <a href="https://www.smwcentral.net/?p=profile&id=18802">GreenHammerBro</a></h2></center>
+<center><h2>By <a href="https://www.smwcentral.net/?p=profile&id=18802">HammerBrother</a></h2></center>
 
 This package installs a health system to SMW for the player character (Mario). Started out with
 <i><a href="https://www.smwcentral.net/?p=section&a=details&id=11345">Numerical Health Bar</a></i> as a base work, I've added
@@ -61,66 +72,73 @@ patches should also work, make sure you understand how they work, this includes 
 numbers, etc) as well as editing the status bar code included in this package.)</li>
 <li><a href="https://www.smwcentral.net/?p=section&a=details&id=14762">SRAM and BW-RAM Plus patch</a> To prevent uninitialized (garbage) HP values.</li>
 </ul>
+<h2>Notes</h2>
+<ul>
+	<li>To easily copy codes and blocks of text inside boxes, hold down CTRL and double-click to &ldquo;select all&rdquo; automatically. You can then copy the text easily afterwards via CTRL+C</li>
+</ul>
+
 <h2>Installation</h2>
 <ol>
 <li>ASM-related</li>
 <ol>
 <li>Make any changes in the define files (Inside <kbd>Defines</kbd> folder) as needed, as it is possible to have one patch conflict the
 RAM address with another. If you make any changes after copying and pasting them in other code-related items to use this patch, make sure they're
-up-to-date and reinsert <b>all of</b> them (if you don't they bug out using outdated information). You'll be pasting the folder containing the
-defines and <kbd>incsrc</kbd>'ing in any places that would need the player HP patch to function with.<br><br>
+up-to-date and reinsert <b>all of</b> them (if you don't they bug out using outdated information). You'll be pasting the individual defines ASM files (not the folder itself
+containing all of them) and <kbd>incsrc</kbd>'ing in any places that would need the player HP patch to function with.<br><br>
+
+Now you may be wondering why I have multiple defines file and that some defines are not intuitively in some ASM files. This is because this system uses a potentially general-purpose
+routines (the graphical bar and string-handling system) that can be used for anything other than player HP.<br><br>
 
 The description regarding how much bytes freeram they take are mostly formula-based due to the fact that they vary in size. For example:
 <table><tr><td><pre>
- if !sa1 == 0
-  !Freeram_PlayerCurrHP		= $7FAD49 ;>Normal ROM version
- else
-  !Freeram_PlayerCurrHP		= $4001B9 ;>SA-1 Version
- endif
- ;^[BytesUsed = 1 + !Setting_PlayerHP_TwoByte]
+;[BytesUsed = 1 + !Setting_PlayerHP_TwoByte]
+;Player current HP.
+	if !sa1 == 0
+		!Freeram_PlayerCurrHP		= $7FAD49 ;>Normal ROM version
+	else
+		!Freeram_PlayerCurrHP		= $4001B9 ;>SA-1 Version
+	endif
  
-[...]
+;[...]
 
- ;small and Large HP settings:
-  !Setting_PlayerHP_TwoByte	= 1
-  ;^How many bytes does the player's HP uses:
-  ; 0 = 8-bit HP (HP up to 255)
-  ; 1 = 16-bit (HP up to 65535).
+		;Size of the player's HP:
+		; - 0 = 8-bit HP (HP up to 255)
+		; - 1 = 16-bit (HP up to 65535).
+			!Setting_PlayerHP_TwoByte	= 1
 </pre></td></tr></table>
 So the bytes used could be <kbd>1 + 0 = 1 byte</kbd> for 8-bit health and <kbd>1 + 1 = 2 bytes</kbd> 16-bit health. Should you have the value 0 as a result in any formula,
 that that means that the freeram isn't used entirely.</li><br>
 
 <li>In SRAM/BWRAM plus patch:</li><br>
 <ol>
-<li>Paste <kbd>PlayerHPDefines</kbd> folder in the same directory as the SRAM/BWRAM ASM patches are located, then open <kbd>&lt;sram or bwram&gt;_plus.asm</kbd>
+<li>Paste the defines asm files in the same directory as the SRAM/BWRAM ASM patches are located, then open <kbd>&lt;sram or bwram&gt;_plus.asm</kbd>
 and add this to the top of the text:
-<table><tr><td><pre>incsrc "PlayerHPDefines/SA1Stuff.asm"
-incsrc "PlayerHPDefines/PlayerHPDef.asm"
-incsrc "PlayerHPDefines/Mother.asm"</pre></td></tr></table><br>
+<table><tr><td><pre>incsrc "SA1StuffDefines.asm"
+incsrc "PlayerHPDefines.asm"
+incsrc "MotherHPDefines.asm"</pre></td></tr></table><br>
 This will make asar recognize the defines used for the HP meter patch.</li><br>
 
 <li>Inside the table file of the SRAM/BWRAM patch, paste this (assuming you would use sram plus and not the other, but both of them are nearly identical on how to use, so
 expect doing the exact same thing just with the word &ldquo;<kbd>sram</kbd>&rdquo; replaced with &ldquo;<kbd>bwram</kbd>&rdquo;):
-<table><tr><td><pre>
-sram_table:	dl $7E1EA2 : dw $008D ;>keep this here (the comment description on the top even mentions not to remove this).
+<div class="CodeBlock"><pre>sram_table:	dl $7E1EA2 : dw $008D ;&gt;keep this here (the comment description on the top even mentions not to remove this).
 
-		;[...]  ;>If you previously used this patch for other things non-player-HP-related data to be saved
+		;[...]  ;&gt;If you previously used this patch for other things non-player-HP-related data to be saved
 
 		dl !Freeram_PlayerCurrHP : dw (1+!Setting_PlayerHP_TwoByte) ;\Current and max HP. By default RAM addresses, you can merge them together
 		dl !Freeram_PlayerMaxHP  : dw (1+!Setting_PlayerHP_TwoByte) ;/to save additional space
 
-		if !Setting_PlayerHP_RollingHP != 0 ;>include the following Mother/Earthbound HP RAM if the user enables this mode.
-			dl !Freeram_PlayerHP_MotherHPDelayDamageLast : dw $0001                         ;>Delay between each tick of HP of damage as a stat system.
-			dl !Freeram_PlayerHP_MotherHPChanger         : dw (1+!Setting_PlayerHP_TwoByte) ;>Start out as not healing or losing HP
-			dl !Freeram_PlayerHP_MotherHPDelayFrameTimer : dw $0001                         ;>Start the HP tick delay (both damage and heal) at 0.
+		if !Setting_PlayerHP_RollingHP != 0 ;&gt;include the following Mother/Earthbound HP RAM if the user enables this mode.
+			dl !Freeram_PlayerHP_MotherHPDelayDamageLast : dw $0001                         ;&gt;Delay between each tick of HP of damage as a stat system.
+			dl !Freeram_PlayerHP_MotherHPChanger         : dw (1+!Setting_PlayerHP_TwoByte) ;&gt;Start out as not healing or losing HP
+			dl !Freeram_PlayerHP_MotherHPDelayFrameTimer : dw $0001                         ;&gt;Start the HP tick delay (both damage and heal) at 0.
 		endif
 		if !Setting_PlayerHP_GradualHPChange != 0
 			dl !Freeram_PlayerHP_GradualHPChange : dw $0001
 		endif
 		
-		dl !Freeram_PlayerHP_MaxHPUpgradePickupFlag : dw $0010 ;>The pickup bit table to save. The dw number is the number of levels using the upgrade blocks.
+		dl !Freeram_PlayerHP_MaxHPUpgradePickupFlag : dw $0010 ;&gt;The pickup bit table to save. The dw number is the number of levels using the upgrade blocks.
 
-		;[...]  ;>If you are going to have another saved RAM just after the HP data to be saved.
+		;[...]  ;&gt;If you are going to have another saved RAM just after the HP data to be saved.
 		
 .end
 		
@@ -145,26 +163,26 @@ sram_defaults:	db $00,$00,$00,$00,$00,$00,$00,$00
 		
 		;The stuff here is obviously the default values to be initialized when the player starts a new game.
 		
-		;[...]  ;>If you previously used this patch for other things non-player-HP-related data to be saved
+		;[...]  ;&gt;If you previously used this patch for other things non-player-HP-related data to be saved
 		
 		;!PlayerHPDataTableSize is either "db" or "dw" depending if you select 8 or 16-bit HP.
-		!PlayerHPDataTableSize 15     ;>[!Freeram_PlayerCurrHP] (1 to 255 or 65535) Current HP to start with.
-		!PlayerHPDataTableSize 15     ;>[!Freeram_PlayerMaxHP] (1 to 255 or 65535) Max HP to start with.
+		!PlayerHPDataTableSize 15     ;&gt;[!Freeram_PlayerCurrHP] (1 to 255 or 65535) Current HP to start with.
+		!PlayerHPDataTableSize 15     ;&gt;[!Freeram_PlayerMaxHP] (1 to 255 or 65535) Max HP to start with.
 		
 		if !Setting_PlayerHP_RollingHP != 0 
-			db 10                           ;>[!Freeram_PlayerHP_MotherHPDelayDamageLast] (0 to 255) How slow the HP drains. Higher = slower speeds.
-			!PlayerHPDataTableSize 0        ;>[!Freeram_PlayerHP_MotherHPChanger] (must be 0) start the game out not taking damage or healing.
-			db 0                            ;>[!Freeram_PlayerHP_MotherHPDelayFrameTimer] (must be 0) Start game with not having delays on HP ticks.
+			db 10                           ;&gt;[!Freeram_PlayerHP_MotherHPDelayDamageLast] (0 to 255) How slow the HP drains. Higher = slower speeds.
+			!PlayerHPDataTableSize 0        ;&gt;[!Freeram_PlayerHP_MotherHPChanger] (must be 0) start the game out not taking damage or healing.
+			db 0                            ;&gt;[!Freeram_PlayerHP_MotherHPDelayFrameTimer] (must be 0) Start game with not having delays on HP ticks.
 		endif
 		if !Setting_PlayerHP_GradualHPChange != 0
-			db $00                            ;>[!Freeram_PlayerHP_GradualHPChange] (must be 0) start with no healing or damage.
+			db $00                            ;&gt;[!Freeram_PlayerHP_GradualHPChange] (must be 0) start with no healing or damage.
 		endif
 		
 		db $00,$00,$00,$00,$00,$00,$00,$00   ;\[!Freeram_PlayerHP_MaxHPUpgradePickupFlag] pickup table to be defaulted to all 0s. The number of levels using the upgrade blocks
 		db $00,$00,$00,$00,$00,$00,$00,$00   ;/is the number of $00s you must have here (else glitches happen).
 		
-		;[...]  ;>If you are going to have another saved RAM just after the HP data to be saved.
-</pre></td></tr></table><br>
+		;[...]  ;&gt;If you are going to have another saved RAM just after the HP data to be saved.
+</pre></div>
 Just remember, the sram table and the default tables order format corresponds. Meaning if say if you place your lives data first, then powerup data second, then the
 first item after a bunch of zeros (past the <nobr><kbd>db $00,$00,$00,$00,$00</kbd></nobr> on the bottom) would be the default number for the lives data, and after that
 would be the powerup data.<br><br>
@@ -176,7 +194,7 @@ save file for the changes to apply if you already done it.)</li><br>
 </ol>
 
 
-<li>Patch <kbd>PlayerHPPatch_4_0.asm</kbd> into your game. This installs the basic health system itself into your ROM, that itself does not modify other
+<li>Patch <kbd>PlayerHPPatch.asm</kbd> into your game. This installs the basic health system itself into your ROM, that itself does not modify other
 things like the heads-up display (status bar) as codes to be run every frames are tied to uberasm tool to minimize the risk of hijack conflicts (if it
 were to use a separate hijack). Be sure to check out the following informations:<br><br>
 <ul>
@@ -193,34 +211,8 @@ emulators. If your hack doesn't or barely uses the overworld, you can disable th
 <kbd>!Setting_PlayerHP_OverworldDisplay</kbd> to <kbd>0</kbd>.</li><br>
 
 <li>Uberasm tool. This mainly handles codes that runs every frame in either/or level and overworld. This handles HUD to display HP, stun effects, mother/earthbound
-&ldquo;rolling HP&rdquo; (if you enabled that mode), level loading to prevent respawning health upgrade pickups and other things.</li><br>
-<ol>
-
-<li>Inside <kbd>UberasmToolFiles</kbd> folder, paste the files or folders in their corresponding/matching file locations as the uberasm tool files. Easiest method
-is to copy the folders inside of it and simply replace them in uberasm tool. Be aware that it could replace the whole folder and other things NOT matching the
-filenames may be deleted as well (not just the matching names. So copy the files themselves (and not the folder) if thats a problem).</li><br>
-
-<li>Open <kbd>list.txt</kbd>, and paste this code (if you have previous items in the list, don't accidentally remove those):
-
-<table><tr><td><pre>gamemode:
-; Insert files here
-0C		GM0C.asm
-0D		GM0D.asm
-0E		GM0E.asm
-13		GM13.asm
-14		GM14.asm</pre></td></tr></table><br>
-
-level(s) if you plan on having health upgrade blocks in your hack:
-<table><tr><td><pre>103		LVL103.asm
-105		LVL105.asm
-106		LVL106.asm</pre></td></tr></table>
-Note that these are example levels. Feel free to edit them as you wish.<br><br>
-
-Now if you have any ASM codes that already occupy these numbers, you'll have to merge the codes together and make sure that no branches, jumps
-or <kbd>RTL</kbd>s would skip any of these or simply outside these codes. For the sake of organizing the labels, please use sublabels so that it is
-easy to not only to avoid label conflicts, but also have code for one purpose (other than HP-related) and HP-related separated.</li><br>
-
-</ol>
+&ldquo;rolling HP&rdquo; (if you enabled that mode), level loading to prevent respawning health upgrade pickups and other things. Inside the appropriately named folder in this package,
+I laid out where the ASM files should be at (as well as a <kbd>list.txt</kbd> showing what uberasm tool's list should be like).</li><br>
 <li>Custom blocks:</li><br>
 <ol>
 <li>Read <a name="CustomBlocks" href="Readme_files/BlocksReadme.html">this readme</a> for info.</li><br>
