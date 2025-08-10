@@ -1,3 +1,6 @@
+;;This needs to be run under gamemode $0D-$0E so that the meter appears during fade rather
+;;than abruptly after the overworld fully loads.
+
 incsrc "../GraphicalBarDefines.asm"
 incsrc "../PlayerHPDefines.asm"
 incsrc "../StatusBarDefines.asm"
@@ -197,7 +200,7 @@ main:
 			STA !Scratchram_GraphicalBar_MiddlePiece		;/
 			LDA.b #!Default_RightPieces				;\Right end
 			STA !Scratchram_GraphicalBar_RightEndPiece		;/
-			LDA.b #!Default_MiddleLengthLevel			;\length (number of middle tiles)
+			LDA.b #!Default_MiddleLengthOverworld			;\length (number of middle tiles)
 			STA !Scratchram_GraphicalBar_TempLength			;/
 			%UberRoutine(GraphicalBar_CalculatePercentage)
 			RTS

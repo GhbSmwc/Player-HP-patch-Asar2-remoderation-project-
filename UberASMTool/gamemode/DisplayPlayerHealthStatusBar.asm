@@ -1,3 +1,8 @@
+;This needs to be run under gamemode $13-$14 so that the meter appears during fade rather
+;than abruptly after the level fully loads.
+
+;This code displays the player HP (numerical and/or as a bar) on the layer 3 status bar.
+
 incsrc "../GraphicalBarDefines.asm"
 incsrc "../PlayerHPDefines.asm"
 incsrc "../StatusBarDefines.asm"

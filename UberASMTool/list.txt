@@ -1,0 +1,18 @@
+gamemode:
+	;Why these under gamemode instead of levels and overworld?
+	;it's because levels and overworld code only run when they
+	;are fully loaded, this means the meters will abruptly
+	;appear and Mario becoming from small to big when the fading
+	;ends.
+		0C	PlayerHealthNoSmallMario.asm
+		0D	DisplayPlayerHealthOverworld.asm
+		0E	DisplayPlayerHealthOverworld.asm
+		13	DisplayPlayerHealthStatusBar.asm
+		14	DisplayPlayerHealthStatusBar.asm
+
+level:
+*	HandleHPDrainAndKnockback.asm ;>This handles HP going down (rolling effect when enabled) after enemy damages the player, as well as the knockback.
+
+overworld:
+*	RestoreHealthAfterDeath.asm
+		;^This makes sure that on the map, the player cannot have 0HP, and be Small Mario
