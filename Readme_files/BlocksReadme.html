@@ -1,0 +1,301 @@
+<html>
+	<head>
+		<style>
+			html {
+			background-color: #101010;
+			color: rgb(221, 221, 221);
+			font-family: sans-serif;
+			}
+			
+			table, th, td {
+			border: 1px solid white;
+			border-collapse: collapse;
+			}
+			
+			span.NoLineBreak {
+				white-space: nowrap;
+			}
+			
+			abbr{cursor: help;}
+			img.img-hor {
+				-moz-transform: scaleX(-1);
+				-o-transform: scaleX(-1);
+				-webkit-transform: scaleX(-1);
+				transform: scaleX(-1);
+				filter: FlipH;
+				-ms-filter: "FlipH";
+			}
+		</style>
+	</head>
+<body style="max-width: 1000px; margin: auto; padding: 15px">
+<a href="../Readme.html#CustomBlocks">Back</a>.
+
+<h1>Blocks to use the health system</h1><br>
+
+<h2>How to insert the blocks:</h2>
+<ol>
+<li>Makes necessary changes in the defines file, some of them are in-block exclusives
+as defines often refer to multiple blocks. You also need to paste <kbd>PlayerHPDefines</kbd>
+in the main directory where GPS lies at (so not in any of the sub folders/directory, the
+same are as the .exe is in)</li><br>
+
+<li>Inport your map16 tiles (as in, insert your map16 tiles from the file) from
+<kbd>TestLevel/Map16CustomBlocks.map16</kbd>. By default (including the <kbd>list.txt</kbd> here assumes
+you're using map16 page 5). This file directory also include a test level in case if you're wondering.</li><br>
+
+<li>Simply copy the folder containing this entire directory (<kbd>PlayerHP_blocks</kbd>)
+and paste it inside GPS's <kbd>blocks</kbd> folder.</li><br>
+
+<li>Copy the text inside <kbd>list.txt</kbd> and paste it in GPS's list file. Alternatively
+you can replace the whole file.</li><br>
+</ol>
+<hr>
+<h2>Using the max HP upgrade blocks:</h2>
+
+The system to remember if the player have picked up a HP upgrade block is different
+than the last version of this package. How it works is that now it uses the current
+level number instead of having to make duplicate blocks on the map16 editor.<br><br>
+
+Each listed level using the upgrade block(s) uses 1 byte of the pickup memory table
+<kbd>!Freeram_PlayerHP_MaxHPUpgradePickupFlag</kbd>. Unlisted levels are not stored in this
+table and thus you don't have to worry about every single level having a byte
+($200 (512) bytes would consume) that you're not going to use. Because a byte is 8-bits
+as a smallest addressable unit, you can have up to 8 different blocks assigned to each bit
+in a single level.<br><br>
+
+This makes it so you don't have duplicates of such blocks hogging your map16 editor, as
+the blocks get reused in every listed level. And yes, you can have a re-textured (different
+graphic) block behaving the original custom block. The only thing you must avoid here is having
+two same blocks (or any blocks assigned to the same bit) in the same level. As both or all of
+them will disappear when the level reloads after picking up one of them.<br><br>
+
+Every time you add a new level you plan on using the upgrade blocks, you must add a new
+item in the table list:<br><br>
+<ul>
+<li>Level list for blocks(<kbd>Routines/LevelListedIndex.asm</kbd>):
+<table><tr><td><pre>
+	LevelIndexWordListStart:
+	dw $0105			;>Level 105 [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+0]
+	dw $0106			;>Level 106 [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+1]
+	dw $0103			;>Level 103 [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+2]
+	;dw $xxxx			;>template  [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+3]
+	LevelIndexWordListEnd:	;Don't remove this (needed to count how many items in the table)
+</pre></td></tr></table>
+^These are level numbers to be included in the list. Do note that the output X is the item number
+(8-bit, starting at 0 at the first item) listed, therefore if you have copies (currently, there is
+a duplicate for uberasm tool: <kbd>UberasmToolFiles/library/PickupFlags.asm</kbd>), make sure all of
+them matches, this includes the order, how many items in the list and what levels in each item. Else
+glitches can occur. Of course you can just simply have only 1 (<kbd>LevelListedIndex</kbd> have
+another routine so don't delete that) using shared subroutines patch.<br><br>
+
+I've added a failsafe measure that if you pick up these upgrade blocks in an unlisted level, they will
+do nothing (it simply will not be &ldquo;picked up&rdquo; at all). This is present so that it doesn't
+write the data outside the table (the so-called &ldquo;buffer overflow&rdquo;.) By default, I assume
+you wouldn't use more than 16 levels containing such block, if not, make sure you move the freeram
+around so it doesn't unintentionally write the collect bits in RAM that isn't the collect table.</li><br>
+
+<li>List of how much max HP to increase by table (if you plan on having varying increases by
+setting <kbd>!HPUpgrade_VaryingIncrease</kbd> to <kbd>1</kbd>.):
+<table><tr><td><pre>
+ MaxHPUpgradeBit<font color="red">*</font>IncreaseList:
+ ;Order here corresponds with the table in "MaxHPUpgradeObtainLevelListIndex.asm"
+ !PlayerHPDataTableSize 10            ;>Level 105 [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+0]
+ !PlayerHPDataTableSize 15            ;>Level 106 [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+1]
+ !PlayerHPDataTableSize 1             ;>Level 103 [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+2]
+ ;!PlayerHPDataTableSize 1             ;>template [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+3]
+</pre></td></tr></table>
+<font color="red">*</font> means a bit value number 0-7.
+</li><br>
+
+<li>Add a new level for uberasm tool. Simply create a new level asm file (<kbd>LVLxxx.asm</kbd> where xxx
+is the hexadecimal level number) with this code:
+<table><tr><td><pre>
+	load:
+	;[...] ;>if you had code before here.
+	JSL PickupFlags_SearchLevel
+	JSL PickupFlags_DisablePickupRespawnM16
+	;[...] ;>if you had code after here.
+	RTL
+</pre></td></tr></table>
+You do it this method because either uberasm doesn't have <kbd>load:</kbd> for gamemode, or the
+fact that not ALL levels would need such a code to modify <kbd>$7FC060</kbd> to <kbd>$7FC06F</kbd>
+which waste flags that you could use for something else.
+
+</li>
+</ul>
+How to use:
+<ol>
+<li>Open <kbd>MaxHP_Upgrade/MaxHPUpgradeDef</kbd> and make necessary changes. You also need to
+make necessary changes in the defines inside <kbd>PlayerHPDefines</kbd> as well.</li><br>
+
+<li>Insert the blocks using GPS. Self explanatory.</li><br>
+
+<li>Paste the upgrade HP blocks in the level.</li><br>
+
+<li>Find a way to disable the block from appearing in a level.<br><br>
+
+Now depending on how you wanted your blocks to appear/disappear/change on level loading, you
+may need to edit <kbd>!Ram_PickupBlockExistFlag</kbd> (by default, it uses Lunar Magic's &ldquo;Conditional
+Direct Map16&rdquo;) and how a routine in <kbd>UberasmToolFiles/library/PickupFlags.asm</kbd>
+under &ldquo;<kbd>DisablePickupRespawnM16:</kbd>&rdquo; controls to enable/disable the block from
+showing up (during level loading).
+
+<h3>Lunar Magic's Conditional map16 blocks method</h3><br>
+By far the easiest method. Currently the ASM code (especially <kbd>PickupFlags.asm</kbd> for uberasm tool) involving assume you are using this. The bit
+number in <kbd>!Freeram_PlayerHP_MaxHPUpgradePickupFlag</kbd> directly corresponds with the bit
+number for Lunar Magic's conditional map16 flags (so if you use <kbd>MaxHP_UpgradeBit0.asm</kbd>,
+it writes to bit 0 in <kbd>!Freeram_PlayerHP_MaxHPUpgradePickupFlag</kbd> (sets a bit) and uberasm tool disables
+the block by clearing bit 0 in <kbd>!Ram_PickupBlockExistFlag</kbd> (which is <kbd>$7FC060</kbd> by
+default)).<br><br>
+<ol>
+<li>Pick what byte you want to use in LM's conditional map16. I made a cheat-sheet to find what bit
+number to use (remember, because this is byte-based, you cannot have bits in seperate bytes to disable
+blocks):<br><br>
+<table>
+<tr>
+<th>LM bit flag number</th>
+<th>RAM address (bytes)</th>
+</tr>
+<tr>
+<td>$00-$07</td>
+<td>$7FC060</td>
+</tr>
+<tr>
+<td>$08-$0F</td>
+<td>$7FC061</td>
+</tr>
+<tr>
+<td>$10-$17</td>
+<td>$7FC062</td>
+</tr>
+<tr>
+<td>$18-$1F</td>
+<td>$7FC063</td>
+</tr>
+<tr>
+<td>$20-$27</td>
+<td>$7FC064</td>
+</tr>
+<tr>
+<td>$28-$2F</td>
+<td>$7FC065</td>
+</tr>
+<tr>
+<td>$30-$37</td>
+<td>$7FC066</td>
+</tr>
+<tr>
+<td>$38-$3F</td>
+<td>$7FC067</td>
+</tr>
+<tr>
+<td>$40-$47</td>
+<td>$7FC068</td>
+</tr>
+<tr>
+<td>$48-$4F</td>
+<td>$7FC069</td>
+</tr>
+<tr>
+<td>$50-$57</td>
+<td>$7FC06A</td>
+</tr>
+<tr>
+<td>$58-$5F</td>
+<td>$7FC06B</td>
+</tr>
+<tr>
+<td>$60-$67</td>
+<td>$7FC06C</td>
+</tr>
+<tr>
+<td>$68-$6F</td>
+<td>$7FC06D</td>
+</tr>
+<tr>
+<td>$70-$77</td>
+<td>$7FC06E</td>
+</tr>
+<tr>
+<td>$78-$7F</td>
+<td>$7FC06F</td>
+</tr>
+</table>
+
+For example, if you want to use <kbd>$7FC062</kbd>, you would set
+<kbd>!Ram_PickupBlockExistFlag</kbd> to that number.<br><br>
+
+At the time of making this, because lunar magic doesn't let you pick what byte (it wants you
+to pick a flag number of the entire <kbd>$7FC060</kbd> to <kbd>$7FC06F</kbd>
+using bit flag numbers <kbd>$00</kbd> to <kbd>$7F</kbd>) and not using bits
+0-7, you can convert your 0-7 bit numbers to what 8-bit range listed above
+by simply adding by the number representing the lowest bit in a byte. Using
+the example above, you add <kbd>$00</kbd> and <kbd>$07</kbd> both by <kbd>$10</kbd>. You get
+<kbd>$10-$17</kbd> and will do this:
+<table><tr><td><pre>
+MaxHP_UpgradeBit0.asm -> $00+$10 : Bit flag number : $10
+MaxHP_UpgradeBit1.asm -> $01+$10 : Bit flag number : $11
+MaxHP_UpgradeBit2.asm -> $02+$10 : Bit flag number : $12
+MaxHP_UpgradeBit3.asm -> $03+$10 : Bit flag number : $13
+MaxHP_UpgradeBit4.asm -> $04+$10 : Bit flag number : $14
+MaxHP_UpgradeBit5.asm -> $05+$10 : Bit flag number : $15
+MaxHP_UpgradeBit6.asm -> $06+$10 : Bit flag number : $16
+MaxHP_UpgradeBit7.asm -> $07+$10 : Bit flag number : $17
+</pre></td></tr></table><br>
+
+<li>Assign the blocks to use the conditional map16 blocks. Make sure you use the bit flag number of your choice you set for
+<kbd>!Ram_PickupBlockExistFlag</kbd> or it won't work. The &ldquo;conditional direct map16 access&rdquo; can be found (at the
+time of writing this) on <kbd>Menu bar -> Edit -> Conditional Direct Map16...</kbd>.<br><br>
+
+Note that at the time of writing this, blocks getting their conditional map16 bit flag number are <b>per-level
+based</b>, meaning every level that uses the upgrade blocks, you have to &ldquo;re-add&rdquo;
+the condition again.</li>
+</ol>
+
+<h3>Other codes that also do conditional blocks to appear and disappear:</h3>
+<ol>
+<li>You can do a similar thing above should such a code uses bitwise. If not, you're going to have to edit <kbd>PickupFlags.asm</kbd>.
+Comments in that file can help you with this.</li>
+</ol>
+</li><br>
+
+<li>And now you are done.<br><br>
+
+Note that this only applies on level loading, if you have other methods of spawning the blocks (like talking
+to an NPC that spawns the upgrade block via change map16), you still have to check <kbd>!Freeram_PlayerHP_MaxHPUpgradePickupFlag+x</kbd> (where
+x is an item index number depending on what level-listed you placed your levels) to prevent endless HP upgrade block. Also make sure you don't
+set the collected bit just because it was spawned, make it only set the bit when the block is actually collected, else you have a permanently
+miss-able item should the player avoid the item and refreshes the level after spawning.</li>
+</ol>
+
+<script>
+//These makes all <pre>...</pre> have an effect that double-clicking will select all the text
+//in it, to make it easy to copy code and paste it in your ASM stuff.
+//
+//Credit:
+// https://keestalkstech.com/2014/04/click-to-select-all-on-the-pre-element/
+// https://www.sanwebe.com/2014/04/select-all-text-in-element-on-click
+document.addEventListener('dblclick', e => {
+  let pre = getClosest(e.target, "PRE");
+  if (pre && e.ctrlKey) {
+    let range = new Range();
+    range.selectNodeContents(pre);
+    document.getSelection().removeAllRanges();
+    document.getSelection().addRange(range);
+  }
+});
+
+function getClosest(el, tagName) {
+  tagName = tagName && tagName.toUpperCase();
+
+  if (!tagName || !el)
+    return null;
+
+  do
+    if (el.nodeName === tagName)
+      return el;
+  while (el = el.parentNode);
+
+  return null;
+}
+</script>

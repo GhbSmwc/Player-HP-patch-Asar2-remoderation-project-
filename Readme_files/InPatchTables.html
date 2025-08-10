@@ -1,0 +1,203 @@
+<html>
+	<head>
+		<style>
+			html {
+			background-color: #101010;
+			color: rgb(221, 221, 221);
+			font-family: sans-serif;
+			}
+			
+			table, th, td {
+			border: 1px solid white;
+			border-collapse: collapse;
+			}
+			
+			span.NoLineBreak {
+				white-space: nowrap;
+			}
+			
+			abbr{cursor: help;}
+			img.img-hor {
+				-moz-transform: scaleX(-1);
+				-o-transform: scaleX(-1);
+				-webkit-transform: scaleX(-1);
+				transform: scaleX(-1);
+				filter: FlipH;
+				-ms-filter: "FlipH";
+			}
+		</style>
+	</head>
+<body style="max-width: 1000px; margin: auto; padding: 15px">
+<a href="../Readme.html#InPatchTables">Back</a><br>
+
+<center><h1>In-patch tables</h1></center><br><br>
+
+This covers informations about damage and knockback tables from various sprites coded in the patch. Obviously this is very easy to use other than the
+knockback displacement tables.
+
+By CTRL+F'ing &ldquo;<kbd>SmwSpriteDamageTbl:</kbd>&rdquo;, starting at this location and later is where these tables lies at.
+
+<ul>
+<li>Damage tables:<br><br>
+
+This is only used when you have <kbd>!Setting_PlayerHP_VaryingDamage</kbd> set to <kbd>1</kbd>.<br><br>
+
+Simply put, the damage (how much HP have been loss) the player receives when touching the sprite. Each number here is each sprite number
+(for example, the first number is sprite number 0, the second is sprite number 1 and so on). Values here are decimal (if you want hex,
+prefix your number with &ldquo;<kbd>$</kbd>&rdquo; (i.e <kbd>$0A</kbd> instead of <kbd>10</kbd>)). Watch out that you must avoid putting damage
+larger than 255 (when <kbd>!Setting_PlayerHP_TwoByte</kbd> is set to <kbd>0</kbd>) or 65535 (when <kbd>!Setting_PlayerHP_TwoByte</kbd> is set to
+<kbd>1</kbd>) as it is larger than the max unsigned integer a register can store; thus overflowing and modulos it by 256 or 65536 and ends up
+with weird damage (for example: a damage of 256 on an 8-bit HP results 0 damage).</li><br>
+
+<li>Knockback direction:</li><br>
+
+Only used when <kbd>!Setting_PlayerHP_Knockback</kbd> is set to a non-zero value.<br><br>
+
+After all the damage tables above, this table contains 16-bit hexadecimal signed integer values (<kbd>$0000-$7FFF</kbd> zero and positive,
+<kbd>$8000-$FFFF</kbd> negative) representing the displacement X position of the sprite to determine which way to knock the player.
+Unlike most patches that include the knockback on SMW central (or any other SMW hacking website), they only knock the player in the
+direction opposite of the player's current facing direction instead of checking which side the player got hit.<br><br>
+
+The reason for having a table instead of a straight-up direct comparing the sprite's X position with the player's X position is because sprites
+don't always have their position point aligned consistently with their bodies. Most of the time, they are often on the left edge of the sprite
+either on the very top-left corner for most sprites, left-middle on other sprites that is 32 pixels (2 full blocks) tall, or already centered in
+with the sprite (such as a Thwomp). Mario, on the other hand, always have the position point located on the top-left corner of his 16x32 sprite,
+regardless if the player is crouching or whatever powerup status Mario is:<br><br>
+<center><img src="MarioPositionPoint.png">
+<img src="SpritePositionPoints.png"></center><br>
+It seems like that all object-interacting sprites that are taller than a single block always have their position point just a full block off the ground, probably
+because how the developers of Nintendo programmed the sprite's spawning in the level to be on top the ground (as spawning in the level are 16x16 grid-based).<br><br>
+
+If I use direct comparison without offsetting the sprite's position, Mario can knockback in directions not centered with the sprite, for example, should
+Mario position like this:<br>
+<img src="ExampleOfDirectPositionCompare.png"><br>
+He would knock <b>rightwards</b>, despite Mario is mostly to the left of the sprite's center. In the image above, you see that Mario's x position represented
+as a blue line and the Mega Mole's as an orange line. If Mario's X position is anywhere to the right (or at because there is no direction besides left or right),
+he would get knocked rightwards. If he is to the left, he gets knocked to the left. Essentially, the knockback code does not recognize the actual center X position
+of sprites.<br><br>
+
+To fix this off-centered &ldquo;knock boundary&rdquo; of the sprite, I recommend using a debugger to find the displacement value:<br><br>
+<ol>
+<li>Make a test level with <b>only one sprite on screen</b> (so that it is easier to find what slot index the sprite is using) that cannot move horizontally
+(such as editing the sprite's code to prevent it from moving, have blocks around it that the sprite does not have enough room to move, etc.) Then open your game
+via a debugger (to me, I use <a href="https://github.com/devinacker/bsnes-plus">BSNES plus</a>) and position Mario and the sprite so that their center positions
+(not their actual positions) align, for example, a Mega Mole:<br>
+<img src="CenteringXPositions.png"><br><br></li><br>
+
+<li>In a debugging emulator. I highly recommend rounding the X positions of both characters to the nearest 8th pixel ($000F becomes $0010 and $0021 becomes $0020, for example)
+if the sprite is an even number of 8x8 tiles wide (small sprites that are single 8x8 tiles like the Volcano Lotus Seeds, for example) because being pixel-perfect is near
+impossible, and the fact that the SNES's tile handling are in units of 8x8 tiles:<br>
+<img src="CenterXPositioningInGame.png"></li><br>
+
+<li>Now freeze/pause the game (either in-game pausing, or emulator's pausing). Now try to view the game's RAM (make sure it updates to display the actual current RAM) and note
+the values for address <kbd>$7E0094</kbd> (the player's X position in the level, 2 bytes), <kbd>$7E00E4</kbd> (sprite's X position, low byte (each byte here are each sprite slot)),
+and <kbd>$7E14E0</kbd> (same as <kbd>$7E00E4</kbd>, but a high byte instead). Note that if you're using SA-1, you substitute the sprite tables with their SA-1 equivalents
+(check out its documents there). Of course, you could use shorten SNES mirror register equivalents instead (<kbd>$7E0094</kbd> can be replaced with <kbd>$94</kbd>.)<br><br>
+
+In my example, to view the RAM, simply go to <kbd>Menu Bar -&gt; Tools -&gt; Debugger -&gt; Menu Bar of tools -&gt; Tools -&gt; Memory Editor</kbd> and type in the address
+you want to look at. So after searching the player's x position and the sprite's, I got:<br><br>
+
+Player's X position in the level:
+
+<table><tr><td><pre>7E0090 00 00 00 01 <font color="red">68 00</font> 60 01 48 01 80 00 00 00 00 00</pre></td></tr></table>
+So the player's X position is the value <kbd>$0068</kbd> (remember, the SNES is low-endian).<br><br>
+
+And now the sprite's X position in the level (underlined is the sprite table):<br>
+
+<table><tr><td><pre>7E00E0 00 40 00 00 <u>00 00 00 00 00 00 00 00 00 <font color="red">61</font> 00 00</u></pre></td></tr>
+<tr><td><pre>7E14E0 <u>00 00 00 00 00 00 00 00 00 <font color="red">00</font> 00 00</u> 00 00 00 00</pre></td></tr></table>
+
+By the way, I'm using sprite memory <kbd>00</kbd> (which the first sprite will spawn in slot 9, thus the red font is the numbers we need). The sprite's X position is <kbd>#$0061</kbd>,
+it is actually meant to be  <kbd>$0060</kbd>, but the sprite have wiggle room to maneuver and thus, would be +1 to the right. We would round this number to <kbd>$0060</kbd>.</li><br>
+
+<li>Subtract the player's position by the sprite's, the subtraction result is the displacement value. Using the example above,
+<kbd>$0068 - $0060 = $0008</kbd>, <kbd>$0008</kbd> is the displacement.</li><br>
+
+<li>Lastly, now use this number for the displacement table on the sprite number you're testing on. In this example above, the mega mole is sprite number <kbd>$BF</kbd>, write <kbd>$0008</kbd>
+on the last number in the row that was commented &ldquo;<kbd>#$B0-#$BF</kbd>&rdquo; (it's already written to, so this is just a test demonstration). Now re-install the patch to apply the changes
+to your game.<br><br>
+
+For such sprites that are a single 8x8 wide and tall, such as the Volcano Lotus seeds and Pitchin' Chuck's baseballs, their position point is at the top-left corner of the tile, thus their
+displacement value is <kbd>$FFFC</kbd> (<kbd>-4</kbd> in signed decimal).</li><br>
+
+</ol>
+
+Alternatively, you can have uberasm tool constantly write a value (say, the number <kbd>#$0010</kbd> to their coordinates) and you just compare the player's X position with the sprite's <kbd>#$0010</kbd>
+x position. Although unreliable if the sprite moves <i>after</i> uberasm have set its position, then displays the oam tiles of the sprite, within a frame, as that can throw you off.
+
+</ul>
+
+<h2>Notes</h2>
+<ul>
+<li>Most of these table's <i>words</i> (a double-byte; 16-bit value) are commented out by default, this is because not many hackers would use custom cluster, extended, etc. types of
+sprite that would damage the player.</li><br>
+
+<li>The knockback boundary to determine which way the player flies is SpriteXPosition plus <b>a fixed value</b>. This means if you were to have a sprite that can move its position point
+while its body stays in the same position, you have to temporally move the sprite, execute the routine that damages the player, then restore its position. Easiest method is to set the
+displacement value (in the patch) to <kbd>$0000</kbd>, re-patch, edit the sprite in question to use this code in attempting to damage the player (make sure the hitbox collision detection
+is outside of this):<br>
+<table><tr><td><pre>
+	LDA !14E0,x		;>Used &ldquo;!&rdquo; instead of &ldquo;$&rdquo; to make the sprite SA-1 hybrid
+	XBA
+	LDA !E4,x
+	REP #$20
+	CLC
+	ADC &lt;Displace knock boundary here&gt;
+	
+	
+	LDA !E4,x						;&gt;Used &ldquo;!&rdquo; instead of &ldquo;$&rdquo; to make the sprite SA-1 hybrid.
+	PHA							;&gt;Push X position low byte into stack
+	CLC							;\Displace low byte x position
+	ADC.b &lt;Displace knock boundary low byte here&gt;		;|
+	STA !E4,x						;/
+	LDA !14E0,x						;\Push X position high byte into stack
+	PHA							;/
+	ADC.b &lt;Displace knock boundary high byte here&gt;		;\Displace high byte x position
+	STA !14E0,x						;/
+	
+	;You can use &ldquo;!define&gt;&gt;8&rdquo; to obtain the high byte displacement).
+	
+	JSL $00F5B7						;&gt;Damage player with the boundary moved
+	
+	PLA							;\Restore high byte x position
+	STA !14E0,x						;/
+	PLA							;\Restore low byte x position
+	STA !E4,x						;/
+</pre></td></tr></table></li><br>
+
+<li>The same thing applies to damages as well. Use a custom code instead of <kbd>JSL read3($02A4AE+1)</kbd> and/or <kbd>JSL read3($02F9FA+1)</kbd> as those subroutines
+are table-based.</li>
+
+</ul>
+
+<script>
+//These makes all <pre>...</pre> have an effect that double-clicking will select all the text
+//in it, to make it easy to copy code and paste it in your ASM stuff.
+//
+//Credit:
+// https://keestalkstech.com/2014/04/click-to-select-all-on-the-pre-element/
+// https://www.sanwebe.com/2014/04/select-all-text-in-element-on-click
+document.addEventListener('dblclick', e => {
+  let pre = getClosest(e.target, "PRE");
+  if (pre && e.ctrlKey) {
+    let range = new Range();
+    range.selectNodeContents(pre);
+    document.getSelection().removeAllRanges();
+    document.getSelection().addRange(range);
+  }
+});
+
+function getClosest(el, tagName) {
+  tagName = tagName && tagName.toUpperCase();
+
+  if (!tagName || !el)
+    return null;
+
+  do
+    if (el.nodeName === tagName)
+      return el;
+  while (el = el.parentNode);
+
+  return null;
+}
+</script>

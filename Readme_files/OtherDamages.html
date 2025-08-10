@@ -1,0 +1,104 @@
+<html>
+	<head>
+		<style>
+			html {
+			background-color: #101010;
+			color: rgb(221, 221, 221);
+			font-family: sans-serif;
+			}
+			
+			table, th, td {
+			border: 1px solid white;
+			border-collapse: collapse;
+			}
+			
+			span.NoLineBreak {
+				white-space: nowrap;
+			}
+			
+			abbr{cursor: help;}
+			img.img-hor {
+				-moz-transform: scaleX(-1);
+				-o-transform: scaleX(-1);
+				-webkit-transform: scaleX(-1);
+				transform: scaleX(-1);
+				filter: FlipH;
+				-ms-filter: "FlipH";
+			}
+		</style>
+	</head>
+<body style="max-width: 1000px; margin: auto; padding: 15px">
+
+<a href="../Readme.html#OtherDamages">Back</a>
+
+<center><h1>Damages from non regular smw sprites and custom sprites</h1></center><br>
+This tutorial covers damages from besides the normal sprites and custom sprites the player receives. Due to how this patch works,
+avoid using <kbd>JSL $00F5B7</kbd> because that has been modded to check the standard sprite's number and their index to determine
+how much HP loss the player have taken and what sprite have hit the player.<br><br>
+
+Because asar have a feature called <kbd>read</kbd> (syntax: <kbd>read&lt;Number of bytes to read&gt;(&lt;ROM address&gt;)</kbd>), and that
+the patch hijacks smw's damage code from various things (for this matter, the damage from extended and cluster sprites), it is possible
+to read the JSL jump location to a freespace without the need for the shared subroutines patch. The only thing you have to worry about
+is if you re-patch the health code (<kbd>PlayerHPPatch_4_0.asm</kbd>) into your game, you must re-insert whatever code that JSLs to
+the patch's subroutines (like re-run spritetool/pixi for example). This is so that whatever outside code using the patch's subroutine
+don't end up using potentially outdated subroutine address and crashes your game (codes in the main patch gets moved around depending
+if you enabled/disabled the code, and editing it).<br><br>
+
+Getting sprites to use the patch's subroutines is not difficult:<br>
+
+<table><tr><td><pre>
+;Damage for normal and custom sprites
+	JSL $00F5B7				;>SMW's old damage routine, modded for sprites and custom sprite's usage.
+
+;Damage for extended sprite:
+	JSL read3($02A4AE+1)			;>+1 because JSL takes 4 bytes, first is the instruction itself, and the last 3 are the address (low endian).
+
+;Damage for cluster sprite:
+	JSL read3($02F9FA+1)
+</pre></td></tr></table><br>
+
+Now if you are using Alcaro's custom cluster sprite (for some reason, it's not currently on the site at the time of writing this, so any tool/patch that have
+swapped index), the X and Y indexes are switched (in vanilla SMW, the X was used, the tool uses Y), simply swap them again call the subroutine and restore it after:
+
+<table><tr><td><pre>
+	PHY					;\Preserve index.
+	PHX					;/
+	TYX					;>Switch index.
+	JSL read3($02F9FA+1)			;>Call cluster damage routine.
+	PLX					;\Restore index.
+	PLY					;/
+</pre></td></tr></table><br>
+
+You would do the same thing should the &ldquo;custom extended sprite inserter&rdquo; do the same thing with the swapped index. Currently, SMW mostly
+uses the X index as to what slot of a sprite.
+<script>
+//These makes all <pre>...</pre> have an effect that double-clicking will select all the text
+//in it, to make it easy to copy code and paste it in your ASM stuff.
+//
+//Credit:
+// https://keestalkstech.com/2014/04/click-to-select-all-on-the-pre-element/
+// https://www.sanwebe.com/2014/04/select-all-text-in-element-on-click
+document.addEventListener('dblclick', e => {
+  let pre = getClosest(e.target, "PRE");
+  if (pre && e.ctrlKey) {
+    let range = new Range();
+    range.selectNodeContents(pre);
+    document.getSelection().removeAllRanges();
+    document.getSelection().addRange(range);
+  }
+});
+
+function getClosest(el, tagName) {
+  tagName = tagName && tagName.toUpperCase();
+
+  if (!tagName || !el)
+    return null;
+
+  do
+    if (el.nodeName === tagName)
+      return el;
+  while (el = el.parentNode);
+
+  return null;
+}
+</script>
