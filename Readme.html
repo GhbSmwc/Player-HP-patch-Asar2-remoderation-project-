@@ -36,6 +36,9 @@
 			pre {
 				margin: 0px;
 			}
+			*.FixedWidth {
+				font-family: monospace;
+			}
 		</style>
 	</head>
 <body style="max-width: 1000px; margin: auto; padding: 15px">
@@ -47,24 +50,25 @@ This package installs a health system to SMW for the player character (Mario). S
 <i><a href="https://www.smwcentral.net/?p=section&a=details&id=11345">Numerical Health Bar</a></i> as a base work, I've added
 a lot of features into it and released as a separate patch. These features include, but not limited to:
 <ul>
-<li>Display:
-<ul>
-<li>HP not only displays digits on the status bar (HUD), but also display a graphical bar representing the percentage (like most
-video games). It can also display how much damage taken as a transparent segment (displays current and health prior to damage every
-other frame much like <i>Kirby Super Star Ultra</i>).</li>
-<li>With the help of the <i><a href="https://www.smwcentral.net/?p=section&a=details&id=15222">Overworld Border Plus</a></i> patch,
-this enables displaying HP on the overworld map.</li>
-</ul>
-<li>Varying damages are no longer limited to just SMW's main sprites, instead almost everything (custom sprites, extended, and
-cluster) now have a configurable damage.</li>
-<li>Max HP can be increased in-game.</li>
-</li>
+	<li>Display:</li>
+	<ul>
+		<li>HP not only displays digits on the status bar (HUD), but also display a graphical bar representing the percentage (like most
+		video games). It can also display how much damage taken as a &ldquo;transparent&rdquo; segment (rapid-flicker, displays current and
+		health prior to damage every other frame much like <i>Kirby Super Star Ultra</i>).</li>
+		<li>With the help of the <i><a href="https://www.smwcentral.net/?p=section&a=details&id=15222">Overworld Border Plus</a></i> patch,
+		this enables displaying HP on the overworld map.</li>
+	</ul>
+	<li>Varying damages are no longer limited to just SMW's main sprites, instead almost everything (custom sprites, extended, and
+	cluster) now have a configurable damage.</li>
+	<li>Max HP can be increased in-game.</li>
+	<li>An improved knockback system based on the player's position relative to whatever have knocked the player. Most other health systems only checks
+	at what direction the player is facing and always knocks him in the opposite direction of that.</li>
 </ul>
 <h2>Other things needed</h2>
 <ul>
 <li><a href="https://www.smwcentral.net/?p=section&a=details&id=17109">Lunar Magic</a></li>
 <li><a href="https://www.smwcentral.net/?p=section&a=details&id=15222">Overworld Border plus</a> (if you want HP to be displayed on the overworld)
-<li><a href="https://www.smwcentral.net/?p=section&a=details&id=16540">Uberasm tool</a> (although I could just have hijacks on codes that run every
+<li><a href="https://www.smwcentral.net/?p=section&a=details&id=16540">Uberasm tool v2.0+</a> (although I could just have hijacks on codes that run every
 frame in the main patch, I rather have it all in the same hijack produced by uberasm tool to avoid increased potential incompatibility when another
 patch that also runs all frames.)</a></li></li>
 <li><a href="https://www.smwcentral.net/?p=section&a=details&id=16031">Super Status Bar patch</a> (optional, but recommended any other status bar
@@ -82,18 +86,19 @@ numbers, etc) as well as editing the status bar code included in this package.)<
 <li>ASM-related</li>
 <ol>
 <li>Make any changes in the define files (Inside <kbd>Defines</kbd> folder) as needed, as it is possible to have one patch conflict the
-RAM address with another. If you make any changes after copying and pasting them in other code-related items to use this patch, make sure they're
-up-to-date and reinsert <b>all of</b> them (if you don't they bug out using outdated information). You'll be pasting the individual defines ASM files (not the folder itself
-containing all of them) and <kbd>incsrc</kbd>'ing in any places that would need the player HP patch to function with.<br><br>
+RAM address with another. If you make any changes after copying and pasting them in other ASM-related items to use this patch, make sure they're
+all up-to-date and reinsert. You'll be pasting the individual defines ASM files (not the folder itself containing all of them) and <kbd>incsrc</kbd>'ing in any places that would
+need the player HP patch to function with.<br><br>
 
-Now you may be wondering why I have multiple defines file and that some defines are not intuitively in some ASM files. This is because this system uses a potentially general-purpose
-routines (the graphical bar and string-handling system) that can be used for anything other than player HP.<br><br>
+Now you may be wondering why I have multiple separate define files and that some defines are not intuitively in some ASM text files. This is because this system uses a potentially general-purpose
+routines (the graphical bar and string-handling system) that can be used for anything other than player HP. Most stuff specific to the player HP system are in <kbd>PlayerHPDefines.asm</kbd>,
+while routines and other things such as freeram for graphical bar, number displays, string handling system, and tiles to use (such as the slash character) are in other defines.
 
 For uberasm tool, pixi, most other stuff, you place the copy of the define asm files in the same directory (or area) as the .exe, not in any of the subfolders.<br><br>
 
 The description regarding how much bytes freeram they take are mostly formula-based due to the fact that they vary in size. For example:
 <table><tr><td><pre>
-;[BytesUsed = 1 + !Setting_PlayerHP_TwoByte]
+<span style="color: red">;[BytesUsed = 1 + !Setting_PlayerHP_TwoByte]</span>
 ;Player current HP.
 	if !sa1 == 0
 		!Freeram_PlayerCurrHP		= $7FAD49 ;>Normal ROM version
@@ -124,8 +129,8 @@ This will make asar recognize the defines used for the HP meter patch.</li><br>
 expect doing the exact same thing just with the word &ldquo;<kbd>sram</kbd>&rdquo; replaced with &ldquo;<kbd>bwram</kbd>&rdquo;):
 <div class="CodeBlock"><pre>sram_table:	dl $7E1EA2 : dw $008D ;&gt;keep this here (the comment description on the top even mentions not to remove this).
 
-		;[...]  ;&gt;If you previously used this patch for other things non-player-HP-related data to be saved
-
+	;[...]  ;&gt;If you previously used this patch for other things non-player-HP-related data to be saved
+	;Player health system:
 		dl !Freeram_PlayerCurrHP : dw (1+!Setting_PlayerHP_TwoByte) ;\Current and max HP. By default RAM addresses, you can merge them together
 		dl !Freeram_PlayerMaxHP  : dw (1+!Setting_PlayerHP_TwoByte) ;/to save additional space
 
@@ -140,7 +145,7 @@ expect doing the exact same thing just with the word &ldquo;<kbd>sram</kbd>&rdqu
 		
 		dl !Freeram_PlayerHP_MaxHPUpgradePickupFlag : dw $0010 ;&gt;The pickup bit table to save. The dw number is the number of levels using the upgrade blocks.
 
-		;[...]  ;&gt;If you are going to have another saved RAM just after the HP data to be saved.
+	;[...]  ;&gt;If you are going to have another saved RAM just after the HP data to be saved.
 		
 .end
 		
@@ -165,9 +170,8 @@ sram_defaults:	db $00,$00,$00,$00,$00,$00,$00,$00
 		
 		;The stuff here is obviously the default values to be initialized when the player starts a new game.
 		
-		;[...]  ;&gt;If you previously used this patch for other things non-player-HP-related data to be saved
-		
-		;!PlayerHPDataTableSize is either "db" or "dw" depending if you select 8 or 16-bit HP.
+	;[...]  ;&gt;If you previously used this patch for other things non-player-HP-related data to be saved
+	;Default values for player health system, !PlayerHPDataTableSize is either "db" or "dw" depending if you select 8 or 16-bit HP.
 		!PlayerHPDataTableSize 15     ;&gt;[!Freeram_PlayerCurrHP] (1 to 255 or 65535) Current HP to start with.
 		!PlayerHPDataTableSize 15     ;&gt;[!Freeram_PlayerMaxHP] (1 to 255 or 65535) Max HP to start with.
 		
@@ -183,7 +187,7 @@ sram_defaults:	db $00,$00,$00,$00,$00,$00,$00,$00
 		db $00,$00,$00,$00,$00,$00,$00,$00   ;\[!Freeram_PlayerHP_MaxHPUpgradePickupFlag] pickup table to be defaulted to all 0s. The number of levels using the upgrade blocks
 		db $00,$00,$00,$00,$00,$00,$00,$00   ;/is the number of $00s you must have here (else glitches happen).
 		
-		;[...]  ;&gt;If you are going to have another saved RAM just after the HP data to be saved.
+	;[...]  ;&gt;If you are going to have another saved RAM just after the HP data to be saved.
 </pre></div>
 Just remember, the sram table and the default tables order format corresponds. Meaning if say if you place your lives data first, then powerup data second, then the
 first item after a bunch of zeros (past the <nobr><kbd>db $00,$00,$00,$00,$00</kbd></nobr> on the bottom) would be the default number for the lives data, and after that
@@ -209,8 +213,7 @@ more change-able tiles for the HUD.</li><br>
 
 <li>Patch Overworld Border plus patch into your game (if your hack use the overworld). This allows easy tile write to the overworld border. Unlike writing to VRAM
 or stripe image, this avoids (or at least tries to) having vblank overflow (the flickering at the top of the screen) as well as tiles not properly written on certain
-emulators. If your hack doesn't or barely uses the overworld, you can disable the code that writes data to the overworld border plus by simply setting
-<kbd>!Setting_PlayerHP_OverworldDisplay</kbd> to <kbd>0</kbd>.</li><br>
+emulators. If your hack doesn't or barely uses the overworld, you can simply avoid running <kbd>UberASMTool/DisplayPlayerHealthOverworld.asm</kbd> in your game.</li><br>
 
 <li>Uberasm tool. This mainly handles codes that runs every frame in either/or level and overworld. This handles HUD to display HP, stun effects, mother/earthbound
 &ldquo;rolling HP&rdquo; (if you enabled that mode), level loading to prevent respawning health upgrade pickups and other things. Inside the appropriately named folder in this package,
@@ -227,9 +230,31 @@ I laid out where the ASM files should be at (as well as a <kbd>list.txt</kbd> sh
 blue mushroom to extract the extract the ExGFX. These will create the needed folders <kbd>Graphics</kbd> and <kbd>ExGraphics</kbd>. I usually extract and
 insert the main graphics so that LM recognizes the format.</li><br>
 
-<li>Go into this package resource in <kbd>TestLevel/Graphics</kbd>, paste those in your exgraphics folder. Right now, the files are conveniently named for what
-graphic slot to use. Copy them (not cut so you can remember what graphics they are for), rename them to <kbd>ExGFX<b>YY</b>.bin</kbd> where YY is any
-valid graphic list item within a slot.</li><br>
+<li>Go into this package resource in <kbd>TestLevel/Graphics</kbd>, paste those in your exgraphics folder. The graphics included are as follows:
+	<table>
+		<tr>
+			<th>Filename + file number</th>
+			<th>Usage Slot</th>
+			<th>Description</th>
+		</tr>
+		<tr>
+			<td class="FixedWidth">ExGFX80.bin</td>
+			<td class="FixedWidth">LG1</td>
+			<td class="FixedWidth">Status bar graphic for digits, slash, and the progress bar graphic.</td>
+		</tr>
+		<tr>
+			<td class="FixedWidth">ExGFX81.bin</td>
+			<td class="FixedWidth">LG4</td>
+			<td class="FixedWidth">Overworld border graphic for the progress bar graphic.</td>
+		</tr>
+		<tr>
+			<td class="FixedWidth">ExGFX90.bin</td>
+			<td class="FixedWidth">BG2</td>
+			<td class="FixedWidth">Layer 1 and 2 graphics for custom blocks.</td>
+		</tr>
+	</table>
+
+</li><br>
 
 <li>Insert them using &ldquo;Quick Insert ExGFX into ROM&rdquo; (yellow mushroom).</li><br>
 
@@ -255,7 +280,7 @@ the player is switching from into a RAM for that would be for character 1, and l
 write it to <kbd>!Freeram_PlayerCurrHP</kbd> and <kbd>!Freeram_PlayerMaxHP</kbd> (for example, switching from Mario to Luigi, Mario's HP data gets stored in mario area
 and brings the luigi's HP data to the current player's HP). This works a lot like how SMW handles the lives, score, powerup for Mario and Luigi.</li><br>
 
-<li>In case if you want damage, knockback and other effects from sprites, custom sprites, cluster, extended, etc that doesn't reply on the provided routines, you can
+<li>In case if you want damage, knockback and other effects from sprites, custom sprites, cluster, extended, etc that doesn't rely on the provided routines, you can
 simply avoid using any of the provided damage routines and code your own to avoid using the damage tables (so special types of damage, example: one attack not using what the
 patch provides that have longer knockback distance, ignores invulnerability frames for multi-hit combos, etc). Do note that analyzing the entire damage routine inside the
 patch is highly recommend if you want consistency such as knockbacks. Such codes to look at is where <kbd>InvinciblePlayerCheck:</kbd> and the following subroutines below that
@@ -264,8 +289,8 @@ patch is highly recommend if you want consistency such as knockbacks. Such codes
 <li>As a hacker who is working on hacks for smw central, I highly recommend as you insert patches and other codes, make a note listing the RAM used (and have them in ascending order).
 This will help you avoid freeram conflicts between patches.</li><br>
 
-<li>Be careful not to use the standard damage routine (<kbd>JSL $00F5B7</kbd>) for other than sprites and custom sprites, because the routine reads the sprite number (and the
-custom sprite bit at <kbd>$7FAB10</kbd> or <kbd>$6040</kbd> (sa-1)) as well as the X index to identify what sprite damages the player. Check out
+<li>Be careful not to use the standard damage routine (<kbd>JSL $00F5B7</kbd>) for other than sprites and custom sprites, because that routine have been changed to check the sprite number (and the
+custom sprite bit at <kbd>$7FAB10</kbd> or <kbd>$6040</kbd> (sa-1)) as well as the X index to identify what amount of damage the player receives. Check out
 <kbd>PlayerHP_blocks/Routines/</kbd> on <kbd>InvincibilityCheck.asm</kbd> and <kbd>DamagePlayer.asm</kbd> to see how the damage works.</li><br>
 
 <li>I don't recommend using SMW's Iggy and Larry boss (or some other mode 7 bosses from SMW) fights because they're broken with the knockback code; which causes the player to teleport into the lava.

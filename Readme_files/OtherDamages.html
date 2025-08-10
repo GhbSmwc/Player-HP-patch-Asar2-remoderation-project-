@@ -39,7 +39,7 @@ how much HP loss the player have taken and what sprite have hit the player.<br><
 Because asar have a feature called <kbd>read</kbd> (syntax: <kbd>read&lt;Number of bytes to read&gt;(&lt;ROM address&gt;)</kbd>), and that
 the patch hijacks smw's damage code from various things (for this matter, the damage from extended and cluster sprites), it is possible
 to read the JSL jump location to a freespace without the need for the shared subroutines patch. The only thing you have to worry about
-is if you re-patch the health code (<kbd>PlayerHPPatch_4_0.asm</kbd>) into your game, you must re-insert whatever code that JSLs to
+is if you re-patch the health code (<kbd>PlayerHPPatch.asm</kbd>) into your game, you must re-insert whatever code that JSLs to
 the patch's subroutines (like re-run spritetool/pixi for example). This is so that whatever outside code using the patch's subroutine
 don't end up using potentially outdated subroutine address and crashes your game (codes in the main patch gets moved around depending
 if you enabled/disabled the code, and editing it).<br><br>

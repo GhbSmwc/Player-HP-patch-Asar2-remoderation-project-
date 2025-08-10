@@ -5,8 +5,8 @@ gamemode:
 	;appear and Mario becoming from small to big when the fading
 	;ends.
 		0C	PlayerHealthNoSmallMario.asm
-		0D	DisplayPlayerHealthOverworld.asm
-		0E	DisplayPlayerHealthOverworld.asm
+		0D	DisplayPlayerHealthOverworld.asm ;\Remove these if you are not planning to display HP on the overworld map.
+		0E	DisplayPlayerHealthOverworld.asm ;/
 		13	DisplayPlayerHealthStatusBar.asm
 		14	DisplayPlayerHealthStatusBar.asm
 

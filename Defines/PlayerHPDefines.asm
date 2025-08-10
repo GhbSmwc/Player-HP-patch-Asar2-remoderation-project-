@@ -9,9 +9,6 @@ incsrc "StatusBarDefines.asm"
 ;on its description. This applies to all defines and settings.
 ;
 ;Note(s):
-;-If you plan on not having the overworld or barely use it (such as 1 level hacks),
-; you can simply set "!Setting_PlayerHP_OverworldDisplay" to 0 and it won't write any
-; display data onto RAM relating to the overworld border.
 ;
 ;-By default, this patch doesn't expect you're using custom sprites. This is due to
 ; untouched RAM being randomized values. To allow custom sprites to deal proper damage
@@ -155,11 +152,6 @@ incsrc "StatusBarDefines.asm"
 	endif
 
 ;Settings:
-	!Setting_PlayerHP_OverworldDisplay		= 1
-		;0 = Disable. (Prevents writing any display data to RAM relating to the overworld border
-		;    plus (will entirely disable any overworld display)).
-		;1 = Enable displaying HP on the overworld border (this uses the overworld border plus).
-
 	!Setting_PlayerHP_DisplayNumericalLevel	= 2
 		;^0 = display no numbers.
 		; 1 = display only current HP.

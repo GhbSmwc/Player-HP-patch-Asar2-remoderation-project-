@@ -1,0 +1,295 @@
+Currently 9 items in main folder.
+
+Version history (M/D/Y, from oldest to newest)
+
+
+Things to do:
+-all done
+
+
+6/19/2015
+ -beta run of the test. Showing it on C3.
+6/20/2015
+ -Figure out why the mushroom doesn't heal the player, I'm missing this:
+
+  org $01C524
+	db $00, 00, 00, 00 ; Mushroom always trys to make you big
+6/21/2015
+ -Fix top of the screen and HDMA garbage flickering by using a seperate patch, uberasm
+  to write the HUD.
+ -Added storing a mushroom into the item box when the player's HP is already full.
+ -Added sfx when grabbing a mushroom; the origional didn't have any.
+ -Added an "x-axis" row on top of the custom sprite list (in the asm) for custom
+  damage; so it's eaisier to count what sprite you want to change its damage.
+6/22/2015
+ -Added a code that displays HP onto overworld border. Note that it only shows it in
+  numerical, the reason is that I haven't learn how to load gfx page other than
+  "GFX2A.bin" and use exgraphic to use the bar graphic.
+6/23/2015
+ -added sram support.
+ -fix up the 16-bit damage value tables.
+6/24/2015
+ -Compressed the code using subroutines (JSR LabelName) and scratch ram for the
+  counter code.
+6/25/2015
+ -Fix the layer 1 x position flicker, I'd store a value to $7E:0019 on the death
+  routine while in 16-bit, causing it to also store a value to $7E:001A.
+ -Since the maxHP upgrades causes the hp bar to make noise, it overwrites the max
+  HP up item's sfx. So I had to remove the barfilling sfx, sorry.
+6/28/2015
+ -Updated so that every damage routine always causes the player to lose cape flight
+  instead of damage (including cluster and extended sprites).
+ -Fix "SolidHurtBlock.asm" not determining what sprite type it is custom sprite or
+  smw sprite when they are the same sprite number.
+7/01/2015
+ -I have discovered a bug that causes a v-blank glitch to overflow on level load
+  (thus causing the area above the IRQ line to flicker). So I changed it so that it
+  only runs during level load init ("gamemode_init_13") for 1 frame only.
+7/11/2015
+ -Fix a glitch that if the player's current HP is multiple of 256, causes the bar
+  to display "empty", this is because of the HP empty check, only checking of
+  HP = 0 only on the low byte instead of both.
+7/17/2015
+ -Change several labels in the uberasm code to sublabels; because in case if there is
+  "redefined" labels when inserting more codes. I didn't did it to the hexdec because
+  both the level and overworld display share that same routine (causes the sublabels
+  to be messy and hard to arrange so that asar won't have a hard time finding the
+  corrosponding label).
+7/27/2015
+ -Updated the muncher block with more options. Now you can have specific side safe to
+  touch (but its still solid like in NSMBWII), and what switches will it alternate
+  muncher <-> coin.
+9/14/2015
+ -Fix the problem with the heal block "RecoveryMush" has a possibility of healing
+  over the max.
+ -Fix the instructions telling the user about the overworld hp display; during the
+  overworld loads, should run once, like the level's load.
+10/17/2015
+ -Discovered and fix the problem of when using AMK, the death music is replaced with
+  a end bonus game music. If you ran into a crash from an instant death routine, most
+  likely that AMK must've hijack the music value that plays when dying. Try reinserting
+  AMK, then this patch to fix it. 
+ -Improved the knockback effect, you'll lose controls temporally, there is two versions:
+  One causes to lose controls only until landing back on the ground, and while the other
+  uses a timer, but you still immediately gain control after landing on the ground.
+10/18/2015
+ -Fix the sm64 lava teleporting 2 blocks down if you are crouching and hitting the
+  bottom.
+ -Fix a crash that happens if a sprite collides SolidHurtBlock.asm when the kill sprite
+  routine is turned on for that offset.
+ -Knockback for blocks added.
+ -Included instructions on how to use this on the origional smw status bar/HUD.
+10/31/2015
+ -Fix an item box issue, If you are super mario and grab a feather or a flower gives you
+  a mushroom.
+11/22/2015
+ -Fix some of the unnecessary texts on this readme and few adjustments to make it more
+  understandable.
+12/2/2015
+ -A bit improvement with the syntax with the asm, I realized that you can have decimal
+  numbers in the dw list.
+ -Converted the damage list to use decimal numbers for convenience.
+ -You no longer need to reinsert the HP patch every time you insert AMK. I have move the
+  instant death hijack so that AMK doesn't hex edit the hijack and corrupting the opcode.
+12/23/2015
+ -Added sa-1 support to all codes in this package (except blocks, since GPS is not yet
+  turned into a hybrid).
+2/14/2016
+ -Improved the code and text seperator using ";----code----;". and ";----end_code----;"
+  follow by tab character.
+ -Improved the bar drawing routine that checks if the bar is full, based on bounds
+  checking if the number of bytes to index is too large, it doesn't write, rather than
+  amount if fill pixels.
+ -Added a "round to the nearest pixel" so that the bar displays the closest percent
+  (done by checking if the division remainder is greater than/equal-to half of maxHP).
+ -Added a hang effect that when you take damage, the transperent/translucent will stay
+  in one place in the bar for a few seconds before following towards the current HP
+  percentage.
+2/15/2016
+ -Rename some of the defines of the blocks so to keep consistency with the patch.
+2/20/2016
+ -Improve the afterdeath half health restoration, since LSR uses the carry and it makes
+  round half up easier.
+9/12/2016
+ -Moving stuff to uberasm tool
+ -The bar drawing subroutine is more flexible, since it uses the "graphical bar" that I
+  have submitted to the documents section so if you have multiple bars, can recycle
+  it.
+ -Upgraded the maximum value of HP from 999 to 9,999. Final fantasy style.
+ -Smw's original hurt blocks (munchers, spikes from castle and ghost houses) now have been
+  edited to not use the "sprite damage player" subroutine (thus, fixing the wrong damage
+  and knockback). Although, since the damage blocks share the same side offset for that
+  code, the knockback is excluded.
+ -overworld stuff:
+ --HP display as a bar now applies to overworld as well.
+ --Because of the new LM layer 3 ExGFX applies to the overworld, this allows me to use
+   appropriate graphics (the max health prefix is no longer a  "l" but a "/")
+ --HP meter can update during an overworld mode, allowing you to have ASM to heal/damage
+   the player.
+ -When you take seperate damage 2 or more times, the damage indicator in the bar freezes
+  each hit, instead of continuously shrinking after the second damage, allowing you to see
+  the "total percentage damage", like in "Angry Video Game Nerd 2: assimilation" and the
+  modern kirby games beginning on "kirby's Return to Dreamland".
+ -Added an option for recovering a portion of max HP (called "FracOfMax" and "Mul"), so
+  that the higher your max HP, the more it recover. This applies to the custom block
+  "HealMushroomBlock", smw's super mushroom and midway point.
+ -Blocks:
+ --Muncher has a bugfix with pushing dropped sprite sideways when it is a coin state, due
+   to the fact that if you make the block in default $130 and the block code itself makes
+   it behave $25 does NOT completely make it behave $25.
+12/22/2016
+ -Updated to use the more modern graphical bar subroutine (the version that can handles
+  large ratios by using the 32x32 bit multiplication). This also allow more accurate percentage
+  filled in the bar without the need to reduce the fraction.
+ -OW tilewrite now uses stripe RAM, due to a VRAM-without-DMA bugs rather than direct write
+  to $2118/$2119.
+ -Defines are now easy to manage. You can also have more options on how the player can restore
+  HP after the player dies (look for "!DeathRecovTyp").
+
+12/29/2016
+ -Fix a bug with the P-balloon when taking damage.
+ -Moved the OW writing to stripe image.
+ -Used updated routines (drawbar, CalculatePercentage, and hex-dec routine)
+ --Because of the updated routines, it does not need to reduce the HP/Max ratio.
+ -Added SA-1 compatibility to blocks since the SA-1 GPS block inserter now has a feature.
+
+ -Use updated SA-1/SuperFX (not completely usable yet, but OK in sa-1) detector:
+ ;----code----;
+ 	!dp = $0000
+ 	!addr = $0000
+ 	!sa1 = 0
+ 	!gsu = 0
+ 
+ if read1($00FFD6) == $15
+ 	sfxrom
+ 	!dp = $6000
+ 	!addr = !dp
+ 	!gsu = 1
+ elseif read1($00FFD5) == $23
+ 	sa1rom
+ 	!dp = $3000
+ 	!addr = $6000
+ 	!sa1 = 1
+ endif
+ ;----end_code----;
+ -Use better sprite table naming for SA-1 hybrid (thanks goes to JackTheSpades (ID:7869))
+12/30/2016
+ -Fix the SM64Lava.asm bug where if you die by touching this block, you still get teleported
+  away from the block; giving the appearence of the player NOT touching the block and still
+  dying.
+ -Added a note about using custom damages and custom knockbacks not provided in the patch.
+ -Added a note that if you were to make any changes to the patch that you would use its
+  subroutine, codes could be moved around and cause crashes if you don't move your subroutine
+  address to a new one.
+1/12/2017
+ -Added a more detailed discription about having custom knockback and/or multiple different damage
+  on the same sprite.
+6/20/2017 - 3.0
+ -Added an option for numerical counter: show no numbers and show current only during level with
+  current/max on the map (uses less space on the status bar).
+ -Use updated graphical bar routine (this one destroys less scratch RAM).
+ -Instead of using stripe image to write tiles, it now uses Overworld Border + by MarioFanGamer
+  (ID:22951).
+ -Fix a minor issue that the death routine was executed twice, when mario takes damage more than
+  remainding HPs left.
+ -When healing, the bar shows a record effect to indicate how much healed.
+ -Added a notice about odd damages and knockback when not using custom sprites on certain
+  emulators.
+ -Improved test level.
+ -numerical record counter now increases much slower if the value is close to the actual HP.
+  rather than increasing every frame (which is very fast), allowing smooth transition.
+ -Fix some of the SA-1 conversion issues with the blocks (reuseable heal block does not play sfx,
+  for example.)
+ -Fractional recoveries now recovers an accurate amount.
+ -HTML updated to use headings and the number of items in the main directory now is right-align.
+ -HTML now warns the user about WRAM ($7E and $7F) inaccessible on SA-1 (custom blocks, by the way
+  are run in SA-1).
+ -Block and patch's multiplication/division routine now substitute with SA-1 register when using
+  SA-1 (only 16bit with 16bit).
+6/23/2017 - 3.1
+ -Fix an error resulting from disabling knockback when patching HpPatch.asm.
+7/4/2017
+ -updated the info about the graphical bar routine (the HTML file).
+8/9/2017 - 3.2
+ -Now includes an easy way to convert freeram addresses defines to sa-1: have a copy of the defines
+  folder with its freeram address using banks $40/$41 so that sa-1 users don't have to edit them
+  (unless if other codes uses the same as the defaults addresses here for unrelated gimmick
+  (non-player HP to be exact)).
+ -The sa-1 defines now includes spritetool sa-1 addresses.
+8/13/2017 - 3.3
+ -Was removed for these reasons:
+ --Midway point crashes the game if you set the midway healing to 2 (heal by fraction).
+ --!Freeram_SlowHPChange wasn't initalized, causing HP recovery of #$55 when the level begins.
+ --$41A000-$41C7FF is used for BW-RAM Plus, and some of the freeram and other settings not related
+   uses those addresses, causing conflicts.
+4/1/2018 - 4.0 big update
+ -Recoded the entire package from scratch with new changes:
+ --Defines overhauled.
+ ---Defines now allow you to reduce how much RAM and ROM bytes being used. For example, if you're not
+    using HP values over 255, you can disable the high byte of that and it will only store 8-bits of HP.
+ ----Damage tables are also shrinkable.
+ ---SA-1 RAM addresses are merged and uses the "if !sa1", for ease of editing
+ --Length of bar now have seperate settings for overworld and level, as well as other settings for
+   different style.
+ --Mushroom:
+ ---Reuses smw's codes instead of jumping straight to the return address, this allows the mushroom
+    behave more consistent with vanilla smw mushroom (it now does a growing animation (if your hack
+    makes it possible to have small mario in it) and gives points if grabbed from non-item box source).
+ --Damages from SMW/Custom sprites, cluster sprites and extended sprites are re-written for more
+   efficiency.
+ -Fix that I have forgotten to include damage from a minor extended sprite from the boo stream when
+  touching other than the head part of the sprite.
+ -Lots of repeated code used by sprites, custom sprites, extended, boo stream, and cluster are moved
+  to subroutines and made it easier to users to add custom code when the player takes damage and/or
+  dies.
+ -Fix a bug when a user wanted to have the HP be set to a specific value after the player dies and
+  returns to the overworld map.
+ -Uberasm tool stuff:
+ --Graphical bar routine updated to version 3.14 due to a middle tile overflow bug issue.
+ --Like the blocks, they now use JSL to avoid repeated code (such as setting the ratio of current and max
+   health and the number of pieces).
+ -Blocks overhauled:
+ --Routines - codes reused by another blocks now uses a newly created routines to save space. Especially
+   when it comes to handling if the player is 1 pixel deeper into the sides of the block and detecting
+   what side (left or right) the player is touching the block.
+ --Muncher now allows disabling left or right side individually rather than both sides (mainly useful
+   if you somehow wanted a sideways muncher that touching the "bottom" (the "root" part of the plant)
+   won't harm the player).
+ --The max HP upgrade pickup flag data are now level-based instead of purely block-based, meaning you
+   can reuse the block without affecting its "duplicates" in other levels. Combined with that using
+   the same block can now increase max HP differently.
+ --Fix a noticeable inconsistency that Mario's death animation Y speed was affected by blocks.
+ --Mushroom block now emulates the mushroom sprite more accurately (hitbox, score and overall).
+ -New feature (optional): Mother/Earthbound "rolling HP" system; taking damage (and healing) doesn't
+  instantly subtract or heal HP, rather increments or decrements gradually. Note that to have *instant*
+  death, one would need to use [JSL $00F606] instead of calling a damage routine of the amount of damage
+  more than or equal to the amount the player have, as damage only kills the player when landing on 0HP.
+ -Fix a minor glitch that when the player runs out of lives (game over), when going back to the map, the
+  player's HP is restored despite mario display a halo indicating mario is dead, it will now display 0HP
+  when this happens.
+ -Overworld border write can now be disabled, this is useful if a hacker doesn't or barely (such as 1
+  level hacks) use the overworld at all. This prevents writing overworld displays into RAM address that
+  are basically not used.
+ -Improved way on how to have custom cluster and extended sprites use the in-patch subroutines using
+  read3($xxxxxx) feature of asar without the need of shared subroutines patch.
+ -Readme now have detailed descriptions about knockback center displacements.
+ -Improved the readme instruction on how to make other types of sprites use the patch's code via
+  [read3(<address>)].
+6/17/2018 - 4.0 - typo.
+ -Fix a minor typo in OtherDamages.html that one of the address mentioned uses a double dollar sign
+  ("$$").
+9/9/2018 - 4.1 - graphical bar update
+ -Updated the graphical bar routine to version 3.15 (new on that is using SNES register only since uberasm
+  runs on the SNES side and math routines now uses a smaller size, also includes a fix for the overflowing
+  right end should the fill amount be calculated >255).
+10/23/2018 - 4.2 - ANOTHER graphical bar update
+ -Updated to version 3.16 due to a forgotten SEP #$20 (this makes A 8-bit value) when dealing with
+  rounding towards full detection if the user sets to use the SNES math only on a sa-1 hack.
+2025-08-10 - 4.2 ASM section remoderation update
+ -Made changes that no longer uses asar's depreciated features.
+ -Updated uberasm tool codes so that they utilizes its new routines system
+ -Define files are now separated due to the routines used can have more uses beyond displaying the
+  player's health.
+ -Improved the slash graphic for the overworld border when displaying numerical HP values with max HP
+  display enabled
+ -Readme now lets you easily copy codes via CTRL+double-click to select.

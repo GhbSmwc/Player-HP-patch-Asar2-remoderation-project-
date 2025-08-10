@@ -25,6 +25,10 @@
 				filter: FlipH;
 				-ms-filter: "FlipH";
 			}
+			
+			td {
+				font-family: monospace;
+			}
 		</style>
 	</head>
 <body style="max-width: 1000px; margin: auto; padding: 15px">
@@ -66,7 +70,7 @@ in a single level.<br><br>
 This makes it so you don't have duplicates of such blocks hogging your map16 editor, as
 the blocks get reused in every listed level. And yes, you can have a re-textured (different
 graphic) block behaving the original custom block. The only thing you must avoid here is having
-two same blocks (or any blocks assigned to the same bit) in the same level. As both or all of
+multiple of the same block (or any blocks assigned to the same bit) in the same level. As all of
 them will disappear when the level reloads after picking up one of them.<br><br>
 
 Every time you add a new level you plan on using the upgrade blocks, you must add a new
@@ -75,10 +79,10 @@ item in the table list:<br><br>
 <li>Level list for blocks(<kbd>Routines/LevelListedIndex.asm</kbd>):
 <table><tr><td><pre>
 	LevelIndexWordListStart:
-	dw $0105			;>Level 105 [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+0]
-	dw $0106			;>Level 106 [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+1]
-	dw $0103			;>Level 103 [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+2]
-	;dw $xxxx			;>template  [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+3]
+	dw $0105			;&gt;Level 105 [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+0]
+	dw $0106			;&gt;Level 106 [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+1]
+	dw $0103			;&gt;Level 103 [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+2]
+	;dw $xxxx			;&gt;template  [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+3]
 	LevelIndexWordListEnd:	;Don't remove this (needed to count how many items in the table)
 </pre></td></tr></table>
 ^These are level numbers to be included in the list. Do note that the output X is the item number
@@ -99,10 +103,10 @@ setting <kbd>!HPUpgrade_VaryingIncrease</kbd> to <kbd>1</kbd>.):
 <table><tr><td><pre>
  MaxHPUpgradeBit<font color="red">*</font>IncreaseList:
  ;Order here corresponds with the table in "MaxHPUpgradeObtainLevelListIndex.asm"
- !PlayerHPDataTableSize 10            ;>Level 105 [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+0]
- !PlayerHPDataTableSize 15            ;>Level 106 [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+1]
- !PlayerHPDataTableSize 1             ;>Level 103 [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+2]
- ;!PlayerHPDataTableSize 1             ;>template [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+3]
+ !PlayerHPDataTableSize 10            ;&gt;Level 105 [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+0]
+ !PlayerHPDataTableSize 15            ;&gt;Level 106 [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+1]
+ !PlayerHPDataTableSize 1             ;&gt;Level 103 [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+2]
+ ;!PlayerHPDataTableSize 1             ;&gt;template [!Freeram_PlayerHP_MaxHPUpgradePickupFlag+3]
 </pre></td></tr></table>
 <font color="red">*</font> means a bit value number 0-7.
 </li><br>
@@ -157,67 +161,67 @@ blocks):<br><br>
 <th>RAM address (bytes)</th>
 </tr>
 <tr>
-<td>$00-$07</td>
+<td>$00~$07</td>
 <td>$7FC060</td>
 </tr>
 <tr>
-<td>$08-$0F</td>
+<td>$08~$0F</td>
 <td>$7FC061</td>
 </tr>
 <tr>
-<td>$10-$17</td>
+<td>$10~$17</td>
 <td>$7FC062</td>
 </tr>
 <tr>
-<td>$18-$1F</td>
+<td>$18~$1F</td>
 <td>$7FC063</td>
 </tr>
 <tr>
-<td>$20-$27</td>
+<td>$20~$27</td>
 <td>$7FC064</td>
 </tr>
 <tr>
-<td>$28-$2F</td>
+<td>$28~$2F</td>
 <td>$7FC065</td>
 </tr>
 <tr>
-<td>$30-$37</td>
+<td>$30~$37</td>
 <td>$7FC066</td>
 </tr>
 <tr>
-<td>$38-$3F</td>
+<td>$38~$3F</td>
 <td>$7FC067</td>
 </tr>
 <tr>
-<td>$40-$47</td>
+<td>$40~$47</td>
 <td>$7FC068</td>
 </tr>
 <tr>
-<td>$48-$4F</td>
+<td>$48~$4F</td>
 <td>$7FC069</td>
 </tr>
 <tr>
-<td>$50-$57</td>
+<td>$50~$57</td>
 <td>$7FC06A</td>
 </tr>
 <tr>
-<td>$58-$5F</td>
+<td>$58~$5F</td>
 <td>$7FC06B</td>
 </tr>
 <tr>
-<td>$60-$67</td>
+<td>$60~$67</td>
 <td>$7FC06C</td>
 </tr>
 <tr>
-<td>$68-$6F</td>
+<td>$68~$6F</td>
 <td>$7FC06D</td>
 </tr>
 <tr>
-<td>$70-$77</td>
+<td>$70~$77</td>
 <td>$7FC06E</td>
 </tr>
 <tr>
-<td>$78-$7F</td>
+<td>$78~$7F</td>
 <td>$7FC06F</td>
 </tr>
 </table>
@@ -231,21 +235,21 @@ using bit flag numbers <kbd>$00</kbd> to <kbd>$7F</kbd>) and not using bits
 0-7, you can convert your 0-7 bit numbers to what 8-bit range listed above
 by simply adding by the number representing the lowest bit in a byte. Using
 the example above, you add <kbd>$00</kbd> and <kbd>$07</kbd> both by <kbd>$10</kbd>. You get
-<kbd>$10-$17</kbd> and will do this:
+<kbd>$10~$17</kbd> and will do this:
 <table><tr><td><pre>
-MaxHP_UpgradeBit0.asm -> $00+$10 : Bit flag number : $10
-MaxHP_UpgradeBit1.asm -> $01+$10 : Bit flag number : $11
-MaxHP_UpgradeBit2.asm -> $02+$10 : Bit flag number : $12
-MaxHP_UpgradeBit3.asm -> $03+$10 : Bit flag number : $13
-MaxHP_UpgradeBit4.asm -> $04+$10 : Bit flag number : $14
-MaxHP_UpgradeBit5.asm -> $05+$10 : Bit flag number : $15
-MaxHP_UpgradeBit6.asm -> $06+$10 : Bit flag number : $16
-MaxHP_UpgradeBit7.asm -> $07+$10 : Bit flag number : $17
+MaxHP_UpgradeBit0.asm -&gt; $00+$10 : Bit flag number : $10
+MaxHP_UpgradeBit1.asm -&gt; $01+$10 : Bit flag number : $11
+MaxHP_UpgradeBit2.asm -&gt; $02+$10 : Bit flag number : $12
+MaxHP_UpgradeBit3.asm -&gt; $03+$10 : Bit flag number : $13
+MaxHP_UpgradeBit4.asm -&gt; $04+$10 : Bit flag number : $14
+MaxHP_UpgradeBit5.asm -&gt; $05+$10 : Bit flag number : $15
+MaxHP_UpgradeBit6.asm -&gt; $06+$10 : Bit flag number : $16
+MaxHP_UpgradeBit7.asm -&gt; $07+$10 : Bit flag number : $17
 </pre></td></tr></table><br>
 
 <li>Assign the blocks to use the conditional map16 blocks. Make sure you use the bit flag number of your choice you set for
 <kbd>!Ram_PickupBlockExistFlag</kbd> or it won't work. The &ldquo;conditional direct map16 access&rdquo; can be found (at the
-time of writing this) on <kbd>Menu bar -> Edit -> Conditional Direct Map16...</kbd>.<br><br>
+time of writing this) on <kbd>Menu bar -&gt; Edit -&gt; Conditional Direct Map16...</kbd>.<br><br>
 
 Note that at the time of writing this, blocks getting their conditional map16 bit flag number are <b>per-level
 based</b>, meaning every level that uses the upgrade blocks, you have to &ldquo;re-add&rdquo;
