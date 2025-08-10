@@ -89,6 +89,8 @@ containing all of them) and <kbd>incsrc</kbd>'ing in any places that would need 
 Now you may be wondering why I have multiple defines file and that some defines are not intuitively in some ASM files. This is because this system uses a potentially general-purpose
 routines (the graphical bar and string-handling system) that can be used for anything other than player HP.<br><br>
 
+For uberasm tool, pixi, most other stuff, you place the copy of the define asm files in the same directory (or area) as the .exe, not in any of the subfolders.<br><br>
+
 The description regarding how much bytes freeram they take are mostly formula-based due to the fact that they vary in size. For example:
 <table><tr><td><pre>
 ;[BytesUsed = 1 + !Setting_PlayerHP_TwoByte]
