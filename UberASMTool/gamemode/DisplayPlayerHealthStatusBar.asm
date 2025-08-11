@@ -75,6 +75,11 @@ endmacro
 
 if or(!StaticSlashTileExist, !Setting_PlayerHP_BarAnimation)
 	init:
+		if !CPUMode
+			%invoke_sa1(.RunSA1)
+			RTL
+			.RunSA1
+		endif
 		;When displaying 2 numbers without aligned characters (not using left or right aligned, this writes a slash in between the two numbers)
 		if !StaticSlashTileExist
 			LDA #!StatusBarSlashCharacterTileNumb
@@ -93,6 +98,11 @@ if or(!StaticSlashTileExist, !Setting_PlayerHP_BarAnimation)
 		RTL
 endif
 main:
+	if !CPUMode
+		%invoke_sa1(.RunSA1)
+		RTL
+		.RunSA1
+	endif
 	.WriteHPString
 		;Detect user trying to make a right-aligned single number (which avoids unnecessarily uses suppress leading zeroes)
 			!IsUsingRightAlignedSingleNumber = and(equal(!Setting_PlayerHP_DigitsAlignLevel, 2),equal(!Setting_PlayerHP_DisplayNumericalLevel, 1))

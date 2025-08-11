@@ -130,7 +130,9 @@ that that means that the freeram isn't used entirely.</li><br>
 <ol>
 <li>Paste the defines asm files in the same directory as the SRAM/BWRAM ASM patches are located, then open <kbd>&lt;sram or bwram&gt;_plus.asm</kbd>
 and add this to the top of the text:
-<table><tr><td><pre>incsrc "StatusBarDefines.asm" ;&gt;This must be first so its functions can be used by other defines.
+<table><tr><td><pre>
+incsrc "SA1StuffDefines.asm"                     ;\These must be first so its functions can be used by other defines.
+incsrc "StatusBarDefines.asm"                    ;/
 incsrc "SA1StuffDefines.asm"
 incsrc "PlayerHPDefines.asm"
 incsrc "MotherHPDefines.asm"</pre></td></tr></table><br>
