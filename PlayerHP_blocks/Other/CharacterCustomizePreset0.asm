@@ -11,6 +11,7 @@ JMP SpriteV : JMP SpriteH : JMP MarioCape : JMP MarioFireball
 JMP TopCorner : JMP BodyInside : JMP HeadInside
 ; JMP WallFeet : JMP WallBody ; when using db $37
 
+incsrc "../../../StatusBarDefines.asm"
 incsrc "../../../PlayerHPDefines.asm"
 incsrc "../../../MotherHPDefines.asm"
 

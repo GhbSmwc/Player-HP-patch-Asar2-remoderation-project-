@@ -31,6 +31,7 @@ db $42
 JMP MarioBelow : JMP MarioAbove : JMP MarioSide : JMP SpriteV : JMP SpriteH : JMP Return
 JMP MarioFireBall : JMP MarioAbove : JMP BodyInside : JMP HeadInside
 
+incsrc "../../../StatusBarDefines.asm"
 incsrc "../../../PlayerHPDefines.asm"
 incsrc "../../../MotherHPDefines.asm"
 

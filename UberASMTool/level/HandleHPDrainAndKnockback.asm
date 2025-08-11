@@ -1,5 +1,6 @@
 ;Run this as "level"
 
+incsrc "../StatusBarDefines.asm"
 incsrc "../GraphicalBarDefines.asm"
 incsrc "../MotherHPDefines.asm"
 incsrc "../PlayerHPDefines.asm"

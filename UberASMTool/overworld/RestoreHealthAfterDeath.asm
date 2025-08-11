@@ -4,6 +4,7 @@
 ;This restores HP when the player returns to the map, most of these
 ;restores HP after the player dies.
 
+incsrc "../StatusBarDefines.asm"
 incsrc "../PlayerHPDefines.asm"
 incsrc "../GraphicalBarDefines.asm"
 incsrc "../MotherHPDefines.asm"

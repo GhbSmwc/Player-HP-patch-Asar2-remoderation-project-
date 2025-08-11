@@ -1,4 +1,3 @@
-incsrc "StatusBarDefines.asm"
 ;This define file is for handling routines for strings (text), displaying decimal numbers etc.
 
 		if !sa1 == 0

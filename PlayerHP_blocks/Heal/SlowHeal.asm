@@ -31,6 +31,7 @@ JMP MarioBelow : JMP MarioAbove : JMP MarioSide
 JMP SpriteV : JMP SpriteH : JMP MarioCape : JMP MarioFireball
 JMP TopCorner : JMP BodyInside : JMP HeadInside
 
+incsrc "../../../StatusBarDefines.asm"
 incsrc "../../../PlayerHPDefines.asm"
 
 assert !RecovPerPeriod <= 127, "Must be less than or equal to 127."

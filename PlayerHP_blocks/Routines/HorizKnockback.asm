@@ -22,6 +22,7 @@
 ;                 have a failsafe.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+incsrc "../StatusBarDefines.asm"
 incsrc "../PlayerHPDefines.asm"
 
 	;ValidSpeedCheck

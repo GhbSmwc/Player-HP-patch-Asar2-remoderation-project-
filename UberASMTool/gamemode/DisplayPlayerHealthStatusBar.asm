@@ -4,8 +4,8 @@
 ;This code displays the player HP (numerical and/or as a bar) on the layer 3 status bar.
 
 incsrc "../GraphicalBarDefines.asm"
-incsrc "../PlayerHPDefines.asm"
 incsrc "../StatusBarDefines.asm"
+incsrc "../PlayerHPDefines.asm"
 incsrc "../NumberDisplayRoutinesDefines.asm"
 incsrc "../MotherHPDefines.asm"
 macro WriteFixedDigitsToLayer3(TileLocation)

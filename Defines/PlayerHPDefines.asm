@@ -2,7 +2,7 @@ includeonce ;>Prevent redefinition errors
 if defined("sa1") == 0
 	incsrc "SA1StuffDefines.asm"
 endif
-incsrc "StatusBarDefines.asm"
+
 ;This is the main defines file.
 ;Be sure to check out the others defines for customizations.
 ;

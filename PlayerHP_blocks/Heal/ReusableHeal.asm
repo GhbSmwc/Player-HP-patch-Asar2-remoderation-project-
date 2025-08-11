@@ -29,7 +29,7 @@ JMP TopCorner : JMP BodyInside : JMP HeadInside
  endif
  assert or(!FullRecoverTop, or(!FullRecoverBottom, or(!FullRecoverLeft, !FullRecoverRight))) == 1, "Usless block, this doesn't heal the player at all."
 
-
+incsrc "../../../StatusBarDefines.asm"
 incsrc "../../../PlayerHPDefines.asm"
 incsrc "../../../MotherHPDefines.asm"
 

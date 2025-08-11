@@ -2,8 +2,8 @@
 ;;than abruptly after the overworld fully loads.
 
 incsrc "../GraphicalBarDefines.asm"
-incsrc "../PlayerHPDefines.asm"
 incsrc "../StatusBarDefines.asm"
+incsrc "../PlayerHPDefines.asm"
 incsrc "../NumberDisplayRoutinesDefines.asm"
 incsrc "../MotherHPDefines.asm"
 macro WriteFixedDigitsToLayer3(TileLocation, TileLocationProp)

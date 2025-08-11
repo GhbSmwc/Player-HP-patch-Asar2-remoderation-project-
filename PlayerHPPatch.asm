@@ -12,6 +12,7 @@
 ;^Use CTRL+F to find them.
 
 incsrc "Defines/SA1StuffDefines.asm"
+incsrc "Defines/StatusBarDefines.asm"
 incsrc "Defines/PlayerHPDefines.asm"
 incsrc "Defines/MotherHPDefines.asm"
 

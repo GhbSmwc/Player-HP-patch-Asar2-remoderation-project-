@@ -16,6 +16,7 @@ JMP SpriteV : JMP SpriteH : JMP MarioCape : JMP MarioFireball
 JMP TopCorner : JMP BodyInside : JMP HeadInside
 ; JMP WallFeet : JMP WallBody ; when using db $37
 
+incsrc "../../../StatusBarDefines.asm"
 incsrc "../../../PlayerHPDefines.asm"
 incsrc "../../../MotherHPDefines.asm"
 
@@ -157,8 +158,6 @@ incsrc "../../../MotherHPDefines.asm"
 			PLY
 		endif
 		;Rounding to nearest integer
-		
-		math round off
 		
 		.Round
 		REP #$20

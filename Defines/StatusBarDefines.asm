@@ -1,5 +1,7 @@
 includeonce ;>Needed because functions cannot be redefined (asar will error out)
 
+;Note: This file must be included first so that subsequent incsrc to include other define files can recognize functions.
+
 !UsingCustomStatusBar = 1 ;>Set to 0 if you are using vanilla status bar, 1 if using custom status bar patch
 !StatusBar_UsingCustomProperties = 1 ;>Set this to 0 if you don't want to modify tile properties, otherwise set to 1
 !StatusbarFormat = $02
