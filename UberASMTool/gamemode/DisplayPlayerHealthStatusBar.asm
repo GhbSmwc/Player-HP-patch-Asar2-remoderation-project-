@@ -280,7 +280,6 @@ main:
 					STA $00
 				...ShowCurrentHPOnEvenFrames
 			endif
-			%UberRoutine(GraphicalBar_RoundAwayEmptyFull)
 			...WriteBar
 				%UberRoutine(GraphicalBar_DrawGraphicalBarSubtractionLoopEdition)
 			STZ $00					;>Use level sets of fill tiles
@@ -344,5 +343,6 @@ main:
 			LDA.b #!Default_MiddleLengthLevel			;\length (number of middle tiles)
 			STA !Scratchram_GraphicalBar_TempLength			;/
 			%UberRoutine(GraphicalBar_CalculatePercentage)
+			%UberRoutine(GraphicalBar_RoundAwayEmptyFull)
 			RTS
 	endif
