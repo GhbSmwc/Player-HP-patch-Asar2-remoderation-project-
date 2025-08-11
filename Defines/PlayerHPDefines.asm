@@ -1,3 +1,4 @@
+includeonce ;>Prevent redefinition errors
 if defined("sa1") == 0
 	incsrc "SA1StuffDefines.asm"
 endif

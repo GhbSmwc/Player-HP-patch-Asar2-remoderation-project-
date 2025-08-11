@@ -1,0 +1,22 @@
+; GPS block list
+500:130 PlayerHP_blocks/Damage/VanillaMuncher.asm
+501:130 PlayerHP_blocks/Damage/DirectionalHurtBlock.asm
+502:130 PlayerHP_blocks/Damage/DirectionalHurtBlockPresets/DirectionalHurtBlock_Top.asm
+503:130 PlayerHP_blocks/Damage/DirectionalHurtBlockPresets/DirectionalHurtBlock_Bottom.asm
+504:130 PlayerHP_blocks/Damage/DirectionalHurtBlockPresets/DirectionalHurtBlock_Left.asm
+505:130 PlayerHP_blocks/Damage/DirectionalHurtBlockPresets/DirectionalHurtBlock_Right.asm
+506:130 PlayerHP_blocks/Damage/SM64Lava.asm
+507:025 PlayerHP_blocks/Damage/SlowDamage.asm
+
+520:025 PlayerHP_blocks/Heal/Mushroom.asm
+521:025 PlayerHP_blocks/Heal/ReusableHeal.asm
+522:025 PlayerHP_blocks/Heal/SlowHeal.asm
+
+530:025 PlayerHP_blocks/MaxHP_Upgrade/MaxHP_UpgradeBit0.asm
+531:025 PlayerHP_blocks/MaxHP_Upgrade/MaxHP_UpgradeBit1.asm
+532:025 PlayerHP_blocks/MaxHP_Upgrade/MaxHP_UpgradeBit2.asm
+533:025 PlayerHP_blocks/MaxHP_Upgrade/MaxHP_UpgradeBit3.asm
+534:025 PlayerHP_blocks/MaxHP_Upgrade/MaxHP_UpgradeBit4.asm
+535:025 PlayerHP_blocks/MaxHP_Upgrade/MaxHP_UpgradeBit5.asm
+536:025 PlayerHP_blocks/MaxHP_Upgrade/MaxHP_UpgradeBit6.asm
+537:025 PlayerHP_blocks/MaxHP_Upgrade/MaxHP_UpgradeBit7.asm
