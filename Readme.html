@@ -96,6 +96,9 @@ while routines and other things such as freeram for graphical bar, number displa
 
 For uberasm tool, pixi, most other stuff, you place the copy of the define asm files in the same directory (or area) as the .exe, not in any of the subfolders.<br><br>
 
+Note that <kbd>incsrc "&lt;path&rdquo;/StatusBarDefines.asm"</kbd> must be included first before any other <kbd>incsrc</kbd>s to include other define files. This is because other define files uses
+asar's function invoked in <kbd>StatusBarDefines.asm</kbd>.<br><br>
+
 The description regarding how much bytes freeram they take are mostly formula-based due to the fact that they vary in size. For example:
 <table><tr><td><pre>
 <span style="color: red">;[BytesUsed = 1 + !Setting_PlayerHP_TwoByte]</span>
