@@ -1,3 +1,4 @@
+	incsrc "../StatusBarDefines.asm"
 	incsrc "../PlayerHPDefines.asm"
 	incsrc "../MotherHPDefines.asm"
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

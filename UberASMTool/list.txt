@@ -11,7 +11,9 @@ gamemode:
 		14	DisplayPlayerHealthStatusBar.asm
 
 level:
-*	HandleHPDrainAndKnockback.asm ;>This handles HP going down (rolling effect when enabled) after enemy damages the player, as well as the knockback.
+*	HandleHPDrainAndKnockback.asm, RememberHPUpgradePickupState.asm
+;^This handles HP going down (rolling effect when enabled) after enemy damages the player, as well as the knockback.
+; The second one prevents upgrade blocks from respawning in the level when the player leaves and re-enter the level
 
 overworld:
 *	RestoreHealthAfterDeath.asm
