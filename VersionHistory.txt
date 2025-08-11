@@ -293,3 +293,4 @@ Things to do:
  -Improved the slash graphic for the overworld border when displaying numerical HP values with max HP
   display enabled
  -Readme now lets you easily copy codes via CTRL+double-click to select.
+ -Status bar and OWB locations define now uses XY rather than address.
