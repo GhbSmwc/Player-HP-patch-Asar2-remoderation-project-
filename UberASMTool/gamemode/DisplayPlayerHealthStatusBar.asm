@@ -159,7 +159,7 @@ main:
 				%WriteAlignedDigitsToLayer3()
 				
 			endif
-	endif
+		endif
 		..TooMuchChar
 	.WriteGraphicalBar
 	if !Setting_PlayerHP_DisplayBarLevel
