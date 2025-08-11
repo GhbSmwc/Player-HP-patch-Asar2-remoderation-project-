@@ -71,7 +71,7 @@
 				STA.b !Scratchram_16bitHexDecOutput,x	;>Store tile
 
 				DEX
-				BPL .Loop
+				BPL ?.Loop
 
 				PLY
 				PLX
