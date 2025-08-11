@@ -35,7 +35,7 @@
 		; item.
 
 
-	!PlayerHP_MotherHPDelayRecoverLast	= 1
+	!Setting_PlayerHP_MotherHPDelayRecoverLast	= 1
 		;^Number of frames between each increment of HP when the player heals. I highly recommend
 		; having this a low value (meaning have HP recover fast) to prevent player's frustration that
 		; the player's recover can be interrupted easily.
@@ -74,7 +74,7 @@
 		; this is also zero so 1HP is subtracted instantly on damage. This also applies to
 		; healing as well. After hitting zero and +/- 1HP, this number then resets back to
 		; whatever value is in !Freeram_PlayerHP_MotherHPDelayDamageLast (for damage) or
-		; to the value !PlayerHP_MotherHPDelayRecoverLast before +/- 1HP again.
+		; to the value !Setting_PlayerHP_MotherHPDelayRecoverLast before +/- 1HP again.
 
 	if !sa1 == 0
 		!Freeram_PlayerHP_MotherHPDelayDamageLast	= $7FAD65

@@ -68,7 +68,7 @@ main:
 		BEQ ...DamageTimer				;/
 		
 		...HealTimer
-		LDA.b #!PlayerHP_MotherHPDelayRecoverLast	;>The next increment HP
+		LDA.b #!Setting_PlayerHP_MotherHPDelayRecoverLast	;>The next increment HP
 		BRA ...SetTimer
 		
 		...DamageTimer
