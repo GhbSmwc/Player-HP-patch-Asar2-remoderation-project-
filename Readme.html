@@ -39,6 +39,11 @@
 			*.FixedWidth {
 				font-family: monospace;
 			}
+			
+			*.NoLineBreak {
+				font-family: monospace;
+				white-space: pre;
+			}
 		</style>
 	</head>
 <body style="max-width: 1000px; margin: auto; padding: 15px">
@@ -96,8 +101,8 @@ while routines and other things such as freeram for graphical bar, number displa
 
 For uberasm tool, pixi, most other stuff, you place the copy of the define asm files in the same directory (or area) as the .exe, not in any of the subfolders.<br><br>
 
-Note that <kbd>incsrc "&lt;path&rdquo;/StatusBarDefines.asm"</kbd> must be included first before any other <kbd>incsrc</kbd>s to include other define files. This is because other define files uses
-asar's function invoked in <kbd>StatusBarDefines.asm</kbd>.<br><br>
+Note that <kbd>incsrc "&lt;path&gt;/StatusBarDefines.asm"</kbd> must be included first before any other <kbd>incsrc</kbd>s to include other define files. This is because other define files uses
+asar's function included in <kbd>StatusBarDefines.asm</kbd>.<br><br>
 
 The description regarding how much bytes freeram they take are mostly formula-based due to the fact that they vary in size. For example:
 <table><tr><td><pre>
@@ -123,7 +128,8 @@ that that means that the freeram isn't used entirely.</li><br>
 <ol>
 <li>Paste the defines asm files in the same directory as the SRAM/BWRAM ASM patches are located, then open <kbd>&lt;sram or bwram&gt;_plus.asm</kbd>
 and add this to the top of the text:
-<table><tr><td><pre>incsrc "SA1StuffDefines.asm"
+<table><tr><td><pre>incsrc "StatusBarDefines.asm" ;&gt;This must be first so its functions can be used by other defines.
+incsrc "SA1StuffDefines.asm"
 incsrc "PlayerHPDefines.asm"
 incsrc "MotherHPDefines.asm"</pre></td></tr></table><br>
 This will make asar recognize the defines used for the HP meter patch.</li><br>
@@ -192,9 +198,8 @@ sram_defaults:	db $00,$00,$00,$00,$00,$00,$00,$00
 		
 	;[...]  ;&gt;If you are going to have another saved RAM just after the HP data to be saved.
 </pre></div>
-Just remember, the sram table and the default tables order format corresponds. Meaning if say if you place your lives data first, then powerup data second, then the
-first item after a bunch of zeros (past the <nobr><kbd>db $00,$00,$00,$00,$00</kbd></nobr> on the bottom) would be the default number for the lives data, and after that
-would be the powerup data.<br><br>
+Just remember, the order of the data of the sram table and the default tables matches. Meaning if you have the player's current HP first, then the player's max HP second, then the
+default values (past the <span class="NoLineBreak">db $00,$00,$00,$00,$00</span>) should have the first item be the current HP's default value, and the second being the max HP's default value.<br><br>
 
 The reason why this is needed for RAM address that aren't necessary to be saved (have to be 0 when the game starts) is because empty untouched RAM when not initialized
 to a specific value will just be random values (<kbd>$55</kbd> in some emulators), which can cause glitches like when taking damage, your HP doesn't subtract until a random
