@@ -18,36 +18,36 @@ incsrc "../MotherHPDefines.asm"
 
 	LDA $1407|!addr			;\If not flying
 	BEQ ?++				;/
-	JSL $00F5E2			;>Cancel soaring instead
+	JSL $00F5E2|!bank		;>Cancel soaring instead
 	RTL
 	
 	?++
 	;Damage player
-	LDA.b #!PlayerHP_InvulnerabilityTmr		;\Set invulnerability timer
+	LDA.b #!Setting_PlayerHP_InvulnerabilityTmrMostDamages		;\Set invulnerability timer
 	STA $1497|!addr					;/
 	if !Setting_PlayerHP_RollingHP == 0
 		;^If you're not using rolling HP (instant subtraction)
 		if !Setting_PlayerHP_TwoByte == 0
 			;^8-bit HP
-			LDA !Freeram_PlayerCurrHP		;\SubtractedHP = Health - damage
+			LDA !Freeram_PlayerHP_CurrentHP		;\SubtractedHP = Health - damage
 			SEC					;|
 			SBC $00					;/
 			BCS ++					;>If value didn't subtract by larger value, go write HP.
 			LDA #$00				;>Otherwise set HP to 0.
 			
 			?++
-			STA !Freeram_PlayerCurrHP		;>Write difference to current HP.
+			STA !Freeram_PlayerHP_CurrentHP		;>Write difference to current HP.
 		else
 			;16-bit health
 			REP #$20				;>16-bit A
-			LDA !Freeram_PlayerCurrHP		;\SubtractedHP = Health - damage
+			LDA !Freeram_PlayerHP_CurrentHP		;\SubtractedHP = Health - damage
 			SEC					;|
 			SBC $00					;/
 			BCS ?++					;>If subtracted by a smaller or equal to current HP number, subtract as usual
 			LDA #$0000				;>Otherwise if the player suffers larger damage, set HP to 0 and kill.
 			
 			?++
-			STA !Freeram_PlayerCurrHP		;>Write difference to current HP.
+			STA !Freeram_PlayerHP_CurrentHP		;>Write difference to current HP.
 			SEP #$20
 		endif
 	else
@@ -92,14 +92,14 @@ incsrc "../MotherHPDefines.asm"
 		;LDA #$00						;\Initially start out with first decrement immediately.
 		STA !Freeram_PlayerHP_MotherHPDelayFrameTimer		;/(prevents delay when the player transitions from heal to damage)
 	endif
-	if and(notequal(!PlayerHP_BarRecordDelay, 0), notequal(!Setting_PlayerHP_BarAnimation, 0))	;\display transparent segment when the player gets killed
-		LDA.b #!PlayerHP_BarRecordDelay								;|
-		STA !Freeram_PlayerHP_BarRecordDelayTmr							;|
+	if and(notequal(!Setting_PlayerHP_BarChangeDelay, 0), notequal(!Setting_PlayerHP_BarAnimation, 0))	;\display transparent segment when the player gets killed
+		LDA.b #!Setting_PlayerHP_BarChangeDelay								;|
+		STA !Freeram_Setting_PlayerHP_BarChangeDelayTmr							;|
 	endif												;/
 	
-	LDA !Freeram_PlayerCurrHP				;\Check if HP = 0
+	LDA !Freeram_PlayerHP_CurrentHP				;\Check if HP = 0
 	if !Setting_PlayerHP_TwoByte != 0			;|
-		ORA !Freeram_PlayerCurrHP+1			;/
+		ORA !Freeram_PlayerHP_CurrentHP+1			;/
 	endif
 	BEQ ?++							;>if mario dies, skip
 	

@@ -37,10 +37,10 @@ endif
 ; 62 Scratchram_GraphicalBar_RightEndPiece
 ; 7F8449 Scratchram_GraphicalBar_TempLength
 ; 7F844A Scratchram_GraphicalBar_FillByteTbl Scratchram_CharacterTileTable
-; 7FAD49-7FAD4A Freeram_PlayerCurrHP
-; 7FAD4B-7FAD4C Freeram_PlayerMaxHP
+; 7FAD49-7FAD4A Freeram_PlayerHP_CurrentHP
+; 7FAD4B-7FAD4C Freeram_PlayerHP_MaxHP
 ; 7FAD4D Freeram_PlayerHP_BarRecord
-; 7FAD4E Freeram_PlayerHP_BarRecordDelayTmr
+; 7FAD4E Freeram_Setting_PlayerHP_BarChangeDelayTmr
 ; 7FAD4F Freeram_PlayerHP_Knockback
 ; 7FAD50 Freeram_PlayerHP_GradualHPChange
 ; 7FAD51-?????? Freeram_PlayerHP_MaxHPUpgradePickupFlag
@@ -55,10 +55,10 @@ endif
 ; 400197 Scratchram_GraphicalBar_RightEndPiece
 ; 40019D Scratchram_GraphicalBar_FillByteTbl Scratchram_CharacterTileTable
 ; 4001B8 Scratchram_GraphicalBar_TempLength
-; 4001B9-4001BA Freeram_PlayerCurrHP
-; 4001BB-4001BC Freeram_PlayerMaxHP
+; 4001B9-4001BA Freeram_PlayerHP_CurrentHP
+; 4001BB-4001BC Freeram_PlayerHP_MaxHP
 ; 4001BD Freeram_PlayerHP_BarRecord
-; 4001BE Freeram_PlayerHP_BarRecordDelayTmr
+; 4001BE Freeram_Setting_PlayerHP_BarChangeDelayTmr
 ; 4001BF Freeram_PlayerHP_Knockback
 ; 4001C0 Freeram_PlayerHP_GradualHPChange
 ; 4001C1-?????? Freeram_PlayerHP_MaxHPUpgradePickupFlag
@@ -71,16 +71,16 @@ endif
 ;[BytesUsed = 1 + !Setting_PlayerHP_TwoByte]
 ;Player current HP.
 	if !sa1 == 0
-		!Freeram_PlayerCurrHP		= $7FAD49 ;>Normal ROM version
+		!Freeram_PlayerHP_CurrentHP		= $7FAD49 ;>Normal ROM version
 	else
-		!Freeram_PlayerCurrHP		= $4001B9 ;>SA-1 Version
+		!Freeram_PlayerHP_CurrentHP		= $4001B9 ;>SA-1 Version
 	endif
 ;[BytesUsed = 1 + !Setting_PlayerHP_TwoByte]
 ;Player max HP.
 	if !sa1 == 0
-		!Freeram_PlayerMaxHP		= $7FAD4B
+		!Freeram_PlayerHP_MaxHP		= $7FAD4B
 	else
-		!Freeram_PlayerMaxHP		= $4001BB
+		!Freeram_PlayerHP_MaxHP		= $4001BB
 	endif
 ;[BytesUsed = !Setting_PlayerHP_BarAnimation]
 ;A display that shows the amount of HP as a bar prior to taking damage
@@ -96,12 +96,12 @@ endif
 ;A timer that indicates how long the bar shows the previous HP prior
 ;heal or damage before it moves towards the player's current HP.
 ;RecordTimerEnabled = 1 if !Setting_PlayerHP_BarAnimation,
-;!PlayerHP_BarRecordDelay and !Setting_PlayerHP_DisplayBarLevel are
+;!Setting_PlayerHP_BarChangeDelay and !Setting_PlayerHP_DisplayBarLevel are
 ;non-zero values and 0 otherwise.
 	if !sa1 == 0
-		!Freeram_PlayerHP_BarRecordDelayTmr	= $7FAD4E
+		!Freeram_Setting_PlayerHP_BarChangeDelayTmr	= $7FAD4E
 	else
-		!Freeram_PlayerHP_BarRecordDelayTmr	= $4001BE
+		!Freeram_Setting_PlayerHP_BarChangeDelayTmr	= $4001BE
 	endif
 ;[BytesUsed = KnockbackEnabled]
 ;Stun flag of the player getting knocked back. When nonzero, the
@@ -200,25 +200,25 @@ endif
 		; - If not aligned or right-aligned with only one number (digits at fixed locations), it is where
 		;   the leading zero/space would be at.
 		; - If left-aligned, it is where the leftmost visible digit would be located
-			!PlayerHP_StringPos_Lvl_x = 0
-			!PlayerHP_StringPos_Lvl_y = 0
+			!Setting_PlayerHP_StringPos_Lvl_x = 0
+			!Setting_PlayerHP_StringPos_Lvl_y = 0
 		;Position to display for right-aligned HP text (Current/Max) (This is the position of the rightmost
 		;tile, a position entered here will take this position and anything to the left)
-			!PlayerHP_StringPosRightAligned_Lvl_x = 31
-			!PlayerHP_StringPosRightAligned_Lvl_y = 0
+			!Setting_PlayerHP_StringPosRightAligned_Lvl_x = 31
+			!Setting_PlayerHP_StringPosRightAligned_Lvl_y = 0
 		
 		;Same as above but for overworld border
-			!PlayerHP_StringPos_Owb_x = 7
-			!PlayerHP_StringPos_Owb_y = 1
+			!Setting_PlayerHP_StringPos_Owb_x = 7
+			!Setting_PlayerHP_StringPos_Owb_y = 1
 			
-			!PlayerHP_StringPosRightAligned_Owb_x = 31
-			!PlayerHP_StringPosRightAligned_Owb_y = 1
+			!Setting_PlayerHP_StringPosRightAligned_Owb_x = 31
+			!Setting_PlayerHP_StringPosRightAligned_Owb_y = 1
 	;Tile properties of the digits and slash (only used when !StatusBar_UsingCustomProperties == 1 in StatusBarDefines.asm)
-		!PlayerHP_TileProp_Level_Text_Page = 0		;>Valid values: 0-3
-		!PlayerHP_TileProp_Level_Text_Palette = 6	;>Valid values: 0-7
+		!Setting_PlayerHP_StringTileProp_Level_Page = 0		;>Valid values: 0-3
+		!Setting_PlayerHP_StringTileProp_Level_Palette = 6	;>Valid values: 0-7
 		
-		!PlayerHP_TileProp_Ow_Text_Page = 1		;>Valid values: 0-3
-		!PlayerHP_TileProp_Ow_Text_Palette = 6		;>Valid values: 0-7
+		!Setting_PlayerHP_StringTileProp_Ow_Page = 1		;>Valid values: 0-3
+		!Setting_PlayerHP_StringTileProp_Ow_Palette = 6		;>Valid values: 0-7
 
 	;small and Large HP settings:
 		;Size of the player's HP:
@@ -249,27 +249,27 @@ endif
 			; 1 = HP bar displays a changing animation (transparent segment to
 			;     indicate the amount of damage or recovery)
 
-		!PlayerHP_BarFillUpSpeed				= $00
+		!Setting_PlayerHP_FillDelayFrames				= $00
 			;^Speed that the bar fills up. Only use these values:
 			; $00,$01,$03,$07$,$0F,$1F,$3F or $7F. Lower values = faster
 
-		!PlayerHP_BarFillUpSpeedPerFrame			= 0
+		!Setting_PlayerHP_BarFillUpPerFrame			= 0
 			;^How many pieces in the bar filled per frame. This overrides
-			; !PlayerHP_BarFillUpSpeed when 2+. Higher = faster filling animation.
+			; !Setting_PlayerHP_FillDelayFrames when 2+. Higher = faster filling animation.
 
-		!PlayerHP_BarFillDrainSpeed				= $01
+		!Setting_PlayerHP_EmptyDelayFrames				= $01
 			;^Speed that the bar drains after damage. Only use these values:
 			; $00,$01,$03,$07$,$0F,$1F,$3F or $7F. Lower values = faster
 
-		!PlayerHP_BarFillEmptyingSpeedPerFrame		= 2
+		!Setting_PlayerHP_BarEmptyPerFrame		= 2
 			;^How many pieces in the bar drained per frame. This overrides
-			; !PlayerHP_BarFillDrainSpeed when 2+. Higher = faster draining
+			; !Setting_PlayerHP_EmptyDelayFrames when 2+. Higher = faster draining
 			; animation.
 
-		!PlayerHP_BarRecordDelay				= 30
+		!Setting_PlayerHP_BarChangeDelay				= 30
 			;^How many frames the record effect (transparent effect) hangs
 			; before shrinking down to current HP, up to 255 is allowed.
-			; Set to 0 to disable (will also disable !Freeram_PlayerHP_BarRecordDelayTmr
+			; Set to 0 to disable (will also disable !Freeram_Setting_PlayerHP_BarChangeDelayTmr
 			; from being used,). Remember, the game runs 60 FPS. This also applies
 			; to healing should !Setting_PlayerHP_ShowHealedTransparent be enabled.
 
@@ -284,40 +284,43 @@ endif
 			; This applies when the player takes damage.
 
 	;HP recovery settings:
+	;In case if you're wondering, defines with "Dividend" and "Divisor"
+	;represents a fraction of the player's maximum HP when "RecoveryType"
+	;is set to 1 and unused when 0. For example: A player with 20 maximum HP
+	;with 2/5 recovery means a recovery of 8 HP (20*2/5 = 8). Note that if you get a
+	;fraction as the end result, it is rounded to the nearest integer, but not zero.
 		;Midway point
-			!Setting_playerHP_MidwayRecoveryType		= 1
+			!Setting_PlayerHP_MidwayRecoveryType		= 1
 				;^0 = Recover by a fixed amount.
 				; 1 = recover by a fraction of max HP.
 
-			!Setting_playerHP_MidwayRecoveryFixedAmt	= 5
+			!Setting_PlayerHP_MidwayRecoveryFixedAmt	= 5
 				;^Fixed amount of HP to recover.
 
-			!Setting_playerHP_MidwayRecoveryDividend	= 2
-			!Setting_playerHP_MidwayRecoveryDivisor	= 5
-				;^Recover HP by Dividend/Divisor of max HP (rounded
-				; to nearest integer but not to zero).
+			!Setting_PlayerHP_MidwayRecoveryDividend	= 2
+			!Setting_PlayerHP_MidwayRecoveryDivisor		= 5
 
 
 		;Super Mushroom
 			!Setting_PlayerHP_MushroomToItemBox		= 1
 				;^0 = disable (mushroom does nothing but disappears).
 				; 1 = Add mushroom to item box when full HP.
-				;This option is useful if you disabled it item box.
+				;This option is useful if you disabled the item box.
 
-			!Setting_playerHP_GrowFromSmallFailsafe	= 1
+			!Setting_PlayerHP_GrowFromSmallFailsafe	= 1
 				;^0 = disable.
 				; 1 = enable code that would turn small mario to super
 				;     (if your hack expects to have small mario).
 
-			!Setting_playerHP_MushroomRecoveryType	= 1
+			!Setting_PlayerHP_MushroomRecoveryType	= 1
 				;^0 = Recover by a fixed amount.
 				; 1 = recover by a fraction of max HP.
 
-			!Setting_playerHP_MushroomRecoveryFixedAmt	= 5
+			!Setting_PlayerHP_MushroomRecoveryFixedAmt	= 5
 				;^Fixed amount of HP to recover.
 
-			!Setting_playerHP_MushroomRecoveryDividend	= 2
-			!Setting_playerHP_MushroomRecoveryDivisor 	= 5
+			!Setting_PlayerHP_MushroomRecoveryDividend	= 2
+			!Setting_PlayerHP_MushroomRecoveryDivisor 	= 5
 				;^Recover HP by Dividend/Divisor of max HP (rounded
 				; to nearest integer but not to zero).
 
@@ -350,40 +353,40 @@ endif
 			; 2 = Same as above, but also cancels the stun when landing back on ground.
 			; 3 = remain stunned (remains indefinitely) until touching the ground.
 
-		!PlayerHP_KnockbackLength	= 30
+		!Setting_PlayerHP_KnockbackLength	= 30
 			;^Number of frames the player is stunned after knocked. Regardless
 			; if you set "!Setting_PlayerHP_Knockback" to 1 or 2, don't set this to 0.
 
-		!PlayerHP_KnockbackHorizSpd		= $29
+		!Setting_PlayerHP_KnockbackHorizSpd		= $29
 			;^How fast Mario gets flung horizontally after taking damage. Use values
 			;$01-$7F only (Negative speeds already calculated).
 
-		!PlayerHP_KnockbackUpwardsSpd	= $D7
+		!Setting_PlayerHP_KnockbackUpwardsSpd	= $D7
 			;^How fast Mario flies upward after taking damage. Use values $80-$FF only
 			; ($80 is the fastest upwards speed).
 
-		!PlayerHP_StunPose			= $24
+		!Setting_PlayerHP_StunPose			= $24
 			;^Pose to display when the player takes a knockback.
 			; This is needed when the player is stunned on
 			; the ground (see RAM $13E0 - https://smwc.me/m/smw/ram/7E13E0 ).
 
-		!PlayerHP_InvulnerabilityTmr			= $7F
+		!Setting_PlayerHP_InvulnerabilityTmrMostDamages			= $7F
 			;^How long the player remains invulnerable after taking
 			; damage in frames (60 FPS). Remove the "$" to decimal
 			; input. $7F was originally what SMW had.
 
-		!PlayerHP_InvulnerabilityTmrCape		= $30
+		!Setting_PlayerHP_InvulnerabilityTmrCape		= $30
 			;^Same as above, but when taking a hit while cape flying.
 			; SMW originally had it at $30.
 
 ;Graphical bar stuff (these are arguments, which are specific values to set the bar's value).
-;For modifying the scratch RAM used, see "GraphicalBarDef.asm".
+;For modifying the scratch RAM used, see "GraphicalBarDefines.asm".
 	;Redefineable stuff (often preset settings, but some of them are intended for player HP only):
-		!Default_MiddleLengthLevel           = 7             ;>30 = screen-wide (30 + 2 end tiles = 32, all 8x8 tile row in the screen's width)
-		!Default_MiddleLengthOverworld       = 7             ;>Same as above but for overworld.
+		!Setting_PlayerHP_GraphicalBarMiddleLengthLevel           = 7             ;>30 = screen-wide (30 + 2 end tiles = 32, all 8x8 tile row in the screen's width)
+		!Setting_PlayerHP_GraphicalBarMiddleLengthOverworld       = 7             ;>Same as above but for overworld.
 	;Level Position (same rule as before, units of tiles, must be at certain range)
-		!PlayerHP_GraphicalBarPos_Lvl_x = 0
-		!PlayerHP_GraphicalBarPos_Lvl_y = 1
+		!Setting_PlayerHP_GraphicalBarPos_Lvl_x = 0
+		!Setting_PlayerHP_GraphicalBarPos_Lvl_y = 1
 	;Overworld position. Works similarly to the status bar, but the Y position "skips" the intermediate rows of tiles
 	;between the top and bottom. This means that going downwards on the last row of "top lines" will immediately
 	;end up being on "bottom lines" on the first row. For example, with !Top_Lines set to 5 rows (Y ranges from 0-4),
@@ -399,32 +402,12 @@ endif
 	;!YPos = 26-26+5, which is row 5 (rows 0-4 are top lines, 5-6 are bottom lines)
 	;
 	;Conversion is not needed if you are having your stuff on the top-lines.
-		!PlayerHP_GraphicalBarPos_Owb_x = 7
-		!PlayerHP_GraphicalBarPos_Owb_y = 2
+		!Setting_PlayerHP_GraphicalBarPos_Owb_x = 7
+		!Setting_PlayerHP_GraphicalBarPos_Owb_y = 2
 	;Number of pieces in each part of the graphical bar
-		!Default_LeftPieces                  = 3             ;\These will by default, set the RAM for the pieces for each section
-		!Default_MiddlePieces                = 8             ;|(note that these apply for both levels and overworlds)
-		!Default_RightPieces                 = 3             ;/
-
-
-	;Don't touch, these are used for loops to write to the status bar.
-		!GraphiBar_LeftTileExist = 0
-		!GraphiBar_MiddleTileExistLevel = 0
-		!GraphiBar_MiddleTileExistOverworld = 0
-		!GraphiBar_RightTileExist = 0
-
-		if !Default_LeftPieces != 0
-			!GraphiBar_LeftTileExist = 1
-		endif
-		if and(notequal(!Default_MiddlePieces, 0), notequal(!Default_MiddleLengthLevel, 0))
-			!GraphiBar_MiddleTileExistLevel = 1
-		endif
-		if and(notequal(!Default_MiddlePieces, 0), notequal(!Default_MiddleLengthOverworld, 0))
-			!GraphiBar_MiddleTileExistOverworld = 1
-		endif
-		if !Default_RightPieces != 0
-			!GraphiBar_RightTileExist = 1
-		endif
+		!Setting_PlayerHP_GraphicalBar_LeftPieces                  = 3             ;\These will by default, set the RAM for the pieces for each section
+		!Setting_PlayerHP_GraphicalBar_MiddlePieces                = 8             ;|(note that these apply for both levels and overworlds)
+		!Setting_PlayerHP_GraphicalBar_RightPieces                 = 3             ;/
 
 	;Bar direction for level and overworld.
 		!Setting_PlayerHP_LeftwardsBarLevel     = 0             ;>Have the bar fill leftwards. Note that end tiles are also mirrored.
@@ -436,18 +419,20 @@ endif
 		!Setting_PlayerHP_BarProps_Owb_Page = 1                 ;>Use only values 0-3
 		!Setting_PlayerHP_BarProps_Owb_Palette = 6              ;>Use only values 0-7
 
-	;Display empty bar when there is very low HP but not zero:
-		!Setting_PlayerHP_BarAvoidRoundToZero	= 1
-			;^0 = allow bar to display 0% when HP is very close to zero
+	;Avoid percentage bar from representing 0 or full when really close but not at those values:
+		!Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull	= 3
+			;^0 = allow bar to display 0% when HP is very close to zero and 100% when close to max.
 			; 1 = display 1 pixel or piece filled when low on HP and only 0 if HP is 0.
+			; 2 = display MaxPieces-1 when nearly full.
+			; 3 = Display 1 piece or MaxPieces-1 if close to 0 or MaxPieces.
 
 	;Other
-		!Damage_PlayerHP_ReflectBooStream	= 3
+		!Setting_PlayerHP_DamageAmount_ReflectBooStream	= 3
 			;^Due to only the boo stream itself (not the head) being the only
 			; damageable minor extended sprite to the player, damage table for
 			; minor extended sprites are not necessary.
 
-		!Damage_PlayerHP_SmwBlocks		= 4
+		!Setting_PlayerHP_DamageAmount_VanillaSmwBlocks		= 4
 			;^Damage taken from Munchers and spikes (castle and ghost houses).
 			; Note that this does not have a knockback due to all offsets of
 			; the block shares the same code.
@@ -478,7 +463,7 @@ endif
 	endif
 		;^[1 byte] Not necessary freeram, but reuses a RAM that determines should
 		; the block appear in the level. Currently, it uses LM's conditional map16
-		;($7FC060 to $7FC06F).
+		;($7FC060~$7FC06F (16 bytes; 128 bits)).
 
 ;Don't touch these
 	;(these are for aligning digits):
@@ -501,32 +486,32 @@ endif
 		endif
 	;These calculate various user inputs into address or value
 		;Calculate status bar position
-			!PlayerHP_Digit_StatBarPos = VanillaStatusBarXYToAddress(!PlayerHP_StringPos_Lvl_x, !PlayerHP_StringPos_Lvl_y, !RAM_0EF9)
-			!PlayerHP_Digit_StatBarPos_RightAligned = !VanillaStatusBarXYToAddress(!PlayerHP_StringPosRightAligned_Lvl_x, !PlayerHP_StringPosRightAligned_Lvl_y, !RAM_0EF9)
-			!PlayerHP_Digit_OverworldBorderPos = PatchedStatusBarXYToAddress(!PlayerHP_StringPos_Owb_x, !PlayerHP_StringPos_Owb_y, !OverworldBorderPatchAddr_Tile, $02)
-			!PlayerHP_Digit_OverworldBorderPosProp = PatchedStatusBarXYToAddress(!PlayerHP_StringPos_Owb_x, !PlayerHP_StringPos_Owb_y, !OverworldBorderPatchAddr_Prop, $02)
-			!PlayerHP_Digit_OverworldBorderPos_RightAligned = PatchedStatusBarXYToAddress(!PlayerHP_StringPosRightAligned_Owb_x, !PlayerHP_StringPosRightAligned_Owb_y, !OverworldBorderPatchAddr_Tile, $02)
-			!PlayerHP_Digit_OverworldBorderPos_RightAlignedProp = PatchedStatusBarXYToAddress(!PlayerHP_StringPosRightAligned_Owb_x, !PlayerHP_StringPosRightAligned_Owb_y, !OverworldBorderPatchAddr_Prop, $02)
-			!Setting_PlayerHP_BarPosOverworld = PatchedStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Owb_x, !PlayerHP_GraphicalBarPos_Owb_y, !OverworldBorderPatchAddr_Tile, $02)
-			!Setting_PlayerHP_BarPosOverworldProp = PatchedStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Owb_x, !PlayerHP_GraphicalBarPos_Owb_y, !OverworldBorderPatchAddr_Prop, $02)
-			!Setting_PlayerHP_BarPosLevel = VanillaStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Lvl_x, !PlayerHP_GraphicalBarPos_Lvl_y, !RAM_0EF9)
+			!PlayerHP_Digit_StatBarPos = VanillaStatusBarXYToAddress(!Setting_PlayerHP_StringPos_Lvl_x, !Setting_PlayerHP_StringPos_Lvl_y, !RAM_0EF9)
+			!PlayerHP_Digit_StatBarPos_RightAligned = VanillaStatusBarXYToAddress(!Setting_PlayerHP_StringPosRightAligned_Lvl_x, !Setting_PlayerHP_StringPosRightAligned_Lvl_y, !RAM_0EF9)
+			!PlayerHP_Digit_OverworldBorderPos = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPos_Owb_x, !Setting_PlayerHP_StringPos_Owb_y, !OverworldBorderPatchAddr_Tile, $02)
+			!PlayerHP_Digit_OverworldBorderPosProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPos_Owb_x, !Setting_PlayerHP_StringPos_Owb_y, !OverworldBorderPatchAddr_Prop, $02)
+			!PlayerHP_Digit_OverworldBorderPos_RightAligned = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPosRightAligned_Owb_x, !Setting_PlayerHP_StringPosRightAligned_Owb_y, !OverworldBorderPatchAddr_Tile, $02)
+			!PlayerHP_Digit_OverworldBorderPos_RightAlignedProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPosRightAligned_Owb_x, !Setting_PlayerHP_StringPosRightAligned_Owb_y, !OverworldBorderPatchAddr_Prop, $02)
+			!Setting_PlayerHP_BarPosOverworld = PatchedStatusBarXYToAddress(!Setting_PlayerHP_GraphicalBarPos_Owb_x, !Setting_PlayerHP_GraphicalBarPos_Owb_y, !OverworldBorderPatchAddr_Tile, $02)
+			!Setting_PlayerHP_BarPosOverworldProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_GraphicalBarPos_Owb_x, !Setting_PlayerHP_GraphicalBarPos_Owb_y, !OverworldBorderPatchAddr_Prop, $02)
+			!Setting_PlayerHP_BarPosLevel = VanillaStatusBarXYToAddress(!Setting_PlayerHP_GraphicalBarPos_Lvl_x, !Setting_PlayerHP_GraphicalBarPos_Lvl_y, !RAM_0EF9)
 			if !UsingCustomStatusBar != 0
-				!PlayerHP_Digit_StatBarPos = PatchedStatusBarXYToAddress(!PlayerHP_StringPos_Lvl_x, !PlayerHP_StringPos_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
-				!PlayerHP_Digit_StatBarPosProp = PatchedStatusBarXYToAddress(!PlayerHP_StringPos_Lvl_x, !PlayerHP_StringPos_Lvl_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
-				!PlayerHP_Digit_StatBarPos_RightAligned = PatchedStatusBarXYToAddress(!PlayerHP_StringPosRightAligned_Lvl_x, !PlayerHP_StringPosRightAligned_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
-				!PlayerHP_Digit_StatBarPos_RightAlignedProp = PatchedStatusBarXYToAddress(!PlayerHP_StringPosRightAligned_Lvl_x, !PlayerHP_StringPosRightAligned_Lvl_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
-				!Setting_PlayerHP_BarPosLevel = PatchedStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Lvl_x, !PlayerHP_GraphicalBarPos_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
-				!Setting_PlayerHP_BarPosLevelProp = PatchedStatusBarXYToAddress(!PlayerHP_GraphicalBarPos_Lvl_x, !PlayerHP_GraphicalBarPos_Lvl_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
+				!PlayerHP_Digit_StatBarPos = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPos_Lvl_x, !Setting_PlayerHP_StringPos_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
+				!PlayerHP_Digit_StatBarPosProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPos_Lvl_x, !Setting_PlayerHP_StringPos_Lvl_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
+				!PlayerHP_Digit_StatBarPos_RightAligned = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPosRightAligned_Lvl_x, !Setting_PlayerHP_StringPosRightAligned_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
+				!PlayerHP_Digit_StatBarPos_RightAlignedProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPosRightAligned_Lvl_x, !Setting_PlayerHP_StringPosRightAligned_Lvl_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
+				!Setting_PlayerHP_BarPosLevel = PatchedStatusBarXYToAddress(!Setting_PlayerHP_GraphicalBarPos_Lvl_x, !Setting_PlayerHP_GraphicalBarPos_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
+				!Setting_PlayerHP_BarPosLevelProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_GraphicalBarPos_Lvl_x, !Setting_PlayerHP_GraphicalBarPos_Lvl_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
 			endif
 		;Calculate tile properties
-			!PlayerHP_TileProp_Level_Text = GetLayer3YXPCCCTT(0, 0, 1, !PlayerHP_TileProp_Level_Text_Palette, !PlayerHP_TileProp_Level_Text_Page)
-			!PlayerHP_TileProp_Ow_Text = GetLayer3YXPCCCTT(0, 0, 1, !PlayerHP_TileProp_Ow_Text_Palette, !PlayerHP_TileProp_Ow_Text_Page)
+			!PlayerHP_TileProp_Level_Text = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_StringTileProp_Level_Palette, !Setting_PlayerHP_StringTileProp_Level_Page)
+			!PlayerHP_TileProp_Ow_Text = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_StringTileProp_Ow_Palette, !Setting_PlayerHP_StringTileProp_Ow_Page)
 			!PlayerHP_BarProps_Lvl = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_BarProps_Lvl_Palette, !Setting_PlayerHP_BarProps_Lvl_Page)
 			!PlayerHP_BarProps_Ow = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_BarProps_Owb_Palette, !Setting_PlayerHP_BarProps_Owb_Page)
 
 	;Failsafe
-		assert !Setting_playerHP_MidwayRecoveryDividend != 0, "Invalid Dividend"
-		assert !Setting_playerHP_MidwayRecoveryDivisor > 1, "Invalid Divisor"
-		assert !PlayerHP_KnockbackHorizSpd < $80, "Use only $01-$7F, negative values automatically calculated."
+		assert !Setting_PlayerHP_MidwayRecoveryDividend != 0, "Invalid Dividend"
+		assert !Setting_PlayerHP_MidwayRecoveryDivisor > 1, "Invalid Divisor"
+		assert !Setting_PlayerHP_KnockbackHorizSpd < $80, "Use only $01-$7F, negative values automatically calculated."
 
 

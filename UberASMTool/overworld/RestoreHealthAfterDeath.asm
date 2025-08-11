@@ -18,11 +18,11 @@ init:
 		if !Setting_PlayerHP_TwoByte != 0
 			REP #$20
 		endif
-		LDA !Freeram_PlayerCurrHP	;\If HP not empty, don't refill
+		LDA !Freeram_PlayerHP_CurrentHP	;\If HP not empty, don't refill
 		BNE ..NoHeal			;/
 
-		LDA !Freeram_PlayerMaxHP	;\Fully restore HP
-		STA !Freeram_PlayerCurrHP	;/
+		LDA !Freeram_PlayerHP_MaxHP	;\Fully restore HP
+		STA !Freeram_PlayerHP_CurrentHP	;/
 
 		..NoHeal
 		if !Setting_PlayerHP_TwoByte != 0
@@ -33,8 +33,8 @@ init:
 		if !Setting_PlayerHP_TwoByte != 0
 			REP #$20
 		endif
-		LDA !Freeram_PlayerMaxHP	;\Always heal to full HP.
-		STA !Freeram_PlayerCurrHP	;/
+		LDA !Freeram_PlayerHP_MaxHP	;\Always heal to full HP.
+		STA !Freeram_PlayerHP_CurrentHP	;/
 		if !Setting_PlayerHP_TwoByte != 0
 			SEP #$20
 		endif
@@ -42,14 +42,14 @@ init:
 		if !Setting_PlayerHP_TwoByte != 0
 			REP #$20
 		endif
-		LDA !Freeram_PlayerCurrHP				;\If HP not empty, don't refill
+		LDA !Freeram_PlayerHP_CurrentHP				;\If HP not empty, don't refill
 		BNE ..NoHeal						;/
 		if !Setting_PlayerHP_TwoByte == 0
 			LDA.b #!Setting_PlayerHP_HPSetAfterDeath	;\Set HP to specific amount.
 		else
 			LDA.w #!Setting_PlayerHP_HPSetAfterDeath
 		endif
-		STA !Freeram_PlayerCurrHP				;/
+		STA !Freeram_PlayerHP_CurrentHP				;/
 
 		..NoHeal
 		if !Setting_PlayerHP_TwoByte != 0
@@ -59,16 +59,16 @@ init:
 		if !Setting_PlayerHP_TwoByte != 0
 			REP #$20
 		endif
-		LDA !Freeram_PlayerCurrHP	;\If HP not empty, don't refill
+		LDA !Freeram_PlayerHP_CurrentHP	;\If HP not empty, don't refill
 		BNE ..NoHeal			;/
-		LDA !Freeram_PlayerMaxHP
+		LDA !Freeram_PlayerHP_MaxHP
 		LSR				;>Divide by 2
 		if !Setting_PlayerHP_TwoByte == 0
 			ADC #$00		;>Add by 1 if carry set (round 1/2 up)
 		else
 			ADC #$0000		;>Add by 1 if carry set (round 1/2 up)
 		endif
-		STA !Freeram_PlayerCurrHP	;>And set HP 1/2 of max.
+		STA !Freeram_PlayerHP_CurrentHP	;>And set HP 1/2 of max.
 
 		..NoHeal
 		if !Setting_PlayerHP_TwoByte != 0

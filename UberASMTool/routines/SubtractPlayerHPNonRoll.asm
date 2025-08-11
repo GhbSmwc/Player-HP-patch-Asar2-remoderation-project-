@@ -10,7 +10,7 @@
 	;Input:
 	; $00 (8/16-bit) = amount of HP loss.
 	;
-	;Automatically writes to !Freeram_PlayerCurrHP. Does not
+	;Automatically writes to !Freeram_PlayerHP_CurrentHP. Does not
 	;subtract HP to below zero.
 	;
 	;The conditions here are different unlike the block or
@@ -27,7 +27,7 @@
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	?SubtractPlayerHPNonRoll:
 	if !Setting_PlayerHP_TwoByte == 0
-		LDA !Freeram_PlayerCurrHP		;\Health - damage
+		LDA !Freeram_PlayerHP_CurrentHP		;\Health - damage
 		SEC					;|
 		SBC $00					;/
 		BCS ?.NotPastZero			;>If value didn't subtract by larger value, go write HP.
@@ -36,10 +36,10 @@
 		LDA #$00				;>Otherwise set HP to 0.
 		
 		?.NotPastZero
-		STA !Freeram_PlayerCurrHP		;>Write HP value.
+		STA !Freeram_PlayerHP_CurrentHP		;>Write HP value.
 	else
 		REP #$20
-		LDA !Freeram_PlayerCurrHP
+		LDA !Freeram_PlayerHP_CurrentHP
 		SEC
 		SBC $00
 		BCS ?.NotPastZero
@@ -48,7 +48,7 @@
 		LDA #$0000
 		
 		?.NotPastZero
-		STA !Freeram_PlayerCurrHP
+		STA !Freeram_PlayerHP_CurrentHP
 		SEP #$20
 	endif
 	RTL

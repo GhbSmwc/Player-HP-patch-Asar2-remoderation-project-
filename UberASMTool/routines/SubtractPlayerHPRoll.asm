@@ -4,7 +4,7 @@
 	;Input:
 	; $00 (8/16-bit) = amount of HP loss.
 	;
-	;Automatically writes to !Freeram_PlayerCurrHP. Does not
+	;Automatically writes to !Freeram_PlayerHP_CurrentHP. Does not
 	;subtract HP to below zero.
 	;
 	;The conditions here are different unlike the block or

@@ -121,23 +121,23 @@ main:
 				BPL -
 			endif
 			if or(equal(!Setting_PlayerHP_DigitsAlignLevel, 0), equal(!IsUsingRightAlignedSingleNumber, 1)) ;fixed digit location
-				%GetHealthDigits(!Freeram_PlayerCurrHP)
+				%GetHealthDigits(!Freeram_PlayerHP_CurrentHP)
 				%UberRoutine(RemoveLeadingZeroes16Bit)
 				%WriteFixedDigitsToLayer3(!PlayerHP_Digit_StatBarPos)
 				if !Setting_PlayerHP_DisplayNumericalLevel == 2
-					%GetHealthDigits(!Freeram_PlayerMaxHP)
+					%GetHealthDigits(!Freeram_PlayerHP_MaxHP)
 					%UberRoutine(RemoveLeadingZeroes16Bit)
 					%WriteFixedDigitsToLayer3(!PlayerHP_Digit_StatBarPos+((!Setting_PlayerHP_MaxDigits+1)*!StatusbarFormat))
 				endif
 			elseif and(greaterequal(!Setting_PlayerHP_DigitsAlignLevel, 1), lessequal(!Setting_PlayerHP_DigitsAlignLevel, 2)) ;left/right-aligned
-				%GetHealthDigits(!Freeram_PlayerCurrHP)
+				%GetHealthDigits(!Freeram_PlayerHP_CurrentHP)
 				LDX #$00
 				%UberRoutine(SuppressLeadingZeroes)
 				if !Setting_PlayerHP_DisplayNumericalLevel == 2 ;Displaying Current/Max
 					LDA #!StatusBarSlashCharacterTileNumb
 					STA !Scratchram_CharacterTileTable,x
 					INX
-					%GetHealthDigits(!Freeram_PlayerMaxHP)
+					%GetHealthDigits(!Freeram_PlayerHP_MaxHP)
 					%UberRoutine(SuppressLeadingZeroes)
 				endif
 				if !Setting_PlayerHP_ExcessDigitProt != 0
@@ -166,11 +166,11 @@ main:
 		..HandleTimersAndPreviousHPDisplay
 			JSR SetGraphicalBarAttributesAndPercentage	;>$00~$01 = current HP percentage
 			if !Setting_PlayerHP_BarAnimation
-				if !PlayerHP_BarRecordDelay
-					LDA !Freeram_PlayerHP_BarRecordDelayTmr
+				if !Setting_PlayerHP_BarChangeDelay
+					LDA !Freeram_Setting_PlayerHP_BarChangeDelayTmr
 					BEQ ...TimerEnded
 					DEC
-					STA !Freeram_PlayerHP_BarRecordDelayTmr
+					STA !Freeram_Setting_PlayerHP_BarChangeDelayTmr
 					...TimerEnded
 				endif
 				
@@ -181,19 +181,19 @@ main:
 				
 				...Heal
 					if or(equal(!Setting_PlayerHP_RollingHP, 0), notequal(!Setting_PlayerHP_ShowHealedTransparent, 0))
-						if and(notequal(!Setting_PlayerHP_ShowHealedTransparent, 0), notequal(!PlayerHP_BarRecordDelay, 0))
-							LDA !Freeram_PlayerHP_BarRecordDelayTmr		;>Freeze if timer is still active
+						if and(notequal(!Setting_PlayerHP_ShowHealedTransparent, 0), notequal(!Setting_PlayerHP_BarChangeDelay, 0))
+							LDA !Freeram_Setting_PlayerHP_BarChangeDelayTmr		;>Freeze if timer is still active
 							BNE ....OverwriteFill
 						endif
-						if and(notequal(!PlayerHP_BarFillUpSpeed, 0), less(!PlayerHP_BarFillUpSpeedPerFrame, 2))
+						if and(notequal(!Setting_PlayerHP_FillDelayFrames, 0), less(!Setting_PlayerHP_BarFillUpPerFrame, 2))
 							LDA $13							;\every 2^n frames, don't increment for slower speed.
-							AND.b #!PlayerHP_BarFillUpSpeed				;|
+							AND.b #!Setting_PlayerHP_FillDelayFrames		;|
 							BNE ....OverwriteFill					;/
 						endif
 						LDA !Freeram_PlayerHP_BarRecord
-						if !PlayerHP_BarFillUpSpeedPerFrame >= 2
+						if !Setting_PlayerHP_BarFillUpPerFrame >= 2
 							CLC						;\Increment fill
-							ADC.b #!PlayerHP_BarFillUpSpeedPerFrame		;/
+							ADC.b #!Setting_PlayerHP_BarFillUpPerFrame		;/
 							BCS ....IncrementPast				;>In case the record fill increments past 255.
 							CMP $00						;\Continue incrementing until greater than or equal to $00.
 							BCC ....Increment				;/
@@ -225,23 +225,23 @@ main:
 						BRA ..Calculate_WriteBar
 					endif
 				...Damage
-					if and(notequal(!PlayerHP_BarFillDrainSpeed, 0), less(!PlayerHP_BarFillEmptyingSpeedPerFrame, 2))
+					if and(notequal(!Setting_PlayerHP_EmptyDelayFrames, 0), less(!Setting_PlayerHP_BarEmptyPerFrame, 2))
 						LDA $13							;\Decrement every 2^n frames
-						AND.b #!PlayerHP_BarFillDrainSpeed			;|
-						if !PlayerHP_BarRecordDelay != 0
-							ORA !Freeram_PlayerHP_BarRecordDelayTmr		;|>Freeze if timer still active
+						AND.b #!Setting_PlayerHP_EmptyDelayFrames		;|
+						if !Setting_PlayerHP_BarChangeDelay != 0
+							ORA !Freeram_Setting_PlayerHP_BarChangeDelayTmr		;|>Freeze if timer still active
 						endif
 						BNE ....TransperentAnimation				;/>If odd frame, display alternating frames of HP.
 					else
-						if !PlayerHP_BarRecordDelay != 0
-							LDA !Freeram_PlayerHP_BarRecordDelayTmr
+						if !Setting_PlayerHP_BarChangeDelay != 0
+							LDA !Freeram_Setting_PlayerHP_BarChangeDelayTmr
 							BNE ....TransperentAnimation
 						endif
 					endif
-					if !PlayerHP_BarFillEmptyingSpeedPerFrame >= 2
+					if !Setting_PlayerHP_BarEmptyPerFrame >= 2
 						LDA !Freeram_PlayerHP_BarRecord			;\Decrement fill
 						SEC						;|
-						SBC.b #!PlayerHP_BarFillEmptyingSpeedPerFrame	;/
+						SBC.b #!Setting_PlayerHP_BarEmptyPerFrame	;/
 						BCC ....Underflow				;>Underflow check
 						CMP $00						;\Check if record decrements past the current HP.
 						BCS ....Decrement				;/
@@ -324,25 +324,31 @@ main:
 	if !Setting_PlayerHP_DisplayBarLevel
 		SetGraphicalBarAttributesAndPercentage:
 			;$00~$01 = percentage
-			LDA !Freeram_PlayerCurrHP
+			LDA !Freeram_PlayerHP_CurrentHP
 			STA !Scratchram_GraphicalBar_FillByteTbl
-			LDA !Freeram_PlayerMaxHP
+			LDA !Freeram_PlayerHP_MaxHP
 			STA !Scratchram_GraphicalBar_FillByteTbl+2
 			if !Setting_PlayerHP_TwoByte != 0
-				LDA !Freeram_PlayerCurrHP+1
+				LDA !Freeram_PlayerHP_CurrentHP+1
 				STA !Scratchram_GraphicalBar_FillByteTbl+1
-				LDA !Freeram_PlayerMaxHP+1
+				LDA !Freeram_PlayerHP_MaxHP+1
 				STA !Scratchram_GraphicalBar_FillByteTbl+3
 			endif
-			LDA.b #!Default_LeftPieces				;\Left end normally have 3 pieces.
+			LDA.b #!Setting_PlayerHP_GraphicalBar_LeftPieces				;\Left end normally have 3 pieces.
 			STA !Scratchram_GraphicalBar_LeftEndPiece		;/
-			LDA.b #!Default_MiddlePieces				;\Number of pieces in each middle byte/8x8 tile
+			LDA.b #!Setting_PlayerHP_GraphicalBar_MiddlePieces				;\Number of pieces in each middle byte/8x8 tile
 			STA !Scratchram_GraphicalBar_MiddlePiece		;/
-			LDA.b #!Default_RightPieces				;\Right end
+			LDA.b #!Setting_PlayerHP_GraphicalBar_RightPieces				;\Right end
 			STA !Scratchram_GraphicalBar_RightEndPiece		;/
-			LDA.b #!Default_MiddleLengthLevel			;\length (number of middle tiles)
+			LDA.b #!Setting_PlayerHP_GraphicalBarMiddleLengthLevel	;\length (number of middle tiles)
 			STA !Scratchram_GraphicalBar_TempLength			;/
 			%UberRoutine(GraphicalBar_CalculatePercentage)
-			%UberRoutine(GraphicalBar_RoundAwayEmptyFull)
+			if !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull == 1
+				%UberRoutine(GraphicalBar_RoundAwayEmpty)
+			elseif !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull == 2
+				%UberRoutine(GraphicalBar_RoundAwayFull)
+			elseif !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull == 3
+				%UberRoutine(GraphicalBar_RoundAwayEmptyFull)
+			endif
 			RTS
 	endif

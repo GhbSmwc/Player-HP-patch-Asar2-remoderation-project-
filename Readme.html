@@ -111,9 +111,9 @@ The description regarding how much bytes freeram they take are mostly formula-ba
 <span style="color: red">;[BytesUsed = 1 + !Setting_PlayerHP_TwoByte]</span>
 ;Player current HP.
 	if !sa1 == 0
-		!Freeram_PlayerCurrHP		= $7FAD49 ;>Normal ROM version
+		!Freeram_PlayerHP_CurrentHP		= $7FAD49 ;>Normal ROM version
 	else
-		!Freeram_PlayerCurrHP		= $4001B9 ;>SA-1 Version
+		!Freeram_PlayerHP_CurrentHP		= $4001B9 ;>SA-1 Version
 	endif
  
 ;[...]
@@ -142,8 +142,8 @@ expect doing the exact same thing just with the word &ldquo;<kbd>sram</kbd>&rdqu
 
 	;[...]  ;&gt;If you previously used this patch for other things non-player-HP-related data to be saved
 	;Player health system:
-		dl !Freeram_PlayerCurrHP : dw (1+!Setting_PlayerHP_TwoByte) ;\Current and max HP. By default RAM addresses, you can merge them together
-		dl !Freeram_PlayerMaxHP  : dw (1+!Setting_PlayerHP_TwoByte) ;/to save additional space
+		dl !Freeram_PlayerHP_CurrentHP : dw (1+!Setting_PlayerHP_TwoByte) ;\Current and max HP. By default RAM addresses, you can merge them together
+		dl !Freeram_PlayerHP_MaxHP  : dw (1+!Setting_PlayerHP_TwoByte) ;/to save additional space
 
 		if !Setting_PlayerHP_RollingHP != 0 ;&gt;include the following Mother/Earthbound HP RAM if the user enables this mode.
 			dl !Freeram_PlayerHP_MotherHPDelayDamageLast : dw $0001                         ;&gt;Delay between each tick of HP of damage as a stat system.
@@ -183,8 +183,8 @@ sram_defaults:	db $00,$00,$00,$00,$00,$00,$00,$00
 		
 	;[...]  ;&gt;If you previously used this patch for other things non-player-HP-related data to be saved
 	;Default values for player health system, !PlayerHPDataTableSize is either "db" or "dw" depending if you select 8 or 16-bit HP.
-		!PlayerHPDataTableSize 15     ;&gt;[!Freeram_PlayerCurrHP] (1 to 255 or 65535) Current HP to start with.
-		!PlayerHPDataTableSize 15     ;&gt;[!Freeram_PlayerMaxHP] (1 to 255 or 65535) Max HP to start with.
+		!PlayerHPDataTableSize 15     ;&gt;[!Freeram_PlayerHP_CurrentHP] (1 to 255 or 65535) Current HP to start with.
+		!PlayerHPDataTableSize 15     ;&gt;[!Freeram_PlayerHP_MaxHP] (1 to 255 or 65535) Max HP to start with.
 		
 		if !Setting_PlayerHP_RollingHP != 0 
 			db 10                           ;&gt;[!Freeram_PlayerHP_MotherHPDelayDamageLast] (0 to 255) How slow the HP drains. Higher = slower speeds.
@@ -284,9 +284,9 @@ golden. Again, the graphics files are conveniently named.</li>
 <li>This patch does not support 2-player mode. This means that both Mario and Luigi share the same health.<br><br>
 
 However, I do allow you to make any modifications to the patch to work with the character system (if you know ASM well). The easiest way to store separate health is to have
-<kbd>!Freeram_PlayerCurrHP</kbd> and <kbd>!Freeram_PlayerMaxHP</kbd> be the current character's HP, and when switching characters, store the health data
+<kbd>!Freeram_PlayerHP_CurrentHP</kbd> and <kbd>!Freeram_PlayerHP_MaxHP</kbd> be the current character's HP, and when switching characters, store the health data
 the player is switching from into a RAM for that would be for character 1, and load the data of another character's (character 2) HP RAM data and
-write it to <kbd>!Freeram_PlayerCurrHP</kbd> and <kbd>!Freeram_PlayerMaxHP</kbd> (for example, switching from Mario to Luigi, Mario's HP data gets stored in mario area
+write it to <kbd>!Freeram_PlayerHP_CurrentHP</kbd> and <kbd>!Freeram_PlayerHP_MaxHP</kbd> (for example, switching from Mario to Luigi, Mario's HP data gets stored in mario area
 and brings the luigi's HP data to the current player's HP). This works a lot like how SMW handles the lives, score, powerup for Mario and Luigi.</li><br>
 
 <li>In case if you want damage, knockback and other effects from sprites, custom sprites, cluster, extended, etc that doesn't rely on the provided routines, you can

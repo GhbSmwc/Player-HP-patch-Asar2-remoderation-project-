@@ -100,25 +100,25 @@ main:
 				BPL -
 			endif
 			if or(equal(!Setting_PlayerHP_DigitsAlignOverworld, 0), equal(!IsUsingRightAlignedSingleNumber, 1)) ;fixed digit location
-				%GetHealthDigits(!Freeram_PlayerCurrHP)
+				%GetHealthDigits(!Freeram_PlayerHP_CurrentHP)
 				%UberRoutine(RemoveLeadingZeroes16Bit)
 				%UberRoutine(SixteenBitHexDecDivisionToOWB)
 				%WriteFixedDigitsToLayer3(!PlayerHP_Digit_OverworldBorderPos, !PlayerHP_Digit_OverworldBorderPosProp)
 				if !Setting_PlayerHP_DisplayNumericalOverworld == 2
-					%GetHealthDigits(!Freeram_PlayerMaxHP)
+					%GetHealthDigits(!Freeram_PlayerHP_MaxHP)
 					%UberRoutine(RemoveLeadingZeroes16Bit)
 					%UberRoutine(SixteenBitHexDecDivisionToOWB)
 					%WriteFixedDigitsToLayer3(!PlayerHP_Digit_OverworldBorderPos+((!Setting_PlayerHP_MaxDigits+1)*$02), !PlayerHP_Digit_OverworldBorderPosProp+((!Setting_PlayerHP_MaxDigits+1)*$02))
 				endif
 			elseif and(greaterequal(!Setting_PlayerHP_DigitsAlignOverworld, 1), lessequal(!Setting_PlayerHP_DigitsAlignOverworld, 2)) ;left/right-aligned
-				%GetHealthDigits(!Freeram_PlayerCurrHP)
+				%GetHealthDigits(!Freeram_PlayerHP_CurrentHP)
 				LDX #$00
 				%UberRoutine(SuppressLeadingZeroes)
 				if !Setting_PlayerHP_DisplayNumericalOverworld == 2 ;Displaying Current/Max
 					LDA #!StatusBarSlashCharacterTileNumb
 					STA !Scratchram_CharacterTileTable,x
 					INX
-					%GetHealthDigits(!Freeram_PlayerMaxHP)
+					%GetHealthDigits(!Freeram_PlayerHP_MaxHP)
 					%UberRoutine(SuppressLeadingZeroes)
 				endif
 				%UberRoutine(ConvertAlignedDigitToOWB)
@@ -147,7 +147,6 @@ main:
 	if !Setting_PlayerHP_DisplayBarOverworld
 		..HandleTimersAndPreviousHPDisplay
 			JSR SetGraphicalBarAttributesAndPercentage	;>$00~$01 = current HP percentage
-			%UberRoutine(GraphicalBar_RoundAwayEmptyFull)
 			%UberRoutine(GraphicalBar_DrawGraphicalBarSubtractionLoopEdition)
 			LDA #$02				;\Use overworld sets of fill tiles
 			STA $00					;/
@@ -184,24 +183,31 @@ main:
 	if !Setting_PlayerHP_DisplayBarOverworld
 		SetGraphicalBarAttributesAndPercentage:
 			;$00~$01 = percentage
-			LDA !Freeram_PlayerCurrHP
+			LDA !Freeram_PlayerHP_CurrentHP
 			STA !Scratchram_GraphicalBar_FillByteTbl
-			LDA !Freeram_PlayerMaxHP
+			LDA !Freeram_PlayerHP_MaxHP
 			STA !Scratchram_GraphicalBar_FillByteTbl+2
 			if !Setting_PlayerHP_TwoByte != 0
-				LDA !Freeram_PlayerCurrHP+1
+				LDA !Freeram_PlayerHP_CurrentHP+1
 				STA !Scratchram_GraphicalBar_FillByteTbl+1
-				LDA !Freeram_PlayerMaxHP+1
+				LDA !Freeram_PlayerHP_MaxHP+1
 				STA !Scratchram_GraphicalBar_FillByteTbl+3
 			endif
-			LDA.b #!Default_LeftPieces				;\Left end normally have 3 pieces.
-			STA !Scratchram_GraphicalBar_LeftEndPiece		;/
-			LDA.b #!Default_MiddlePieces				;\Number of pieces in each middle byte/8x8 tile
-			STA !Scratchram_GraphicalBar_MiddlePiece		;/
-			LDA.b #!Default_RightPieces				;\Right end
-			STA !Scratchram_GraphicalBar_RightEndPiece		;/
-			LDA.b #!Default_MiddleLengthOverworld			;\length (number of middle tiles)
-			STA !Scratchram_GraphicalBar_TempLength			;/
+			LDA.b #!Setting_PlayerHP_GraphicalBar_LeftPieces		;\Left end normally have 3 pieces.
+			STA !Scratchram_GraphicalBar_LeftEndPiece			;/
+			LDA.b #!Setting_PlayerHP_GraphicalBar_MiddlePieces		;\Number of pieces in each middle byte/8x8 tile
+			STA !Scratchram_GraphicalBar_MiddlePiece			;/
+			LDA.b #!Setting_PlayerHP_GraphicalBar_RightPieces		;\Right end
+			STA !Scratchram_GraphicalBar_RightEndPiece			;/
+			LDA.b #!Setting_PlayerHP_GraphicalBarMiddleLengthOverworld	;\length (number of middle tiles)
+			STA !Scratchram_GraphicalBar_TempLength				;/
 			%UberRoutine(GraphicalBar_CalculatePercentage)
+			if !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull == 1
+				%UberRoutine(GraphicalBar_RoundAwayEmpty)
+			elseif !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull == 2
+				%UberRoutine(GraphicalBar_RoundAwayFull)
+			elseif !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull == 3
+				%UberRoutine(GraphicalBar_RoundAwayEmptyFull)
+			endif
 			RTS
 	endif

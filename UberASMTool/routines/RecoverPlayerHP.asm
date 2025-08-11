@@ -5,7 +5,7 @@
 	;Input:
 	; $00 (8/16-bit) = the amount of HP to recover
 	;
-	;Automatically writes to !Freeram_PlayerCurrHP. Doesn't
+	;Automatically writes to !Freeram_PlayerHP_CurrentHP. Doesn't
 	;heal past the maximum HP.
 	;
 	;Note that this doesn't include the rolling HP
@@ -14,32 +14,32 @@
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	?RecoverPlayerHP0:
 	if !Setting_PlayerHP_TwoByte == 0
-		LDA !Freeram_PlayerCurrHP		;\Health + Recovery
+		LDA !Freeram_PlayerHP_CurrentHP		;\Health + Recovery
 		CLC					;|
 		ADC $00					;/
 		BCC ?.NotMaxed				;>If not exceeding 255, compare with max HP
-		CMP !Freeram_PlayerMaxHP		;\If not exceeding max HP, write to HP.
+		CMP !Freeram_PlayerHP_MaxHP		;\If not exceeding max HP, write to HP.
 		BCC ?.NotMaxed				;/
 		
 		?.Maxed
-		LDA !Freeram_PlayerMaxHP
+		LDA !Freeram_PlayerHP_MaxHP
 		
 		?.NotMaxed
-		STA !Freeram_PlayerCurrHP
+		STA !Freeram_PlayerHP_CurrentHP
 	else
 		REP #$20
-		LDA !Freeram_PlayerCurrHP
+		LDA !Freeram_PlayerHP_CurrentHP
 		CLC
 		ADC $00
 		BCS ?.Maxed				;>If not exceeding 65535
-		CMP !Freeram_PlayerMaxHP
+		CMP !Freeram_PlayerHP_MaxHP
 		BCC ?.NotMaxed				;>If not exceeding max HP, write to HP.
 		
 		?.Maxed
-		LDA !Freeram_PlayerMaxHP
+		LDA !Freeram_PlayerHP_MaxHP
 		
 		?.NotMaxed
-		STA !Freeram_PlayerCurrHP
+		STA !Freeram_PlayerHP_CurrentHP
 		SEP #$20
 	endif
 	RTL

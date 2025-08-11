@@ -2,12 +2,12 @@
 
 ;0 = heal by fixed amount
 ;1 = heal as percentage of max HP.
-	!Setting_playerHP_BlockMushroomRecoveryType = 1
+	!Setting_PlayerHP_BlockMushroomRecoveryType = 1
 
 ;Recover HP by Dividend/Divisor of max HP (rounded
 ;to nearest integer but not to zero).
-	!Setting_playerHP_BlockMushroomRecoveryDividend = 2
-	!Setting_playerHP_BlockMushroomRecoveryDivisor = 5
+	!Setting_PlayerHP_BlockMushroomRecoveryDividend = 2
+	!Setting_PlayerHP_BlockMushroomRecoveryDivisor = 5
 
 
 db $42 ; or db $37
@@ -45,18 +45,18 @@ incsrc "../../../MotherHPDefines.asm"
 	STA $1DF9|!addr					;/
 
 	;GrabMushroom:
-	if !Setting_playerHP_GrowFromSmallFailsafe != 0
+	if !Setting_PlayerHP_GrowFromSmallFailsafe != 0
 		LDA $19
 		BEQ ConsumeMushroom
 	endif
 	if !Setting_PlayerHP_TwoByte == 0
-		LDA !Freeram_PlayerCurrHP		;\If HP is full (or higher, in case if your hack allows it), place it item box
-		CMP !Freeram_PlayerMaxHP		;|
+		LDA !Freeram_PlayerHP_CurrentHP		;\If HP is full (or higher, in case if your hack allows it), place it item box
+		CMP !Freeram_PlayerHP_MaxHP		;|
 		BCC ConsumeMushroom			;/
 	else
 		REP #$20
-		LDA !Freeram_PlayerCurrHP		;\If HP is full (or higher, in case if your hack allows it), place it item box
-		CMP !Freeram_PlayerMaxHP		;|
+		LDA !Freeram_PlayerHP_CurrentHP		;\If HP is full (or higher, in case if your hack allows it), place it item box
+		CMP !Freeram_PlayerHP_MaxHP		;|
 		SEP #$20				;|
 		BCC ConsumeMushroom			;/
 	endif
@@ -71,7 +71,7 @@ incsrc "../../../MotherHPDefines.asm"
 	RTL
 	
 	ConsumeMushroom:
-	if !Setting_playerHP_GrowFromSmallFailsafe != 0
+	if !Setting_PlayerHP_GrowFromSmallFailsafe != 0
 		LDA $19
 		BNE AlreadyBig
 		
@@ -85,15 +85,15 @@ incsrc "../../../MotherHPDefines.asm"
 		
 		AlreadyBig:
 	endif
-	if !Setting_playerHP_BlockMushroomRecoveryType == 0
+	if !Setting_PlayerHP_BlockMushroomRecoveryType == 0
 		if !Setting_PlayerHP_TwoByte == 0
-			LDA.b #!Setting_playerHP_MidwayRecoveryFixedAmt
+			LDA.b #!Setting_PlayerHP_MidwayRecoveryFixedAmt
 			STA $00
 		else
 			if !Setting_PlayerHP_MushroomToItemBox == 0
 				REP #$20
 			endif
-			LDA.w #!Setting_playerHP_MidwayRecoveryFixedAmt
+			LDA.w #!Setting_PlayerHP_MidwayRecoveryFixedAmt
 			STA $00
 			SEP #$20
 		endif
@@ -101,12 +101,12 @@ incsrc "../../../MotherHPDefines.asm"
 	;Recovery = MaxHP*Dividend/Divisor  ;>if Dividend is > 1
 	;Recovery = MaxHP/Divisor           ;>if Dividend is = 1
 		if !Setting_PlayerHP_TwoByte == 0
-			LDA !Freeram_PlayerMaxHP
-			if !Setting_playerHP_BlockMushroomRecoveryDividend > 1
+			LDA !Freeram_PlayerHP_MaxHP
+			if !Setting_PlayerHP_BlockMushroomRecoveryDividend > 1
 				STA $00							;\MaxHP...
 				STZ $01							;/
 				REP #$20						;\...Times dividend
-				LDA.w #!Setting_playerHP_BlockMushroomRecoveryDividend	;|
+				LDA.w #!Setting_PlayerHP_BlockMushroomRecoveryDividend	;|
 				STA $02							;|
 				SEP #$20						;|
 				PHY							;|
@@ -124,7 +124,7 @@ incsrc "../../../MotherHPDefines.asm"
 				STZ $03
 			endif
 			REP #$20						;\...divide by divisor
-			LDA.w #!Setting_playerHP_BlockMushroomRecoveryDivisor	;|
+			LDA.w #!Setting_PlayerHP_BlockMushroomRecoveryDivisor	;|
 			STA $04							;|
 			SEP #$20						;|
 			PHY							;|
@@ -132,10 +132,10 @@ incsrc "../../../MotherHPDefines.asm"
 			PLY
 		else
 			REP #$20
-			LDA !Freeram_PlayerMaxHP
-			if !Setting_playerHP_BlockMushroomRecoveryDividend > 1
+			LDA !Freeram_PlayerHP_MaxHP
+			if !Setting_PlayerHP_BlockMushroomRecoveryDividend > 1
 				STA $00
-				LDA.w #!Setting_playerHP_BlockMushroomRecoveryDividend
+				LDA.w #!Setting_PlayerHP_BlockMushroomRecoveryDividend
 				STA $02
 				SEP #$20
 				PHY
@@ -150,7 +150,7 @@ incsrc "../../../MotherHPDefines.asm"
 				STA $00
 				STZ $02
 			endif
-			LDA.w #!Setting_playerHP_BlockMushroomRecoveryDivisor
+			LDA.w #!Setting_PlayerHP_BlockMushroomRecoveryDivisor
 			STA $04
 			SEP #$20
 			PHY
@@ -161,7 +161,7 @@ incsrc "../../../MotherHPDefines.asm"
 		
 		.Round
 		REP #$20
-		LDA.w #round(!Setting_playerHP_BlockMushroomRecoveryDivisor/2, 0)	;\If HalfDivisor > Remainder (remainder smaller), don't round quotient.
+		LDA.w #round(!Setting_PlayerHP_BlockMushroomRecoveryDivisor/2, 0)	;\If HalfDivisor > Remainder (remainder smaller), don't round quotient.
 		CMP $04									;/
 		BEQ ..RoundQuotient							;>If =, round up
 		BCS ..NoRoundQuotient

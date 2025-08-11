@@ -97,57 +97,57 @@ main:
 		;BEQ ...Custom0
 		
 		...Heal
-		if and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!PlayerHP_BarRecordDelay, 0))
+		if and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!Setting_PlayerHP_BarChangeDelay, 0))
 			if !Setting_PlayerHP_ShowHealedTransparent != 0
-				LDA.b #!PlayerHP_BarRecordDelay			;\This is so that each tick freezes
-				STA !Freeram_PlayerHP_BarRecordDelayTmr		;/record instead of the inital grab of a healing item.
+				LDA.b #!Setting_PlayerHP_BarChangeDelay			;\This is so that each tick freezes
+				STA !Freeram_Setting_PlayerHP_BarChangeDelayTmr		;/record instead of the inital grab of a healing item.
 			endif
 		endif
 		if !Setting_PlayerHP_TwoByte == 0
-			LDA !Freeram_PlayerCurrHP		;\Increment HP
+			LDA !Freeram_PlayerHP_CurrentHP		;\Increment HP
 			CMP #$FF
 			BEQ ....FullHP
 			INC					;|
-			CMP !Freeram_PlayerMaxHP
+			CMP !Freeram_PlayerHP_MaxHP
 			BCC ....NotFullHP
 			
 			....FullHP
 			LDA #$00				;|\Stop healing if player HP is full.
 			STA !Freeram_PlayerHP_MotherHPChanger	;|/
-			LDA !Freeram_PlayerMaxHP
+			LDA !Freeram_PlayerHP_MaxHP
 			
 			....NotFullHP
-			STA !Freeram_PlayerCurrHP		;|
+			STA !Freeram_PlayerHP_CurrentHP		;|
 		else
 			REP #$20				;|
-			LDA !Freeram_PlayerCurrHP		;|
+			LDA !Freeram_PlayerHP_CurrentHP		;|
 			CMP #$FFFF				;|\In case if it attempts to overflow.
 			BEQ ....FullHP				;|/
 			INC					;|
-			CMP !Freeram_PlayerMaxHP		;|
+			CMP !Freeram_PlayerHP_MaxHP		;|
 			BCC ....NotFullHP			;|
 			
 			....FullHP
 			LDA #$0000				;|\Stop healing if player HP is full.
 			STA !Freeram_PlayerHP_MotherHPChanger	;|/
-			LDA !Freeram_PlayerMaxHP		;|
+			LDA !Freeram_PlayerHP_MaxHP		;|
 			
 			....NotFullHP
-			STA !Freeram_PlayerCurrHP		;|
+			STA !Freeram_PlayerHP_CurrentHP		;|
 			SEP #$20				;/
 		endif
 		BRA ..DecrementDelayDone
 		
 		...Damage
-		if and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!PlayerHP_BarRecordDelay, 0))
-			LDA.b #!PlayerHP_BarRecordDelay
-			STA !Freeram_PlayerHP_BarRecordDelayTmr
+		if and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!Setting_PlayerHP_BarChangeDelay, 0))
+			LDA.b #!Setting_PlayerHP_BarChangeDelay
+			STA !Freeram_Setting_PlayerHP_BarChangeDelayTmr
 		endif
 		if !Setting_PlayerHP_TwoByte == 0
-			LDA !Freeram_PlayerCurrHP		;\Subtract HP
+			LDA !Freeram_PlayerHP_CurrentHP		;\Subtract HP
 			BEQ ....Death				;|
 			DEC					;|
-			STA !Freeram_PlayerCurrHP		;|
+			STA !Freeram_PlayerHP_CurrentHP		;|
 			BEQ ....Death				;>Prevent damage equal to player's HP from landing on 0HP without dying.
 			BRA ..DecrementDelayDone
 			
@@ -157,10 +157,10 @@ main:
 			STA !Freeram_PlayerHP_MotherHPChanger	;|/
 		else
 			REP #$20				;|
-			LDA !Freeram_PlayerCurrHP		;|
+			LDA !Freeram_PlayerHP_CurrentHP		;|
 			BEQ ....Death				;|
 			DEC					;|
-			STA !Freeram_PlayerCurrHP		;|
+			STA !Freeram_PlayerHP_CurrentHP		;|
 			BEQ ....Death				;>Prevent damage equal to player's HP from landing on 0HP without dying.
 			SEP #$20
 			BRA ..DecrementDelayDone
@@ -225,7 +225,7 @@ main:
 		TRB $18					;/
 		LDA $140D|!addr				;\Don't have the spinning animation applying to
 		BNE ..Done				;/the pose (probably that this is the only time I override smw's spinjump flag).
-		LDA.b #!PlayerHP_StunPose		;\Set player pose
+		LDA.b #!Setting_PlayerHP_StunPose		;\Set player pose
 		STA $13E0|!addr				;/
 		BRA ..Done
 
@@ -266,9 +266,9 @@ main:
 		STA $00						;|
 		STZ $01						;/>HP gradual change doesn't have a high byte.
 		%UberRoutine(SubtractPlayerHPNonRoll)		;>Of course, both the filename and the label to jump to is required in uberasm tool's library (avoid having the same name).
-		LDA !Freeram_PlayerCurrHP			;\Kill player on 0HP
+		LDA !Freeram_PlayerHP_CurrentHP			;\Kill player on 0HP
 		if !Setting_PlayerHP_TwoByte != 0		;|
-			ORA !Freeram_PlayerCurrHP		;|
+			ORA !Freeram_PlayerHP_CurrentHP		;|
 		endif						;|
 		BNE ..ClearSlowHPChange				;/
 		

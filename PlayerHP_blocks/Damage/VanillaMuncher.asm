@@ -34,8 +34,8 @@
 ; right/down speeds, use only values #$01-#$7F with #$7F being the fastest speed.
 	!MuncherKnockbackUp		= $C0
 	!MuncherKnockbackDown		= $70
-	!MuncherKnockbackHorizSpd	= !PlayerHP_KnockbackHorizSpd
-	!MuncherKnockbackHorizUpSpd	= !PlayerHP_KnockbackUpwardsSpd ;>horizontal upwards speed.
+	!MuncherKnockbackHorizSpd	= !Setting_PlayerHP_KnockbackHorizSpd
+	!MuncherKnockbackHorizUpSpd	= !Setting_PlayerHP_KnockbackUpwardsSpd ;>horizontal upwards speed.
 
 ; Enable (set to 1) or disable (set to 0) damage on specific side. When Mario touches
 ; a non-damaging side, would simply act like a solid cement block when in "muncher" mode and
@@ -92,7 +92,7 @@ MarioAbove:
 			
 			
 			if !Setting_PlayerHP_Knockback != 0
-				LDA.b #!PlayerHP_KnockbackLength	;\Set mario to be stunned
+				LDA.b #!Setting_PlayerHP_KnockbackLength	;\Set mario to be stunned
 				STA !Freeram_PlayerHP_Knockback		;/
 				LDA $71					;\Prevent altering dying mario's Y speed.
 				CMP #$09				;|
@@ -168,7 +168,7 @@ HeadInside:
 				LDX.b #!MuncherKnockbackHorizUpSpd
 				STX $01
 				%HorizKnockback()
-				LDA.b #!PlayerHP_KnockbackLength		;\Set mario to be stunned
+				LDA.b #!Setting_PlayerHP_KnockbackLength		;\Set mario to be stunned
 				STA !Freeram_PlayerHP_Knockback			;/
 			endif
 		else
@@ -213,7 +213,7 @@ BodyInside:
 			%DamagePlayer()
 			
 			if !Setting_PlayerHP_Knockback != 0
-				LDA.b #!PlayerHP_KnockbackLength	;\Set mario to be stunned
+				LDA.b #!Setting_PlayerHP_KnockbackLength	;\Set mario to be stunned
 				STA !Freeram_PlayerHP_Knockback		;/
 				LDA $71					;\Prevent altering dying mario's Y speed
 				CMP #$09				;|

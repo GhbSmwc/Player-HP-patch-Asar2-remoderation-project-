@@ -50,43 +50,43 @@ incsrc "MaxHPUpgradeDef/HPUpgradeDef.asm"
 	
 	if !HPUpgrade_VaryingIncrease == 0
 		if !Setting_PlayerHP_TwoByte == 0		;\Increase max health
-			LDA !Freeram_PlayerMaxHP		;|
+			LDA !Freeram_PlayerHP_MaxHP		;|
 			CLC					;|
 			ADC.b #!HPUpgrade_MaxIncreaseBy		;|
-			STA !Freeram_PlayerMaxHP		;|
-			STA !Freeram_PlayerCurrHP		;|
+			STA !Freeram_PlayerHP_MaxHP		;|
+			STA !Freeram_PlayerHP_CurrentHP		;|
 		else						;|
 			REP #$20				;|
-			LDA !Freeram_PlayerMaxHP		;|
+			LDA !Freeram_PlayerHP_MaxHP		;|
 			CLC					;|
 			ADC.w #!HPUpgrade_MaxIncreaseBy		;|
-			STA !Freeram_PlayerMaxHP		;|
-			STA !Freeram_PlayerCurrHP		;|
+			STA !Freeram_PlayerHP_MaxHP		;|
+			STA !Freeram_PlayerHP_CurrentHP		;|
 			SEP #$20				;/
 		endif
 	else
 		if !Setting_PlayerHP_TwoByte == 0		;\Increase max health
-			LDA !Freeram_PlayerMaxHP		;|
+			LDA !Freeram_PlayerHP_MaxHP		;|
 			CLC					;|
 			ADC MaxHPUpgradeBit4IncreaseList,x	;|
-			STA !Freeram_PlayerMaxHP		;|
-			STA !Freeram_PlayerCurrHP		;|
+			STA !Freeram_PlayerHP_MaxHP		;|
+			STA !Freeram_PlayerHP_CurrentHP		;|
 		else						;|
 			TXA					;|
 			ASL					;|
 			TAX					;|
 			REP #$20				;|
-			LDA !Freeram_PlayerMaxHP		;|
+			LDA !Freeram_PlayerHP_MaxHP		;|
 			CLC					;|
 			ADC MaxHPUpgradeBit4IncreaseList,x	;|
-			STA !Freeram_PlayerMaxHP		;|
-			STA !Freeram_PlayerCurrHP		;|
+			STA !Freeram_PlayerHP_MaxHP		;|
+			STA !Freeram_PlayerHP_CurrentHP		;|
 			SEP #$20				;/
 		endif
 	endif
-	if and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!PlayerHP_BarRecordDelay, 0))
-		LDA.b #!PlayerHP_BarRecordDelay
-		STA !Freeram_PlayerHP_BarRecordDelayTmr
+	if and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!Setting_PlayerHP_BarChangeDelay, 0))
+		LDA.b #!Setting_PlayerHP_BarChangeDelay
+		STA !Freeram_Setting_PlayerHP_BarChangeDelayTmr
 	endif
 
 	WallFeet:

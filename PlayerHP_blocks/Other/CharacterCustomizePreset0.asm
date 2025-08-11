@@ -21,17 +21,17 @@ incsrc "../../../MotherHPDefines.asm"
 	
 	if !Setting_PlayerHP_TwoByte == 0
 		LDA.b #!MaxHealthSetTo			;\Change max HP
-		STA !Freeram_PlayerMaxHP		;/
-		CMP !Freeram_PlayerCurrHP		;\If new max HP falls below current HP, set current HP
+		STA !Freeram_PlayerHP_MaxHP		;/
+		CMP !Freeram_PlayerHP_CurrentHP		;\If new max HP falls below current HP, set current HP
 		BCS +					;|to the new max HP (prevent current HP over the max).
-		STA !Freeram_PlayerCurrHP		;/
+		STA !Freeram_PlayerHP_CurrentHP		;/
 	else
 		REP #$20
 		LDA.w #!MaxHealthSetTo			;\Change max HP
-		STA !Freeram_PlayerMaxHP		;/
-		CMP !Freeram_PlayerCurrHP		;\If new max HP falls below current HP, set current HP
+		STA !Freeram_PlayerHP_MaxHP		;/
+		CMP !Freeram_PlayerHP_CurrentHP		;\If new max HP falls below current HP, set current HP
 		BCS +					;|to the new max HP (prevent current HP over the max).
-		STA !Freeram_PlayerCurrHP		;/
+		STA !Freeram_PlayerHP_CurrentHP		;/
 		+
 		SEP #$20
 	endif

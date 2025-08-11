@@ -46,7 +46,7 @@ MarioAbove:
 			%DamagePlayer()
 			
 			if !Setting_PlayerHP_Knockback != 0
-				LDA.b #!PlayerHP_KnockbackLength	;\Set mario to be stunned
+				LDA.b #!Setting_PlayerHP_KnockbackLength	;\Set mario to be stunned
 				STA !Freeram_PlayerHP_Knockback		;/
 				LDA $71					;\Prevent affecting dying mario's Y speed
 				CMP #$09				;|
@@ -104,7 +104,7 @@ HeadInside:
 				LDX.b #!MuncherKnockbackHorizUpSpd
 				STX $01
 				%HorizKnockback()
-				LDA.b #!PlayerHP_KnockbackLength		;\Set mario to be stunned
+				LDA.b #!Setting_PlayerHP_KnockbackLength		;\Set mario to be stunned
 				STA !Freeram_PlayerHP_Knockback			;/
 			endif
 		else
@@ -134,7 +134,7 @@ BodyInside:
 			%DamagePlayer()
 			
 			if !Setting_PlayerHP_Knockback != 0
-				LDA.b #!PlayerHP_KnockbackLength	;\Set mario to be stunned
+				LDA.b #!Setting_PlayerHP_KnockbackLength	;\Set mario to be stunned
 				STA !Freeram_PlayerHP_Knockback		;/
 				LDA $71					;\Prevent affecting dying mario's Y speed
 				CMP #$09				;|

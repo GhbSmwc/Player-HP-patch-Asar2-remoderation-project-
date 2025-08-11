@@ -13,5 +13,5 @@
 ; right/down speeds, use only values #$01-#$7F with #$7F being the fastest speed.
 	!MuncherKnockbackUp		= $C0
 	!MuncherKnockbackDown		= $70
-	!MuncherKnockbackHorizSpd	= !PlayerHP_KnockbackHorizSpd
-	!MuncherKnockbackHorizUpSpd	= !PlayerHP_KnockbackUpwardsSpd ;>horizontal upwards speed.
+	!MuncherKnockbackHorizSpd	= !Setting_PlayerHP_KnockbackHorizSpd
+	!MuncherKnockbackHorizUpSpd	= !Setting_PlayerHP_KnockbackUpwardsSpd ;>horizontal upwards speed.

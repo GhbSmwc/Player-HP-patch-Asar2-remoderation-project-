@@ -64,9 +64,9 @@ BodyInside:
 		STA !HPSlowDamageSFXPort		;/
 		LDA.b #($100-!DamagePerPeriod)		;\Set damage
 		STA !Freeram_PlayerHP_GradualHPChange	;/
-		if and(notequal(!PlayerHP_BarRecordDelay, 0), notequal(!Setting_PlayerHP_BarAnimation, 0))
-			LDA.b #!PlayerHP_BarRecordDelay
-			STA !Freeram_PlayerHP_BarRecordDelayTmr
+		if and(notequal(!Setting_PlayerHP_BarChangeDelay, 0), notequal(!Setting_PlayerHP_BarAnimation, 0))
+			LDA.b #!Setting_PlayerHP_BarChangeDelay
+			STA !Freeram_Setting_PlayerHP_BarChangeDelayTmr
 		endif
 	else
 		LDA $14					;\Leave a 1 frame gap of the two
@@ -78,9 +78,9 @@ BodyInside:
 		NoRapidSound:
 		LDA.b #($100-!DamagePerPeriod)		;\Set damage
 		STA !Freeram_PlayerHP_GradualHPChange	;/
-		if and(notequal(!PlayerHP_BarRecordDelay, 0), notequal(!Setting_PlayerHP_BarAnimation, 0))
-			LDA.b #!PlayerHP_BarRecordDelay
-			STA !Freeram_PlayerHP_BarRecordDelayTmr
+		if and(notequal(!Setting_PlayerHP_BarChangeDelay, 0), notequal(!Setting_PlayerHP_BarAnimation, 0))
+			LDA.b #!Setting_PlayerHP_BarChangeDelay
+			STA !Freeram_Setting_PlayerHP_BarChangeDelayTmr
 		endif
 	endif
 SpriteV:

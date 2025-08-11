@@ -5,68 +5,36 @@ incsrc "../GraphicalBarDefines.asm"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Remove record effect.
 ;;
-;;Be aware at the time of writing, asar had a bug where labels leak out
-;;of %Macros():
-;;
-;; MainLabel:
-;;  %CallSubroutine() ;>labels inside here are treated as if it is here outside.
-;; .Sublabel ;>it is supposed to attach to "MainLabel:", but instead attaches to the last parent label in the macro.
-;;
-;; This causes error saying "MainLabel_Sublabel" not being found.
-;;
-;; I really hope this f*cked up glitch is fixed soon.
-;;
-;; Also, to warn you, using sublabels are just treated as main labels,
-;; but with sublabels appended to the parent label separated with "_"
-;; so for an example:
-;;
-;; Label                ; treated as main label
-;; -----                ------------------------
-;; Main:                ;>"Main:"
-;; .Sub1                ;>"Main_Sub1:"
-;; ..Sub2               ;>"Main_Sub1_Sub2:"
-;;
-;; so if you use "Main_Sub1:" while the "Main:" and ".Sub1" exist, it will
-;; error out.
-;;
-;; This leaking issue also happens with +/- as well, treating them as if
-;; they're outside the macro.
-;;
-;; Also, at the time of writing, you cannot call a subroutine via %CallRoutine()
-;; inside a subroutine. If you're running low on space, I HIGHLY recommend
-;; using the shared subroutine patch to alleviate the limitations of trying
-;; to have subroutines used in multiple tools and patches.
-;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	LDA !Freeram_PlayerCurrHP			;\Current HP
+	LDA !Freeram_PlayerHP_CurrentHP			;\Current HP
 	STA !Scratchram_GraphicalBar_FillByteTbl	;|
 	if !Setting_PlayerHP_TwoByte == 0		;|
 		LDA #$00				;|
 	else						;|
-		LDA !Freeram_PlayerCurrHP+1		;|
+		LDA !Freeram_PlayerHP_CurrentHP+1		;|
 	endif						;|
 	STA !Scratchram_GraphicalBar_FillByteTbl+1	;/
-	LDA !Freeram_PlayerMaxHP			;\Max HP
+	LDA !Freeram_PlayerHP_MaxHP			;\Max HP
 	STA !Scratchram_GraphicalBar_FillByteTbl+2	;|
 	if !Setting_PlayerHP_TwoByte == 0		;|
 		LDA #$00				;|
 	else						;|
-		LDA !Freeram_PlayerMaxHP+1		;|
+		LDA !Freeram_PlayerHP_MaxHP+1		;|
 	endif						;|
 	STA !Scratchram_GraphicalBar_FillByteTbl+3	;/
-	if !Default_LeftPieces == !Default_RightPieces		;\Number of pieces in each 8x8.
-		LDA.b #!Default_LeftPieces			;|
+	if !Setting_PlayerHP_GraphicalBar_LeftPieces == !Setting_PlayerHP_GraphicalBar_RightPieces		;\Number of pieces in each 8x8.
+		LDA.b #!Setting_PlayerHP_GraphicalBar_LeftPieces			;|
 		STA !Scratchram_GraphicalBar_LeftEndPiece	;|
 		STA !Scratchram_GraphicalBar_RightEndPiece	;|
 	else							;|
-		LDA.b #!Default_LeftPieces			;|
+		LDA.b #!Setting_PlayerHP_GraphicalBar_LeftPieces			;|
 		STA !Scratchram_GraphicalBar_LeftEndPiece	;|
-		LDA.b #!Default_RightPieces			;|
+		LDA.b #!Setting_PlayerHP_GraphicalBar_RightPieces			;|
 		STA !Scratchram_GraphicalBar_RightEndPiece	;|
 	endif							;|
-	LDA.b #!Default_MiddlePieces				;|
+	LDA.b #!Setting_PlayerHP_GraphicalBar_MiddlePieces				;|
 	STA !Scratchram_GraphicalBar_MiddlePiece		;/
-	LDA.b #!Default_MiddleLengthLevel			;\number of middle 8x8s
+	LDA.b #!Setting_PlayerHP_GraphicalBarMiddleLengthLevel	;\number of middle 8x8s
 	STA !Scratchram_GraphicalBar_TempLength			;/
 	;JSR CalculateGraphicalBarPercentage
 	;RTL
@@ -205,17 +173,13 @@ incsrc "../GraphicalBarDefines.asm"
 	
 	?.Done
 	SEP #$20
-	;RTL
 	
-	if !Setting_PlayerHP_BarAvoidRoundToZero != 0
-		CPY #$01
-		BNE ?.NotRoundedToEmpty
-		
-		LDA #$01		;\round towards 1 pixel when near-empty.
-		STA $00			;|
-		STZ $01			;/
-		
-		?.NotRoundedToEmpty
+	if !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull == 1
+		%UberRoutine(GraphicalBar_RoundAwayEmpty)
+	elseif !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull == 2
+		%UberRoutine(GraphicalBar_RoundAwayFull)
+	elseif !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull == 3
+		%UberRoutine(GraphicalBar_RoundAwayEmptyFull)
 	endif
 	
 	;Set record to current HP percentage

@@ -69,7 +69,7 @@ incsrc "Defines/MotherHPDefines.asm"
 	db $1C			;>Fix mario's frozen pose (modifies the BRA to jump to $00F622).
 ;Cape stuff
 	org $00F5ED					;\modify the invincibility timer after
-	db !PlayerHP_InvulnerabilityTmrCape		;/getting hit while cape flying.
+	db !Setting_PlayerHP_InvulnerabilityTmrCape		;/getting hit while cape flying.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Freespace hijacks
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -114,13 +114,13 @@ incsrc "Defines/MotherHPDefines.asm"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 freecode
 	MidwayHeal: ;>JML jumps here from $00F2E0
-	if !Setting_playerHP_MidwayRecoveryType == 0
+	if !Setting_PlayerHP_MidwayRecoveryType == 0
 		if !Setting_PlayerHP_TwoByte == 0
-			LDA.b #!Setting_playerHP_MidwayRecoveryFixedAmt
+			LDA.b #!Setting_PlayerHP_MidwayRecoveryFixedAmt
 			STA $00
 		else
 			REP #$20
-			LDA.w #!Setting_playerHP_MidwayRecoveryFixedAmt
+			LDA.w #!Setting_PlayerHP_MidwayRecoveryFixedAmt
 			STA $00
 			SEP #$20
 		endif
@@ -128,12 +128,12 @@ freecode
 	;Recovery = MaxHP*Dividend/Divisor  ;>if Dividend is > 1
 	;Recovery = MaxHP/Divisor           ;>if Dividend is = 1
 		if !Setting_PlayerHP_TwoByte == 0
-			LDA !Freeram_PlayerMaxHP
-			if !Setting_playerHP_MidwayRecoveryDividend > 1
+			LDA !Freeram_PlayerHP_MaxHP
+			if !Setting_PlayerHP_MidwayRecoveryDividend > 1
 				STA $00							;\MaxHP...
 				STZ $01							;/
 				REP #$20						;\...Times dividend
-				LDA.w #!Setting_playerHP_MidwayRecoveryDividend		;|
+				LDA.w #!Setting_PlayerHP_MidwayRecoveryDividend		;|
 				STA $02							;|
 				SEP #$20						;|
 				JSL MathMul16_16					;/
@@ -149,16 +149,16 @@ freecode
 				STZ $03
 			endif
 			REP #$20						;\...divide by divisor
-			LDA.w #!Setting_playerHP_MidwayRecoveryDivisor		;|
+			LDA.w #!Setting_PlayerHP_MidwayRecoveryDivisor		;|
 			STA $04							;|
 			SEP #$20						;|
 			JSL MathDiv32_16					;/;>$00 should be <= $FFFF
 		else
 			REP #$20
-			LDA !Freeram_PlayerMaxHP
-			if !Setting_playerHP_MidwayRecoveryDividend > 1
+			LDA !Freeram_PlayerHP_MaxHP
+			if !Setting_PlayerHP_MidwayRecoveryDividend > 1
 				STA $00
-				LDA.w #!Setting_playerHP_MidwayRecoveryDividend
+				LDA.w #!Setting_PlayerHP_MidwayRecoveryDividend
 				STA $02
 				SEP #$20
 				JSL MathMul16_16
@@ -171,7 +171,7 @@ freecode
 				STA $00
 				STZ $02
 			endif
-			LDA.w #!Setting_playerHP_MidwayRecoveryDivisor
+			LDA.w #!Setting_PlayerHP_MidwayRecoveryDivisor
 			STA $04
 			SEP #$20
 			JSL MathDiv32_16 ;>$00 should be <= $FFFF
@@ -180,7 +180,7 @@ freecode
 		
 		.Round
 		REP #$20
-		LDA.w #round(!Setting_playerHP_MidwayRecoveryDivisor/2, 0)	;\If HalfDivisor > Remainder (remainder smaller), don't round quotient.
+		LDA.w #round(!Setting_PlayerHP_MidwayRecoveryDivisor/2, 0)	;\If HalfDivisor > Remainder (remainder smaller), don't round quotient.
 		CMP $04								;/
 		BEQ ..RoundQuotient						;>If =, round up
 		BCS ..NoRoundQuotient
@@ -207,30 +207,30 @@ freecode
 	INC $19				;>Small -> Big mario
 	
 	.MidwayRecoveryDone
-	JML $00F2E8			;>Return back to smw.
+	JML $00F2E8|!bank		;>Return back to smw.
 	;-------------------------------------------------------------------------------------------------------------------------------------------
 	MushroomHeal: ;>JML from $01C561
 	if !Setting_PlayerHP_MushroomToItemBox != 0
 		if !Setting_PlayerHP_TwoByte == 0
-			LDA !Freeram_PlayerCurrHP
-			CMP !Freeram_PlayerMaxHP
+			LDA !Freeram_PlayerHP_CurrentHP
+			CMP !Freeram_PlayerHP_MaxHP
 			BCS .AddToItemBox
 		else
 			REP #$20
-			LDA !Freeram_PlayerCurrHP
-			CMP !Freeram_PlayerMaxHP
+			LDA !Freeram_PlayerHP_CurrentHP
+			CMP !Freeram_PlayerHP_MaxHP
 			BCS .AddToItemBox
 		endif
 	endif
-	if !Setting_playerHP_MushroomRecoveryType == 0
+	if !Setting_PlayerHP_MushroomRecoveryType == 0
 		if !Setting_PlayerHP_TwoByte == 0
-			LDA.b #!Setting_playerHP_MidwayRecoveryFixedAmt
+			LDA.b #!Setting_PlayerHP_MidwayRecoveryFixedAmt
 			STA $00
 		else
 			if !Setting_PlayerHP_MushroomToItemBox == 0
 				REP #$20
 			endif
-			LDA.w #!Setting_playerHP_MidwayRecoveryFixedAmt
+			LDA.w #!Setting_PlayerHP_MidwayRecoveryFixedAmt
 			STA $00
 			SEP #$20
 		endif
@@ -238,12 +238,12 @@ freecode
 	;Recovery = MaxHP*Dividend/Divisor  ;>if Dividend is > 1
 	;Recovery = MaxHP/Divisor           ;>if Dividend is = 1
 		if !Setting_PlayerHP_TwoByte == 0
-			LDA !Freeram_PlayerMaxHP
-			if !Setting_playerHP_MushroomRecoveryDividend > 1
+			LDA !Freeram_PlayerHP_MaxHP
+			if !Setting_PlayerHP_MushroomRecoveryDividend > 1
 				STA $00							;\MaxHP...
 				STZ $01							;/
 				REP #$20						;\...Times dividend
-				LDA.w #!Setting_playerHP_MushroomRecoveryDividend	;|
+				LDA.w #!Setting_PlayerHP_MushroomRecoveryDividend	;|
 				STA $02							;|
 				SEP #$20						;|
 				PHY							;|
@@ -261,7 +261,7 @@ freecode
 				STZ $03
 			endif
 			REP #$20						;\...divide by divisor
-			LDA.w #!Setting_playerHP_MushroomRecoveryDivisor	;|
+			LDA.w #!Setting_PlayerHP_MushroomRecoveryDivisor	;|
 			STA $04							;|
 			SEP #$20						;|
 			PHY							;|
@@ -269,10 +269,10 @@ freecode
 			PLY
 		else
 			REP #$20
-			LDA !Freeram_PlayerMaxHP
-			if !Setting_playerHP_MushroomRecoveryDividend > 1
+			LDA !Freeram_PlayerHP_MaxHP
+			if !Setting_PlayerHP_MushroomRecoveryDividend > 1
 				STA $00
-				LDA.w #!Setting_playerHP_MushroomRecoveryDividend
+				LDA.w #!Setting_PlayerHP_MushroomRecoveryDividend
 				STA $02
 				SEP #$20
 				PHY
@@ -287,7 +287,7 @@ freecode
 				STA $00
 				STZ $02
 			endif
-			LDA.w #!Setting_playerHP_MushroomRecoveryDivisor
+			LDA.w #!Setting_PlayerHP_MushroomRecoveryDivisor
 			STA $04
 			SEP #$20
 			PHY
@@ -300,7 +300,7 @@ freecode
 		
 		.Round
 		REP #$20
-		LDA.w #round(!Setting_playerHP_MushroomRecoveryDivisor/2, 0)	;\If HalfDivisor > Remainder (remainder smaller), don't round quotient.
+		LDA.w #round(!Setting_PlayerHP_MushroomRecoveryDivisor/2, 0)	;\If HalfDivisor > Remainder (remainder smaller), don't round quotient.
 		CMP $04								;/
 		BEQ ..RoundQuotient						;>If =, round up
 		BCS ..NoRoundQuotient
@@ -322,28 +322,28 @@ freecode
 	JSL RecoverPlayerHP
 	
 	.MushroomBehavor
-	if !Setting_playerHP_GrowFromSmallFailsafe != 0
+	if !Setting_PlayerHP_GrowFromSmallFailsafe != 0
 		LDA $19
 		BNE ..AlreadyBig
 		
 		LDA #$02			;\growing animation
 		STA $71				;/
-		JML $01C565			;>The rest of the code that handles the animation and other stuff.
+		JML $01C565|!bank			;>The rest of the code that handles the animation and other stuff.
 	endif
 	..AlreadyBig
 	.MushroomReturn
-	JML $01C56F				;>Rest of the mushroom code.
+	JML $01C56F|!bank				;>Rest of the mushroom code.
 	
 	.AddToItemBox
 	SEP #$20
 	;If you're small mario with full HP, simply do the growing animation instead of filling the item box.
-	if !Setting_playerHP_GrowFromSmallFailsafe != 0
+	if !Setting_PlayerHP_GrowFromSmallFailsafe != 0
 		LDA $19
 		BNE ..AlreadyBig
 		
 		LDA #$02			;\growing animation
 		STA $71				;/
-		JML $01C565			;>The rest of the code that handles the animation and other stuff.
+		JML $01C565|!bank			;>The rest of the code that handles the animation and other stuff.
 	endif
 	..AlreadyBig
 	LDA #$0B			;\"Item placed in item box" sfx.
@@ -430,7 +430,7 @@ freecode
 	
 	.DamageReturn
 	PLB
-	JML $00F628		;>Return
+	JML $00F628|!bank		;>Return
 	;-------------------------------------------------------------------------------------------------------------------------------------------
 	ExtendSpriteDamage: ;>JSL from $02A4AE
 	PHB				;>save bank to stack
@@ -446,7 +446,7 @@ freecode
 	JSL CancelCapeSoaringIfSoaring
 	BCS .ExtendSpriteDone
 
-	LDA.b #!PlayerHP_InvulnerabilityTmr		;\Set invulnerability timer
+	LDA.b #!Setting_PlayerHP_InvulnerabilityTmrMostDamages		;\Set invulnerability timer
 	STA $1497|!addr					;/
 	if !Setting_PlayerHP_VaryingDamage == 0
 		.OneDamage
@@ -495,7 +495,7 @@ freecode
 	JSL CancelCapeSoaringIfSoaring
 	BCS .ClusterSpriteDone
 	
-	LDA.b #!PlayerHP_InvulnerabilityTmr		;\Set invulnerability timer
+	LDA.b #!Setting_PlayerHP_InvulnerabilityTmrMostDamages		;\Set invulnerability timer
 	STA $1497|!addr					;/
 	if !Setting_PlayerHP_VaryingDamage == 0
 		.OneDamage
@@ -545,7 +545,7 @@ freecode
 	JSL CancelCapeSoaringIfSoaring
 	BCS .BooStreamDone
 	
-	LDA.b #!PlayerHP_InvulnerabilityTmr		;\Set invulnerability timer
+	LDA.b #!Setting_PlayerHP_InvulnerabilityTmrMostDamages		;\Set invulnerability timer
 	STA $1497|!addr					;/
 	if !Setting_PlayerHP_VaryingDamage == 0
 		.OneDamage
@@ -556,11 +556,11 @@ freecode
 		endif
 	else
 		if !Setting_PlayerHP_TwoByte == 0
-			LDA.b #!Damage_PlayerHP_ReflectBooStream
+			LDA.b #!Setting_PlayerHP_DamageAmount_ReflectBooStream
 			STA $00
 		else
 			REP #$20
-			LDA.w #!Damage_PlayerHP_ReflectBooStream
+			LDA.w #!Setting_PlayerHP_DamageAmount_ReflectBooStream
 			STA $00
 			SEP #$20
 		endif
@@ -580,14 +580,14 @@ freecode
 	JSL CancelCapeSoaringIfSoaring
 	BCS .BlockDamageDone
 	
-	LDA.b #!PlayerHP_InvulnerabilityTmr		;\Set invulnerability timer
+	LDA.b #!Setting_PlayerHP_InvulnerabilityTmrMostDamages		;\Set invulnerability timer
 	STA $1497|!addr					;/
 	if !Setting_PlayerHP_TwoByte == 0
-		LDA.b #!Damage_PlayerHP_SmwBlocks
+		LDA.b #!Setting_PlayerHP_DamageAmount_VanillaSmwBlocks
 		STA $00
 	else
 		REP #$20
-		LDA.w #!Damage_PlayerHP_SmwBlocks
+		LDA.w #!Setting_PlayerHP_DamageAmount_VanillaSmwBlocks
 		STA $00
 		SEP #$20
 	endif
@@ -606,14 +606,14 @@ freecode
 	;Feel free to add some codes here that runs for 1 frame the player instantly dies
 	STA $71
 	LDA #$00
-	STA !Freeram_PlayerCurrHP
+	STA !Freeram_PlayerHP_CurrentHP
 	if !Setting_PlayerHP_TwoByte != 0
-		STA !Freeram_PlayerCurrHP+1
+		STA !Freeram_PlayerHP_CurrentHP+1
 	endif
 	.TransperentDamageOnBar
-	if and(and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!PlayerHP_BarRecordDelay, 0)), !Setting_PlayerHP_DisplayBarLevel)	;\display transparent segment when the player gets killed
-		LDA.b #!PlayerHP_BarRecordDelay								;|
-		STA !Freeram_PlayerHP_BarRecordDelayTmr							;|
+	if and(and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!Setting_PlayerHP_BarChangeDelay, 0)), !Setting_PlayerHP_DisplayBarLevel)	;\display transparent segment when the player gets killed
+		LDA.b #!Setting_PlayerHP_BarChangeDelay								;|
+		STA !Freeram_Setting_PlayerHP_BarChangeDelayTmr							;|
 	endif												;/
 	LDA $19					;\Prevent a single frame of showing super mario when small mario dies.
 	CMP #$02				;|
@@ -621,7 +621,7 @@ freecode
 	LDA #$01				;\Prevent cape flying sfx from playing when falling into a bottomless pit when the player is flying.
 	STA $19					;/
 	.AlreadyDead
-	JML $00F618	;>Using RTL here can crash the game, so it must jump to a return of the same bank.
+	JML $00F618|!bank	;>Using RTL here can crash the game, so it must jump to a return of the same bank.
 	;-------------------------------------------------------------------------------------------------------------------------------------------
 	if !Setting_PlayerHP_Knockback != 0
 		;Be careful not to have the pose write disabled when the player dies.
@@ -652,14 +652,14 @@ freecode
 		BEQ ..MarioAnimNo45
 		
 		..CODE_00D01F
-		JML $00D01F
+		JML $00D01F|!bank
 		
 		..MarioAnimNo45
-		JML $00D030				;/
+		JML $00D030|!bank				;/
 		
 		.NoWritePose
 		PLA				;\return without setting the player's pose
-		JML $00D033			;/
+		JML $00D033|!bank			;/
 	endif
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Damage table.
@@ -841,7 +841,7 @@ if !Setting_PlayerHP_Knockback != 0
  ;Note: Minor extended sprites is not listed here, since almost all of them do no damage to the player.
  ;There is one however, that is the boo stream. The head sprite is sprite number $B0, but the sprites
  ;left behind are the ONLY minor extended sprite to damage the player. To modify how much damage the
- ;player suffer, open "PlayerHPDef.asm", and look for "!Damage_PlayerHP_ReflectBooStream".
+ ;player suffer, open "PlayerHPDef.asm", and look for "!Setting_PlayerHP_DamageAmount_ReflectBooStream".
  ;      0     1     2     3     4     5     6     7     8     9     A     B     C     D     E     F
  dw $0000,$0000,$0000,$FFFC,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$FFFC,$FFFC,$FFFC,$0000,$0000 ;#$00-#$0F
  ;dw $0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000 ;#$10-#$1F
@@ -909,7 +909,7 @@ endif
 	BEQ .NotFlying
 	
 	.Flying
-	JSL $00F5E2
+	JSL $00F5E2|!bank
 	SEC
 	RTL
 	
@@ -926,22 +926,22 @@ endif
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	DamageEffect:
 	.TransperentDamageOnBar
-	if and(and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!PlayerHP_BarRecordDelay, 0)), !Setting_PlayerHP_DisplayBarLevel)
-		LDA.b #!PlayerHP_BarRecordDelay
-		STA !Freeram_PlayerHP_BarRecordDelayTmr
+	if and(and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!Setting_PlayerHP_BarChangeDelay, 0)), !Setting_PlayerHP_DisplayBarLevel)
+		LDA.b #!Setting_PlayerHP_BarChangeDelay
+		STA !Freeram_Setting_PlayerHP_BarChangeDelayTmr
 	endif
 	
 	if !Setting_PlayerHP_RollingHP == 0
 		.SurviveOrDeath
-		LDA !Freeram_PlayerCurrHP
+		LDA !Freeram_PlayerHP_CurrentHP
 		if !Setting_PlayerHP_TwoByte != 0
-			ORA !Freeram_PlayerCurrHP+1
+			ORA !Freeram_PlayerHP_CurrentHP+1
 		endif
 		BEQ .Death
 	endif
 	
 	.Survive
-	LDA.b #!PlayerHP_InvulnerabilityTmr			;\From $00D140 (jumped from $00C599 as player animation trigger)(smw activates the invulnerability
+	LDA.b #!Setting_PlayerHP_InvulnerabilityTmrMostDamages			;\From $00D140 (jumped from $00C599 as player animation trigger)(smw activates the invulnerability
 	STA $1497						;/during the powerdown code, not during the hurt subroutine besides losing cape flight.
 	if !Setting_PlayerHP_LosePowerupOnDamage != 0
 		LDA #$01					;\lose powerup
@@ -965,7 +965,7 @@ endif
 			STA !Freeram_PlayerHP_Knockback
 		endif
 		;Add code here that runs 1 frame the player dies.
-		JSL $00F606
+		JSL $00F606|!bank
 		
 		..AlreadyDead
 		RTL
@@ -1025,24 +1025,24 @@ endif
 		BMI .SpriteOnLeft			;>Knock player right
 		
 		.SpriteOnRight ;>Knock player left
-		LDA.b #($100-!PlayerHP_KnockbackHorizSpd)
+		LDA.b #($100-!Setting_PlayerHP_KnockbackHorizSpd)
 		BRA .SetPlayerXSpeed
 		
 		.SpriteOnLeft
-		LDA.b #!PlayerHP_KnockbackHorizSpd
+		LDA.b #!Setting_PlayerHP_KnockbackHorizSpd
 		
 		.SetPlayerXSpeed
 		STA $7B
 		
-		;LDA.b #!PlayerHP_KnockbackLength	;\stun player.
+		;LDA.b #!Setting_PlayerHP_KnockbackLength	;\stun player.
 		;STA !Freeram_PlayerHP_Knockback		;/
 		RTL
 		
 		SharedKnockBack:
-		LDA.b #!PlayerHP_KnockbackLength	;\Set mario to be stunned
+		LDA.b #!Setting_PlayerHP_KnockbackLength	;\Set mario to be stunned
 		STA !Freeram_PlayerHP_Knockback		;/
 		STZ $74					;>Lose climbing
-		LDA.b #!PlayerHP_KnockbackUpwardsSpd	;\Mario flies upward
+		LDA.b #!Setting_PlayerHP_KnockbackUpwardsSpd	;\Mario flies upward
 		STA $7D					;/
 		if !Setting_PlayerHP_Knockback >= 2
 			LDA.b #00000100			;\So if mario get hit while on ground,
@@ -1095,44 +1095,44 @@ endif
 	;Input:
 	; $00 (8/16-bit) = the amount of HP to recover
 	;
-	;Automatically writes to !Freeram_PlayerCurrHP. Doesn't
+	;Automatically writes to !Freeram_PlayerHP_CurrentHP. Doesn't
 	;heal past the maximum HP.
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	RecoverPlayerHP:
 	if !Setting_PlayerHP_RollingHP == 0
 		if !Setting_PlayerHP_TwoByte == 0
-			LDA !Freeram_PlayerCurrHP		;\Health + Recovery
+			LDA !Freeram_PlayerHP_CurrentHP		;\Health + Recovery
 			CLC					;|
 			ADC $00					;/
 			BCC .NotMaxed				;>If not exceeding 255, compare with max HP
-			CMP !Freeram_PlayerMaxHP		;\If not exceeding max HP, write to HP.
+			CMP !Freeram_PlayerHP_MaxHP		;\If not exceeding max HP, write to HP.
 			BCC .NotMaxed				;/
 			
 			.Maxed
-			LDA !Freeram_PlayerMaxHP
+			LDA !Freeram_PlayerHP_MaxHP
 			
 			.NotMaxed
-			STA !Freeram_PlayerCurrHP
+			STA !Freeram_PlayerHP_CurrentHP
 		else
 			REP #$20
-			LDA !Freeram_PlayerCurrHP
+			LDA !Freeram_PlayerHP_CurrentHP
 			CLC
 			ADC $00
 			BCS .Maxed				;>If not exceeding 65535
-			CMP !Freeram_PlayerMaxHP
+			CMP !Freeram_PlayerHP_MaxHP
 			BCC .NotMaxed				;>If not exceeding max HP, write to HP.
 			
 			.Maxed
-			LDA !Freeram_PlayerMaxHP
+			LDA !Freeram_PlayerHP_MaxHP
 			
 			.NotMaxed
-			STA !Freeram_PlayerCurrHP
+			STA !Freeram_PlayerHP_CurrentHP
 			SEP #$20
 		endif
 		if and(and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!Setting_PlayerHP_ShowHealedTransparent, 0)), !Setting_PlayerHP_DisplayBarLevel)
-			if !PlayerHP_BarRecordDelay != 0
-				LDA.b #!PlayerHP_BarRecordDelay
-				STA !Freeram_PlayerHP_BarRecordDelayTmr
+			if !Setting_PlayerHP_BarChangeDelay != 0
+				LDA.b #!Setting_PlayerHP_BarChangeDelay
+				STA !Freeram_Setting_PlayerHP_BarChangeDelayTmr
 			endif
 		endif
 		RTL
@@ -1174,9 +1174,9 @@ endif
 		LDA #$00						;\Initially start out with first increment immediately.
 		STA !Freeram_PlayerHP_MotherHPDelayFrameTimer		;/
 		if and(and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!Setting_PlayerHP_ShowHealedTransparent, 0)), !Setting_PlayerHP_DisplayBarLevel)
-			if !PlayerHP_BarRecordDelay != 0
-				LDA.b #!PlayerHP_BarRecordDelay
-				STA !Freeram_PlayerHP_BarRecordDelayTmr
+			if !Setting_PlayerHP_BarChangeDelay != 0
+				LDA.b #!Setting_PlayerHP_BarChangeDelay
+				STA !Freeram_Setting_PlayerHP_BarChangeDelayTmr
 			endif
 		endif
 		RTL
@@ -1190,13 +1190,13 @@ endif
 	;Input:
 	; $00 (8/16-bit) = amount of HP loss.
 	;
-	;Automatically writes to !Freeram_PlayerCurrHP. Does not
+	;Automatically writes to !Freeram_PlayerHP_CurrentHP. Does not
 	;subtract HP to below zero.
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	SubtractPlayerHP:
 	if !Setting_PlayerHP_RollingHP == 0
 		if !Setting_PlayerHP_TwoByte == 0
-			LDA !Freeram_PlayerCurrHP		;\Health - damage
+			LDA !Freeram_PlayerHP_CurrentHP		;\Health - damage
 			SEC					;|
 			SBC $00					;/
 			BCS .NotPastZero			;>If value didn't subtract by larger value, go write HP.
@@ -1205,10 +1205,10 @@ endif
 			LDA #$00				;>Otherwise set HP to 0.
 			
 			.NotPastZero
-			STA !Freeram_PlayerCurrHP		;>Write HP value.
+			STA !Freeram_PlayerHP_CurrentHP		;>Write HP value.
 		else
 			REP #$20
-			LDA !Freeram_PlayerCurrHP
+			LDA !Freeram_PlayerHP_CurrentHP
 			SEC
 			SBC $00
 			BCS .NotPastZero
@@ -1217,7 +1217,7 @@ endif
 			LDA #$0000
 			
 			.NotPastZero
-			STA !Freeram_PlayerCurrHP
+			STA !Freeram_PlayerHP_CurrentHP
 			SEP #$20
 		endif
 	else

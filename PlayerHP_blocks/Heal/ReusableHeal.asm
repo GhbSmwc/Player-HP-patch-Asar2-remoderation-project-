@@ -62,18 +62,18 @@ incsrc "../../../MotherHPDefines.asm"
 	endif
 	FullHeal:
 	if !Setting_PlayerHP_TwoByte == 0
-		LDA !Freeram_PlayerMaxHP
-		CMP !Freeram_PlayerCurrHP
+		LDA !Freeram_PlayerHP_MaxHP
+		CMP !Freeram_PlayerHP_CurrentHP
 		BEQ Return
 		BCC Return
-		STA !Freeram_PlayerCurrHP
+		STA !Freeram_PlayerHP_CurrentHP
 	else
 		REP #$20
-		LDA !Freeram_PlayerMaxHP
-		CMP !Freeram_PlayerCurrHP
+		LDA !Freeram_PlayerHP_MaxHP
+		CMP !Freeram_PlayerHP_CurrentHP
 		BEQ Return
 		BCC Return
-		STA !Freeram_PlayerCurrHP
+		STA !Freeram_PlayerHP_CurrentHP
 		SEP #$20
 	endif
 	if !FullRecover_SFXNum != 0
@@ -81,9 +81,9 @@ incsrc "../../../MotherHPDefines.asm"
 		STA !FullRecover_SFXRamPort
 	endif
 	if and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!Setting_PlayerHP_ShowHealedTransparent, 0))
-		if !PlayerHP_BarRecordDelay != 0
-			LDA.b #!PlayerHP_BarRecordDelay
-			STA !Freeram_PlayerHP_BarRecordDelayTmr
+		if !Setting_PlayerHP_BarChangeDelay != 0
+			LDA.b #!Setting_PlayerHP_BarChangeDelay
+			STA !Freeram_Setting_PlayerHP_BarChangeDelayTmr
 		endif
 	endif
 	if !Setting_PlayerHP_RollingHP != 0

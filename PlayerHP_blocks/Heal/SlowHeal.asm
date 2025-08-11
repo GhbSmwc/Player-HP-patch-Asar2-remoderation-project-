@@ -49,12 +49,12 @@ BodyInside:
 	;ORA <address>				;|
 	BNE Return				;/
 	if !Setting_PlayerHP_TwoByte == 0
-		LDA !Freeram_PlayerCurrHP
-		CMP !Freeram_PlayerMaxHP
+		LDA !Freeram_PlayerHP_CurrentHP
+		CMP !Freeram_PlayerHP_MaxHP
 	else
 		REP #$20
-		LDA !Freeram_PlayerCurrHP
-		CMP !Freeram_PlayerMaxHP
+		LDA !Freeram_PlayerHP_CurrentHP
+		CMP !Freeram_PlayerHP_MaxHP
 		SEP #$20
 	endif
 	BCS Return				;>No SFX at full HP.
@@ -67,9 +67,9 @@ BodyInside:
 		STA !HPSlowHealSFXPort		;/
 		LDA.b #!RecovPerPeriod		;\Set heal
 		STA !Freeram_PlayerHP_GradualHPChange	;/
-		if and(notequal(!PlayerHP_BarRecordDelay, 0), notequal(!Setting_PlayerHP_BarAnimation, 0))
-			LDA.b #!PlayerHP_BarRecordDelay
-			STA !Freeram_PlayerHP_BarRecordDelayTmr
+		if and(notequal(!Setting_PlayerHP_BarChangeDelay, 0), notequal(!Setting_PlayerHP_BarAnimation, 0))
+			LDA.b #!Setting_PlayerHP_BarChangeDelay
+			STA !Freeram_Setting_PlayerHP_BarChangeDelayTmr
 		endif
 	else
 		LDA $14				;\Leave a 1 frame gap of the two
@@ -81,9 +81,9 @@ BodyInside:
 		NoRapidSound:
 		LDA.b #!RecovPerPeriod			;\Set heal
 		STA !Freeram_PlayerHP_GradualHPChange	;/
-		if and(notequal(!PlayerHP_BarRecordDelay, 0), notequal(!Setting_PlayerHP_BarAnimation, 0))
-			LDA.b #!PlayerHP_BarRecordDelay
-			STA !Freeram_PlayerHP_BarRecordDelayTmr
+		if and(notequal(!Setting_PlayerHP_BarChangeDelay, 0), notequal(!Setting_PlayerHP_BarAnimation, 0))
+			LDA.b #!Setting_PlayerHP_BarChangeDelay
+			STA !Freeram_Setting_PlayerHP_BarChangeDelayTmr
 		endif
 	endif
 SpriteV:
