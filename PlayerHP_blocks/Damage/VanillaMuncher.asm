@@ -103,7 +103,7 @@ MarioAbove:
 				+
 			endif
 		else
-			JSL $00F606
+			JSL $00F606|!bank
 		endif
 	endif
 	AboveReturn:
@@ -172,7 +172,7 @@ HeadInside:
 				STA !Freeram_PlayerHP_Knockback			;/
 			endif
 		else
-			JSL $00F606
+			JSL $00F606|!bank
 		endif
 	endif
 	SideReturn:
@@ -225,7 +225,7 @@ BodyInside:
 			
 			BottomDone:
 		else
-			JSL $00F606
+			JSL $00F606|!bank
 		endif
 		RTL
 	endif
