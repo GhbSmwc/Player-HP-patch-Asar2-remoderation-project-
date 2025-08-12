@@ -26,11 +26,11 @@
 		SEC			;\The x position the player would be if he's
 		SBC.w #!BlockHitboxPos	;|to the left of it touching with 1+ pixel
 		CMP $94			;|deeper (this is the x position of the "hitbox area" of the left boundary)
-		BPL NoTouch		;/
+		BPL ?NoTouch		;/
 		CLC				;\Move to the right side of the block that
 		ADC.w #!BlockHitboxWidth	;|the player would've been when he's touching
 		CMP $94				;|the right side 1+ pixel deeper (this is the width
-		BMI NoTouch			;/of the range that's consitered touching)
+		BMI ?NoTouch			;/of the range that's consitered touching)
 	else
 		JSL $03B664			;>Get player hitbox (clipping B)
 		LDA $9A				;\Get block's hitbox x position
@@ -53,7 +53,7 @@
 		LDA #$10			;\Height
 		STA $07				;/
 		JSL $03B72B			;>Check contact
-		BCC NoTouch			;>If not, return.
+		BCC ?NoTouch			;>If not, return.
 		
 		REP #$20
 	endif
@@ -63,17 +63,17 @@
 	AND #$FFF0		;|
 	CMP $94			;|
 	SEP #$20		;|
-	BPL LeftTouch		;/
+	BPL ?LeftTouch		;/
 	
 	;RightTouch
 	LDA #$02
 	RTL
 	
-	LeftTouch:
+	?LeftTouch:
 	LDA #$01
 	RTL
 
-	NoTouch:
+	?NoTouch:
 	SEP #$20
 	LDA #$00
 	RTL

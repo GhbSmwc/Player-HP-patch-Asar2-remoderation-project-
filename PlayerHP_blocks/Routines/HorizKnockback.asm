@@ -22,9 +22,6 @@
 ;                 have a failsafe.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-incsrc "../StatusBarDefines.asm"
-incsrc "../PlayerHPDefines.asm"
-
 	;ValidSpeedCheck
 	LDX $00				;\Failsafe if a user made a routine that calculates in-game the X speed to be over #$7F
 	BPL ?+				;|

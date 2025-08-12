@@ -15,7 +15,7 @@ incsrc "../MotherHPDefines.asm"
 ;Note that this routine itself doesn't
 ;check invulnerability.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+?DamagePlayer:
 	LDA $1407|!addr			;\If not flying
 	BEQ ?++				;/
 	JSL $00F5E2|!bank		;>Cancel soaring instead
@@ -32,7 +32,7 @@ incsrc "../MotherHPDefines.asm"
 			LDA !Freeram_PlayerHP_CurrentHP		;\SubtractedHP = Health - damage
 			SEC					;|
 			SBC $00					;/
-			BCS ++					;>If value didn't subtract by larger value, go write HP.
+			BCS ?++					;>If value didn't subtract by larger value, go write HP.
 			LDA #$00				;>Otherwise set HP to 0.
 			
 			?++
@@ -86,7 +86,7 @@ incsrc "../MotherHPDefines.asm"
 			STA !Freeram_PlayerHP_MotherHPChanger		;|
 			SEP #$20					;/
 		endif
-		.SetToDamage
+		?.SetToDamage
 		LDA #$00						;\Set to damage the player (countdown mode)
 		STA !Freeram_PlayerHP_MotherHPDirection			;/
 		;LDA #$00						;\Initially start out with first decrement immediately.
@@ -117,7 +117,7 @@ incsrc "../MotherHPDefines.asm"
 	RTL
 	
 	?++
-	JSL $00F606						;>Kill player
+	JSL $00F606|!bank						;>Kill player
 	
 	;Add code here that runs 1 frame the player dies.
 	RTL
