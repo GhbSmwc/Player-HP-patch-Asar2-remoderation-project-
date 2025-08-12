@@ -35,17 +35,25 @@ includeonce ;>Needed because functions cannot be redefined (asar will error out)
 	endif
 
 ;Don't modify unless you know what you're doing
-	;Patched status bar. Feel free to use this.
-		function PatchedStatusBarXYToAddress(x, y, StatusBarTileDataBaseAddr, format) = StatusBarTileDataBaseAddr+(x*format)+(y*32*format)
-		;You don't have to do STA $7FA000+StatusBarXYToByteOffset(0, 0, $02) when you can do STA PatchedStatusBarXYToAddress(0, 0, $7FA000, $02)
-	
-	;Vanilla SMW status bar. Again, feel free to use this.
-		function VanillaStatusBarXYToAddress(x,y, SMWStatusBar0EF9) = (select(equal(y,2), SMWStatusBar0EF9+(x-2), SMWStatusBar0EF9+$1C+(x-3)))
+	if not(defined("FunctionGuard_StatusBarFunctionDefined"))
+		;^This if statement prevents an issue where "includeonce" is "ignored" if blocks and
+		; routines have different incsrc paths to the same define file containing macros and
+		; defines, causing depreciation warnings. This is because of how asar identifies
+		; what is the same file that would avoid including a file with "includeonce" twice.
 		
-		if !sa1 == 0
-			!RAM_0EF9 = $0EF9
-		else
-			!RAM_0EF9 = $400EF9
-		endif
-	;YXPCCCTT calculator
-		function GetLayer3YXPCCCTT(Y,X,P,CCC,TT) = ((Y<<7)+(X<<6)+(P<<5)+(CCC<<2)+TT)
+		;Patched status bar. Feel free to use this.
+			function PatchedStatusBarXYToAddress(x, y, StatusBarTileDataBaseAddr, format) = StatusBarTileDataBaseAddr+(x*format)+(y*32*format)
+			;You don't have to do STA $7FA000+StatusBarXYToByteOffset(0, 0, $02) when you can do STA PatchedStatusBarXYToAddress(0, 0, $7FA000, $02)
+		
+		;Vanilla SMW status bar. Again, feel free to use this.
+			function VanillaStatusBarXYToAddress(x,y, SMWStatusBar0EF9) = (select(equal(y,2), SMWStatusBar0EF9+(x-2), SMWStatusBar0EF9+$1C+(x-3)))
+			
+			if !sa1 == 0
+				!RAM_0EF9 = $0EF9
+			else
+				!RAM_0EF9 = $400EF9
+			endif
+		;YXPCCCTT calculator
+			function GetLayer3YXPCCCTT(Y,X,P,CCC,TT) = ((Y<<7)+(X<<6)+(P<<5)+(CCC<<2)+TT)
+		!FunctionGuard_StatusBarFunctionDefined = 1
+	endif
