@@ -32,7 +32,7 @@
 		CMP $94				;|the right side 1+ pixel deeper (this is the width
 		BMI ?NoTouch			;/of the range that's consitered touching)
 	else
-		JSL $03B664			;>Get player hitbox (clipping B)
+		JSL $03B664|!bank		;>Get player hitbox (clipping B)
 		LDA $9A				;\Get block's hitbox x position
 		AND #$F0			;|
 		INC				;|
@@ -52,7 +52,7 @@
 		STA $06				;/
 		LDA #$10			;\Height
 		STA $07				;/
-		JSL $03B72B			;>Check contact
+		JSL $03B72B|!bank		;>Check contact
 		BCC ?NoTouch			;>If not, return.
 		
 		REP #$20

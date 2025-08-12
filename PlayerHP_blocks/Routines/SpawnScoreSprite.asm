@@ -41,20 +41,20 @@
 	
 	;.FindFreeslot
 	LDY #$05
-	-
+	?-
 	LDA $16E1|!addr,y		;\If slot is free, return with Y being the available index.
-	BEQ +				;/
+	BEQ ?+				;/
 	DEY				;>Next slot
-	BPL -				;>Loop until no more available slots found.
+	BPL ?-				;>Loop until no more available slots found.
 	
 	;..ReplaceOldestScoreSprite
 	DEC $18F7|!addr			;>Index to replace the oldest score sprite
-	BPL ++				;>If not negative, don't reset the index count back.
+	BPL ?++				;>If not negative, don't reset the index count back.
 	LDA #$05			;\Reset the index count
 	STA $18F7|!addr			;/
-	++
+	?++
 	LDY $18F7|!addr			;>and use that index count
-	+
+	?+
 	
 	;Y = current score sprite slot to be spawned.
 	
