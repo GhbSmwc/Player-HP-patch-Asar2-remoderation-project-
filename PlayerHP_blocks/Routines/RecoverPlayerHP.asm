@@ -10,6 +10,7 @@ incsrc "../MotherHPDefines.asm"
 	;Automatically writes to !Freeram_PlayerHP_CurrentHP. Doesn't
 	;heal past the maximum HP.
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	?RecoverPlayerHP:
 	if !Setting_PlayerHP_RollingHP == 0
 		;Not using rolling HP here
 		if !Setting_PlayerHP_TwoByte == 0
@@ -71,13 +72,13 @@ incsrc "../MotherHPDefines.asm"
 		ADC $00						;/
 		BCC ?++						;>Prevent overflow
 		if !Setting_PlayerHP_TwoByte == 0
-			.Maxed
+			?.Maxed
 			LDA #$FF				;\Apply stack healing
 			
 			?++					;|
 			STA !Freeram_PlayerHP_MotherHPChanger	;/
 		else
-			.Maxed					;\Same as above, but 16-bit
+			?.Maxed					;\Same as above, but 16-bit
 			LDA #$FFFF				;|
 			
 			?++					;|
@@ -96,3 +97,4 @@ incsrc "../MotherHPDefines.asm"
 		endif
 		RTL
 	endif
+	
