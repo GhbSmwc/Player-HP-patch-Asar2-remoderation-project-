@@ -12,7 +12,7 @@ macro WriteFixedDigitsToLayer3(TileLocation, TileLocationProp)
 	-
 	LDA.w !Scratchram_16bitHexDecOutput+$04-(!Setting_PlayerHP_MaxDigits-1)|!dp,y
 	STA <TileLocation>,x
-	LDA.b #!PlayerHP_TileProp_Ow_Text
+	LDA.b #!Setting_PlayerHP_CurrentAndMax_Overworld_Prop
 	STA <TileLocationProp>,x
 	DEY
 	DEX #2
@@ -33,7 +33,7 @@ macro WriteTileAddress(TileLocation, PropLocation)
 		STA $04
 		LDA.b #<PropLocation>>>16
 		STA $05
-		LDA.b #!PlayerHP_TileProp_Ow_Text
+		LDA.b #!Setting_PlayerHP_CurrentAndMax_Overworld_Prop
 		STA $06
 	endif
 endmacro
@@ -67,7 +67,7 @@ if !StaticSlashTileExist
 		if !StaticSlashTileExist
 			LDA #!OverWorldBorderSlashCharacterTileNumb
 			STA !Setting_PlayerHP_StringPos_Owb_XYPos+((!Setting_PlayerHP_MaxDigits)*$02)
-			LDA.b #!PlayerHP_TileProp_Ow_Text
+			LDA.b #!Setting_PlayerHP_CurrentAndMax_Overworld_Prop
 			STA !Setting_PlayerHP_StringPos_Owb_XYPosProp+((!Setting_PlayerHP_MaxDigits)*$02)
 		endif
 		;This initializes !Freeram_PlayerHP_BarRecord so that when entering a level, the bar instantly represents just your current HP.
@@ -100,7 +100,7 @@ main:
 				elseif !Setting_PlayerHP_DigitsAlignOverworld == 2
 					STA !Setting_PlayerHP_StringPosRightAligned_Owb_XYPos-((((!Setting_PlayerHP_MaxDigits*2)+1)-1)*$02),x
 				endif
-				LDA.b #!PlayerHP_TileProp_Ow_Text
+				LDA.b #!Setting_PlayerHP_CurrentAndMax_Overworld_Prop
 				if !Setting_PlayerHP_DigitsAlignOverworld == 1
 					STA !Setting_PlayerHP_StringPos_Owb_XYPosProp,x
 				elseif !Setting_PlayerHP_DigitsAlignOverworld == 2
@@ -176,9 +176,9 @@ main:
 				LDA.b #!Setting_PlayerHP_GraphicalBarPos_Owb_XYPosProp>>16
 				STA $05
 				if !Setting_PlayerHP_LeftwardsBarOverworld == 0
-					LDA.b #!PlayerHP_BarProps_Ow
+					LDA.b #!Setting_PlayerHP_Bar_Overworld_Prop
 				else
-					LDA.b #(!PlayerHP_BarProps_Ow|(!Setting_PlayerHP_LeftwardsBarOverworld<<6))
+					LDA.b #(!Setting_PlayerHP_Bar_Overworld_Prop|(!Setting_PlayerHP_LeftwardsBarOverworld<<6))
 				endif
 				STA $06
 			endif

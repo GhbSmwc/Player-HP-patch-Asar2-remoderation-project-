@@ -42,7 +42,7 @@ macro WriteTileAddress(TileLocation, PropLocation)
 		STA $04
 		LDA.b #<PropLocation>>>16
 		STA $05
-		LDA.b #!PlayerHP_TileProp_Level_Text
+		LDA.b #!Setting_PlayerHP_CurrentAndMax_Level_Prop
 		STA $06
 	endif
 endmacro
@@ -85,7 +85,7 @@ if or(!StaticSlashTileExist, !Setting_PlayerHP_BarAnimation)
 			LDA #!StatusBarSlashCharacterTileNumb
 			STA !Setting_PlayerHP_StringPos_Lvl_XYPos+((!Setting_PlayerHP_MaxDigits)*!StatusbarFormat)
 			if !StatusBar_UsingCustomProperties != 0
-				LDA.b #!PlayerHP_TileProp_Level_Text
+				LDA.b #!Setting_PlayerHP_CurrentAndMax_Level_Prop
 				STA !Setting_PlayerHP_StringPos_Lvl_XYPosProp+((!Setting_PlayerHP_MaxDigits)*!StatusbarFormat)
 			endif
 		endif
@@ -120,7 +120,7 @@ main:
 					STA !Setting_PlayerHP_StringPosRightAligned_Lvl_XYPos-((((!Setting_PlayerHP_MaxDigits*2)+1)-1)*!StatusbarFormat),x
 				endif
 				if !StatusBar_UsingCustomProperties != 0
-					LDA.b #!PlayerHP_TileProp_Level_Text
+					LDA.b #!Setting_PlayerHP_CurrentAndMax_Level_Prop
 					if !Setting_PlayerHP_DigitsAlignLevel == 1
 						STA !Setting_PlayerHP_StringPos_Lvl_XYPosProp,x
 					elseif !Setting_PlayerHP_DigitsAlignLevel == 2
@@ -309,9 +309,9 @@ main:
 					LDA.b #!Setting_PlayerHP_GraphicalBarPos_Lvl_XYPosProp>>16
 					STA $05
 					if !Setting_PlayerHP_LeftwardsBarLevel == 0
-						LDA.b #!PlayerHP_BarProps_Lvl
+						LDA.b #!Setting_PlayerHP_Bar_Level_Prop
 					else
-						LDA.b #(!PlayerHP_BarProps_Lvl|(!Setting_PlayerHP_LeftwardsBarLevel<<6))
+						LDA.b #(!Setting_PlayerHP_Bar_Level_Prop|(!Setting_PlayerHP_LeftwardsBarLevel<<6))
 					endif
 					STA $06
 				endif

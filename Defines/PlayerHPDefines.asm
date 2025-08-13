@@ -271,8 +271,8 @@ endif
 					!Setting_PlayerHP_StringPosRightAligned_Lvl_x = 31
 					!Setting_PlayerHP_StringPosRightAligned_Lvl_y = 0
 				;Tile properties of the digits and slash (only used when !StatusBar_UsingCustomProperties == 1 in StatusBarDefines.asm)
-					!Setting_PlayerHP_StringTileProp_Level_Page = 0		;>Valid values: 0-3
-					!Setting_PlayerHP_StringTileProp_Level_Palette = 6	;>Valid values: 0-7
+					!Setting_PlayerHP_CurrentAndMax_Level_PropPage = 0	;>Valid values: 0-3
+					!Setting_PlayerHP_CurrentAndMax_Level_PropPalette = 6	;>Valid values: 0-7
 					
 				;Display numerical damage and recovery settings
 				;NOTE: Each of these occupy [!Setting_PlayerHP_MaxDigits+1] tiles (the digits and the "-" for damage and "+" for recovery).
@@ -286,6 +286,9 @@ endif
 						!Setting_PlayerHP_DamageNumber_y = 4			;/
 						!Setting_PlayerHP_DamageNumber_RightAligned_x = 5	;\XY status bar position to display damage total (right-aligned, this is the rightmost character and extends leftwards)
 						!Setting_PlayerHP_DamageNumber_RightAligned_y = 4	;/
+						;Tile properties
+							!Setting_PlayerHP_DamageNumberProp_Page = 0		;>Valid values: 0-3
+							!Setting_PlayerHP_DamageNumberProp_Palette = 3		;>Valid values: 0-7
 					;Recovery numbers
 						!Setting_PlayerHP_DisplayRecoveryTotal = 1	;>Display recovery on the status bar temporarily: 0 = no, 1 = yes
 							;Display recovery  on the status bar temporarily:
@@ -296,6 +299,9 @@ endif
 						!Setting_PlayerHP_RecoverNumber_y = 4			;/
 						!Setting_PlayerHP_RecoverNumber_RightAligned_x = 12	;\XY status bar position to display recovery total
 						!Setting_PlayerHP_RecoverNumber_RightAligned_y = 4	;/
+						;Tile properties
+							!Setting_PlayerHP_RecoverNumberProp_Page = 0		;>Valid values: 0-3
+							!Setting_PlayerHP_RecoverNumberProp_Palette = 2		;>Valid values: 0-7
 			;Overworld display
 				!Setting_PlayerHP_DisplayNumericalOverworld	= 2
 					;^Same as !Setting_PlayerHP_DisplayNumericalLevel, but for overworld
@@ -307,9 +313,9 @@ endif
 				;Position of the display text on the OWB, but for right-aligned (same as !Setting_PlayerHP_StringPosRightAligned_Lvl_x/y)
 					!Setting_PlayerHP_StringPosRightAligned_Owb_x = 31
 					!Setting_PlayerHP_StringPosRightAligned_Owb_y = 1
-				;Tile properties of the digits and slash, same as Setting_PlayerHP_StringTileProp_Level_Page/Palette
-					!Setting_PlayerHP_StringTileProp_Ow_Page = 1		;>Valid values: 0-3
-					!Setting_PlayerHP_StringTileProp_Ow_Palette = 6		;>Valid values: 0-7
+				;Tile properties of the digits and slash, same as Setting_PlayerHP_CurrentAndMax_Level_PropPage/Palette
+					!Setting_PlayerHP_CurrentAndMax_Overworld_PropPage = 1			;>Valid values: 0-3
+					!Setting_PlayerHP_CurrentAndMax_Overworld_PropPalette = 6		;>Valid values: 0-7
 		;Graphical bar display settings.
 		;(these are arguments, which are specific values to set the bar's value).
 		;For modifying the scratch RAM used, see "GraphicalBarDefines.asm".
@@ -543,19 +549,6 @@ endif
 		;($7FC060~$7FC06F (16 bytes; 128 bits)).
 
 ;Don't touch these
-	;(these are for aligning digits):
-		!PlayerHP_NumberOfCharactersForMaxHPLevel = 0
-		if !Setting_PlayerHP_DisplayNumericalLevel == 2
-			!PlayerHP_NumberOfCharactersForMaxHPLevel = !Setting_PlayerHP_MaxDigits+1 ;>"/" and max HP digits
-		endif
-		!PlayerHP_NumericalMaxCharactersTotalLevel = !Setting_PlayerHP_MaxDigits+!PlayerHP_NumberOfCharactersForMaxHPLevel
-
-		!PlayerHP_NumberOfCharactersForMaxHPOverworld = 0
-		if !Setting_PlayerHP_DisplayNumericalOverworld == 2
-			!PlayerHP_NumberOfCharactersForMaxHPOverworld = !Setting_PlayerHP_MaxDigits+1 ;>"/" and max HP digits
-		endif
-		!PlayerHP_NumericalMaxCharactersTotalOverworld = !Setting_PlayerHP_MaxDigits+!PlayerHP_NumberOfCharactersForMaxHPOverworld
-
 	;this is to determine if a table is 8 or 16-bit HP
 		!PlayerHPDataTableSize = "db"
 		if !Setting_PlayerHP_TwoByte != 0
@@ -597,10 +590,12 @@ endif
 					!Setting_PlayerHP_RecoverNumber_RightAligned_XYPosProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_RecoverNumber_RightAligned_x, !Setting_PlayerHP_RecoverNumber_RightAligned_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
 			endif
 		;Calculate tile properties
-			!PlayerHP_TileProp_Level_Text = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_StringTileProp_Level_Palette, !Setting_PlayerHP_StringTileProp_Level_Page)
-			!PlayerHP_TileProp_Ow_Text = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_StringTileProp_Ow_Palette, !Setting_PlayerHP_StringTileProp_Ow_Page)
-			!PlayerHP_BarProps_Lvl = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_BarProps_Lvl_Palette, !Setting_PlayerHP_BarProps_Lvl_Page)
-			!PlayerHP_BarProps_Ow = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_BarProps_Owb_Palette, !Setting_PlayerHP_BarProps_Owb_Page)
+			!Setting_PlayerHP_CurrentAndMax_Level_Prop = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_CurrentAndMax_Level_PropPalette, !Setting_PlayerHP_CurrentAndMax_Level_PropPage)
+			!Setting_PlayerHP_CurrentAndMax_Overworld_Prop = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_CurrentAndMax_Overworld_PropPalette, !Setting_PlayerHP_CurrentAndMax_Overworld_PropPage)
+			!Setting_PlayerHP_Bar_Level_Prop = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_BarProps_Lvl_Palette, !Setting_PlayerHP_BarProps_Lvl_Page)
+			!Setting_PlayerHP_Bar_Overworld_Prop = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_BarProps_Owb_Palette, !Setting_PlayerHP_BarProps_Owb_Page)
+			!Setting_PlayerHP_DamageNumber_Prop = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_DamageNumberProp_Palette, !Setting_PlayerHP_DamageNumberProp_Page)
+			!Setting_PlayerHP_RecoverNumber_Prop = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_RecoverNumberProp_Palette, !Setting_PlayerHP_RecoverNumberProp_Page)
 
 	;Failsafe
 		assert !Setting_PlayerHP_MidwayRecoveryDividend != 0, "Invalid Dividend"
