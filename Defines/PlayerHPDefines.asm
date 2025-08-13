@@ -566,7 +566,11 @@ endif
 			!Setting_PlayerHP_StringPos_Lvl_XYPos = VanillaStatusBarXYToAddress(!Setting_PlayerHP_StringPos_Lvl_x, !Setting_PlayerHP_StringPos_Lvl_y, !RAM_0EF9)
 			!Setting_PlayerHP_StringPosRightAligned_Lvl_XYPos = VanillaStatusBarXYToAddress(!Setting_PlayerHP_StringPosRightAligned_Lvl_x, !Setting_PlayerHP_StringPosRightAligned_Lvl_y, !RAM_0EF9)
 			!Setting_PlayerHP_GraphicalBarPos_Lvl_XYPos = VanillaStatusBarXYToAddress(!Setting_PlayerHP_GraphicalBarPos_Lvl_x, !Setting_PlayerHP_GraphicalBarPos_Lvl_y, !RAM_0EF9)
+		;HP change numbers
 			!Setting_PlayerHP_DamageNumber_XYPos = VanillaStatusBarXYToAddress(!Setting_PlayerHP_DamageNumber_x, !Setting_PlayerHP_DamageNumber_y, !RAM_0EF9)
+			!Setting_PlayerHP_DamageNumber_RightAligned_XYPos = VanillaStatusBarXYToAddress(!Setting_PlayerHP_DamageNumber_RightAligned_x, !Setting_PlayerHP_DamageNumber_RightAligned_y, !RAM_0EF9)
+			!Setting_PlayerHP_RecoverNumber_XYPos = VanillaStatusBarXYToAddress(!Setting_PlayerHP_RecoverNumber_x, !Setting_PlayerHP_RecoverNumber_y, !RAM_0EF9)
+			!Setting_PlayerHP_RecoverNumber_RightAligned_XYPos = VanillaStatusBarXYToAddress(!Setting_PlayerHP_RecoverNumber_RightAligned_x, !Setting_PlayerHP_RecoverNumber_RightAligned_y, !RAM_0EF9)
 		;Overworld stuff (overworld border plus)
 			!Setting_PlayerHP_StringPos_Owb_XYPos = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPos_Owb_x, !Setting_PlayerHP_StringPos_Owb_y, !OverworldBorderPatchAddr_Tile, $02)
 			!Setting_PlayerHP_StringPos_Owb_XYPosProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPos_Owb_x, !Setting_PlayerHP_StringPos_Owb_y, !OverworldBorderPatchAddr_Prop, $02)
@@ -582,9 +586,15 @@ endif
 				!Setting_PlayerHP_StringPosRightAligned_Lvl_XYPosProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPosRightAligned_Lvl_x, !Setting_PlayerHP_StringPosRightAligned_Lvl_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
 				!Setting_PlayerHP_GraphicalBarPos_Lvl_XYPos = PatchedStatusBarXYToAddress(!Setting_PlayerHP_GraphicalBarPos_Lvl_x, !Setting_PlayerHP_GraphicalBarPos_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
 				!Setting_PlayerHP_GraphicalBarPos_Lvl_XYPosProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_GraphicalBarPos_Lvl_x, !Setting_PlayerHP_GraphicalBarPos_Lvl_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
-				
-				!Setting_PlayerHP_DamageNumber_XYPos = PatchedStatusBarXYToAddress(!Setting_PlayerHP_DamageNumber_x, !Setting_PlayerHP_DamageNumber_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
-				!Setting_PlayerHP_DamageNumber_XYPosProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_DamageNumber_x, !Setting_PlayerHP_DamageNumber_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
+				;HP change numbers
+					!Setting_PlayerHP_DamageNumber_XYPos = PatchedStatusBarXYToAddress(!Setting_PlayerHP_DamageNumber_x, !Setting_PlayerHP_DamageNumber_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
+					!Setting_PlayerHP_DamageNumber_XYPosProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_DamageNumber_x, !Setting_PlayerHP_DamageNumber_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
+					!Setting_PlayerHP_DamageNumber_RightAligned_XYPos = PatchedStatusBarXYToAddress(!Setting_PlayerHP_DamageNumber_RightAligned_x, !Setting_PlayerHP_DamageNumber_RightAligned_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
+					!Setting_PlayerHP_DamageNumber_RightAligned_XYPosProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_DamageNumber_RightAligned_x, !Setting_PlayerHP_DamageNumber_RightAligned_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
+					!Setting_PlayerHP_RecoverNumber_XYPos = PatchedStatusBarXYToAddress(!Setting_PlayerHP_RecoverNumber_x, !Setting_PlayerHP_RecoverNumber_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
+					!Setting_PlayerHP_RecoverNumber_XYPosProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_RecoverNumber_x, !Setting_PlayerHP_RecoverNumber_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
+					!Setting_PlayerHP_RecoverNumber_RightAligned_XYPos = PatchedStatusBarXYToAddress(!Setting_PlayerHP_RecoverNumber_RightAligned_x, !Setting_PlayerHP_RecoverNumber_RightAligned_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
+					!Setting_PlayerHP_RecoverNumber_RightAligned_XYPosProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_RecoverNumber_RightAligned_x, !Setting_PlayerHP_RecoverNumber_RightAligned_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
 			endif
 		;Calculate tile properties
 			!PlayerHP_TileProp_Level_Text = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_StringTileProp_Level_Palette, !Setting_PlayerHP_StringTileProp_Level_Page)
