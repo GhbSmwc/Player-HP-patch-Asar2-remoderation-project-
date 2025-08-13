@@ -124,7 +124,7 @@ The description regarding how much bytes freeram they take are mostly formula-ba
 			!Setting_PlayerHP_TwoByte	= 1
 </pre></td></tr></table>
 So the bytes used could be <kbd>1 + 0 = 1 byte</kbd> for 8-bit health and <kbd>1 + 1 = 2 bytes</kbd> 16-bit health. Should you have the value 0 as a result in any formula,
-that that means that the freeram isn't used entirely.</li><br>
+that that means that the freeram isn't used entirely. Furthermore, if there are using boolean operators, such as <kbd>(X != 0)</kbd>, it returns either 0 for false or 1 for true.</li><br>
 
 <li>In SRAM/BWRAM plus patch:</li><br>
 <ol>

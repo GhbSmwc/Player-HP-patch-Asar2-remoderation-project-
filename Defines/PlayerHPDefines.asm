@@ -11,16 +11,10 @@ endif
 ;
 ;Note(s):
 ;
-;-By default, this patch doesn't expect you're using custom sprites. This is due to
-; untouched RAM being randomized values. To allow custom sprites to deal proper damage
-; to the player, set !Setting_PlayerHP_UsingCustomSprites to 1.
+; - By default, this patch doesn't expect you're using custom sprites. This is due to
+;   untouched RAM being randomized values. To allow custom sprites to deal proper damage
+;   to the player, set !Setting_PlayerHP_UsingCustomSprites to 1.
 ;
-;-For status bar-related defines for other status bar patches: The defines relating
-; to the positions of the display are actually RAM address table for status bar patches.
-; For example and by default: $7FA000 for !PlayerHP_Digit_StatBarPos is the top-left
-; corner-most tile of the super status bar patch. You may also need to change
-; !StatusbarFormat as other patches might have a different table format. Make sure you
-; read the information of such patches to figure out what number goes there.
 ;=====================================================================================
 
 ;Freeram stuff
@@ -160,7 +154,7 @@ endif
 		!Freeram_PlayerHP_MaxHPUpgradePickupFlag = $4001C1
 	endif
 ;Numerical HP change display:
-	;[BytesUsed = !Setting_PlayerHP_DisplayDamageTotal * (1 + !Setting_PlayerHP_TwoByte)]
+	;[BytesUsed = (!Setting_PlayerHP_DisplayDamageTotal != 0) * (1 + !Setting_PlayerHP_TwoByte)]
 	;A value representing the total damage to be displayed numerically on the status bar.
 	;Each time the player takes damage, this RAM value adds by how much damage the player
 	;receives. If 0, will not show.
@@ -169,7 +163,7 @@ endif
 		else
 			!Freeram_PlayerHP_DamageTotalDisplay = $4001C2
 		endif
-	;[BytesUsed = !Setting_PlayerHP_DisplayDamageTotal]
+	;[BytesUsed = (!Setting_PlayerHP_DisplayDamageTotal != 0)]
 	;A timer of how long the damage number persists on the status bar. Decrements every
 	;4th frame. Once 0, will reset !Freeram_PlayerHP_DamageTotalDisplay
 		if !sa1 == 0
@@ -177,7 +171,7 @@ endif
 		else
 			!Freeram_PlayerHP_DamageTotalTimerDisplay = $4001C4
 		endif
-	;[BytesUsed = !Setting_PlayerHP_DisplayRecoveryTotal * (1 + !Setting_PlayerHP_TwoByte)]
+	;[BytesUsed = (!Setting_PlayerHP_DisplayRecoveryTotal != 0) * (1 + !Setting_PlayerHP_TwoByte)]
 	;A value representing the total recovery to be displayed numerically on the status bar.
 	;Each time the player heals, this RAM value adds by how much recovery the player
 	;receives. If 0, will not show.
@@ -186,7 +180,7 @@ endif
 		else
 			!Freeram_PlayerHP_RecoveryTotalDisplay = $4001C5
 		endif
-	;[BytesUsed = !Setting_PlayerHP_DisplayRecoveryTotal]
+	;[BytesUsed = (!Setting_PlayerHP_DisplayRecoveryTotal != 0)]
 	;A timer of how long the recovery number persists on the status bar. Decrements every
 	;4th frame. Once 0, will reset !Freeram_PlayerHP_RecoveryTotalDisplay
 		if !sa1 == 0
@@ -249,8 +243,8 @@ endif
 			;Level display
 				!Setting_PlayerHP_DisplayNumericalLevel	= 2
 					;^0 = display no numbers.
-					; 1 = display only current HP.
-					; 2 = display Current/Max.
+					; 1 = display only current HP (occupies [!Setting_PlayerHP_MaxDigits] tiles).
+					; 2 = display Current/Max (occupies [(!Setting_PlayerHP_MaxDigits*2)+1] tiles).
 				!Setting_PlayerHP_DigitsAlignLevel		= 1
 					;^How digits are displayed in levels.
 					; 0 = allow leading spaces (digit place values are fixed)
@@ -281,16 +275,27 @@ endif
 					!Setting_PlayerHP_StringTileProp_Level_Palette = 6	;>Valid values: 0-7
 					
 				;Display numerical damage and recovery settings
+				;NOTE: Each of these occupy [!Setting_PlayerHP_MaxDigits+1] tiles (the digits and the "-" for damage and "+" for recovery).
 					;Damage numbers
-						!Setting_PlayerHP_DisplayDamageTotal = 1	;>Display damage on the status bar temporarily: 0 = no, 1 = yes
-						
-						!Setting_PlayerHP_DamageNumber_x = 0		;\XY status bar position to display damage total
-						!Setting_PlayerHP_DamageNumber_y = 2		;/
+						!Setting_PlayerHP_DisplayDamageTotal = 1
+							;Display damage on the status bar temporarily:
+							; 0 = No display
+							; 1 = Display left-aligned
+							; 2 = Display right-aligned
+						!Setting_PlayerHP_DamageNumber_x = 0			;\XY status bar position to display damage total (left-aligned)
+						!Setting_PlayerHP_DamageNumber_y = 4			;/
+						!Setting_PlayerHP_DamageNumber_RightAligned_x = 5	;\XY status bar position to display damage total (right-aligned, this is the rightmost character and extends leftwards)
+						!Setting_PlayerHP_DamageNumber_RightAligned_y = 4	;/
 					;Recovery numbers
 						!Setting_PlayerHP_DisplayRecoveryTotal = 1	;>Display recovery on the status bar temporarily: 0 = no, 1 = yes
-						
-						!Setting_PlayerHP_RecoverNumber_x = 6		;\XY status bar position to display recovery total
-						!Setting_PlayerHP_RecoverNumber_y = 2		;/
+							;Display recovery  on the status bar temporarily:
+							; 0 = No display
+							; 1 = Display left-aligned
+							; 2 = Display right-aligned
+						!Setting_PlayerHP_RecoverNumber_x = 7			;\XY status bar position to display recovery total (left-aligned)
+						!Setting_PlayerHP_RecoverNumber_y = 4			;/
+						!Setting_PlayerHP_RecoverNumber_RightAligned_x = 12	;\XY status bar position to display recovery total
+						!Setting_PlayerHP_RecoverNumber_RightAligned_y = 4	;/
 			;Overworld display
 				!Setting_PlayerHP_DisplayNumericalOverworld	= 2
 					;^Same as !Setting_PlayerHP_DisplayNumericalLevel, but for overworld
@@ -557,23 +562,29 @@ endif
 			!PlayerHPDataTableSize = "dw"
 		endif
 	;These calculate various user inputs into address or value
-		;Calculate status bar position
-			!PlayerHP_Digit_StatBarPos = VanillaStatusBarXYToAddress(!Setting_PlayerHP_StringPos_Lvl_x, !Setting_PlayerHP_StringPos_Lvl_y, !RAM_0EF9)
-			!PlayerHP_Digit_StatBarPos_RightAligned = VanillaStatusBarXYToAddress(!Setting_PlayerHP_StringPosRightAligned_Lvl_x, !Setting_PlayerHP_StringPosRightAligned_Lvl_y, !RAM_0EF9)
-			!PlayerHP_Digit_OverworldBorderPos = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPos_Owb_x, !Setting_PlayerHP_StringPos_Owb_y, !OverworldBorderPatchAddr_Tile, $02)
-			!PlayerHP_Digit_OverworldBorderPosProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPos_Owb_x, !Setting_PlayerHP_StringPos_Owb_y, !OverworldBorderPatchAddr_Prop, $02)
-			!PlayerHP_Digit_OverworldBorderPos_RightAligned = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPosRightAligned_Owb_x, !Setting_PlayerHP_StringPosRightAligned_Owb_y, !OverworldBorderPatchAddr_Tile, $02)
-			!PlayerHP_Digit_OverworldBorderPos_RightAlignedProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPosRightAligned_Owb_x, !Setting_PlayerHP_StringPosRightAligned_Owb_y, !OverworldBorderPatchAddr_Prop, $02)
-			!Setting_PlayerHP_BarPosOverworld = PatchedStatusBarXYToAddress(!Setting_PlayerHP_GraphicalBarPos_Owb_x, !Setting_PlayerHP_GraphicalBarPos_Owb_y, !OverworldBorderPatchAddr_Tile, $02)
-			!Setting_PlayerHP_BarPosOverworldProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_GraphicalBarPos_Owb_x, !Setting_PlayerHP_GraphicalBarPos_Owb_y, !OverworldBorderPatchAddr_Prop, $02)
-			!Setting_PlayerHP_BarPosLevel = VanillaStatusBarXYToAddress(!Setting_PlayerHP_GraphicalBarPos_Lvl_x, !Setting_PlayerHP_GraphicalBarPos_Lvl_y, !RAM_0EF9)
+		;Calculate status bar position (vanilla status bar positions)
+			!Setting_PlayerHP_StringPos_Lvl_XYPos = VanillaStatusBarXYToAddress(!Setting_PlayerHP_StringPos_Lvl_x, !Setting_PlayerHP_StringPos_Lvl_y, !RAM_0EF9)
+			!Setting_PlayerHP_StringPosRightAligned_Lvl_XYPos = VanillaStatusBarXYToAddress(!Setting_PlayerHP_StringPosRightAligned_Lvl_x, !Setting_PlayerHP_StringPosRightAligned_Lvl_y, !RAM_0EF9)
+			!Setting_PlayerHP_GraphicalBarPos_Lvl_XYPos = VanillaStatusBarXYToAddress(!Setting_PlayerHP_GraphicalBarPos_Lvl_x, !Setting_PlayerHP_GraphicalBarPos_Lvl_y, !RAM_0EF9)
+			!Setting_PlayerHP_DamageNumber_XYPos = VanillaStatusBarXYToAddress(!Setting_PlayerHP_DamageNumber_x, !Setting_PlayerHP_DamageNumber_y, !RAM_0EF9)
+		;Overworld stuff (overworld border plus)
+			!Setting_PlayerHP_StringPos_Owb_XYPos = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPos_Owb_x, !Setting_PlayerHP_StringPos_Owb_y, !OverworldBorderPatchAddr_Tile, $02)
+			!Setting_PlayerHP_StringPos_Owb_XYPosProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPos_Owb_x, !Setting_PlayerHP_StringPos_Owb_y, !OverworldBorderPatchAddr_Prop, $02)
+			!Setting_PlayerHP_StringPosRightAligned_Owb_XYPos = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPosRightAligned_Owb_x, !Setting_PlayerHP_StringPosRightAligned_Owb_y, !OverworldBorderPatchAddr_Tile, $02)
+			!Setting_PlayerHP_StringPosRightAligned_Owb_XYPosProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPosRightAligned_Owb_x, !Setting_PlayerHP_StringPosRightAligned_Owb_y, !OverworldBorderPatchAddr_Prop, $02)
+			!Setting_PlayerHP_GraphicalBarPos_Owb_XYPos = PatchedStatusBarXYToAddress(!Setting_PlayerHP_GraphicalBarPos_Owb_x, !Setting_PlayerHP_GraphicalBarPos_Owb_y, !OverworldBorderPatchAddr_Tile, $02)
+			!Setting_PlayerHP_GraphicalBarPos_Owb_XYPosProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_GraphicalBarPos_Owb_x, !Setting_PlayerHP_GraphicalBarPos_Owb_y, !OverworldBorderPatchAddr_Prop, $02)
+		;Custom status bar patches
 			if !UsingCustomStatusBar != 0
-				!PlayerHP_Digit_StatBarPos = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPos_Lvl_x, !Setting_PlayerHP_StringPos_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
-				!PlayerHP_Digit_StatBarPosProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPos_Lvl_x, !Setting_PlayerHP_StringPos_Lvl_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
-				!PlayerHP_Digit_StatBarPos_RightAligned = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPosRightAligned_Lvl_x, !Setting_PlayerHP_StringPosRightAligned_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
-				!PlayerHP_Digit_StatBarPos_RightAlignedProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPosRightAligned_Lvl_x, !Setting_PlayerHP_StringPosRightAligned_Lvl_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
-				!Setting_PlayerHP_BarPosLevel = PatchedStatusBarXYToAddress(!Setting_PlayerHP_GraphicalBarPos_Lvl_x, !Setting_PlayerHP_GraphicalBarPos_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
-				!Setting_PlayerHP_BarPosLevelProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_GraphicalBarPos_Lvl_x, !Setting_PlayerHP_GraphicalBarPos_Lvl_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
+				!Setting_PlayerHP_StringPos_Lvl_XYPos = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPos_Lvl_x, !Setting_PlayerHP_StringPos_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
+				!Setting_PlayerHP_StringPos_Lvl_XYPosProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPos_Lvl_x, !Setting_PlayerHP_StringPos_Lvl_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
+				!Setting_PlayerHP_StringPosRightAligned_Lvl_XYPos = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPosRightAligned_Lvl_x, !Setting_PlayerHP_StringPosRightAligned_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
+				!Setting_PlayerHP_StringPosRightAligned_Lvl_XYPosProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_StringPosRightAligned_Lvl_x, !Setting_PlayerHP_StringPosRightAligned_Lvl_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
+				!Setting_PlayerHP_GraphicalBarPos_Lvl_XYPos = PatchedStatusBarXYToAddress(!Setting_PlayerHP_GraphicalBarPos_Lvl_x, !Setting_PlayerHP_GraphicalBarPos_Lvl_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
+				!Setting_PlayerHP_GraphicalBarPos_Lvl_XYPosProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_GraphicalBarPos_Lvl_x, !Setting_PlayerHP_GraphicalBarPos_Lvl_y, !StatusBarPatchAddr_Prop, !StatusbarFormat)
+				
+				!Setting_PlayerHP_DamageNumber_XYPos = PatchedStatusBarXYToAddress(!Setting_PlayerHP_DamageNumber_x, !Setting_PlayerHP_DamageNumber_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
+				!Setting_PlayerHP_DamageNumber_XYPosProp = PatchedStatusBarXYToAddress(!Setting_PlayerHP_DamageNumber_x, !Setting_PlayerHP_DamageNumber_y, !StatusBarPatchAddr_Tile, !StatusbarFormat)
 			endif
 		;Calculate tile properties
 			!PlayerHP_TileProp_Level_Text = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_StringTileProp_Level_Palette, !Setting_PlayerHP_StringTileProp_Level_Page)

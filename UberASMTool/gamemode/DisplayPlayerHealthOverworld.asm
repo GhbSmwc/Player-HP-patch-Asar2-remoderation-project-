@@ -66,9 +66,9 @@ if !StaticSlashTileExist
 		;When displaying 2 numbers without aligned characters (not using left or right aligned, this writes a slash in between the two numbers)
 		if !StaticSlashTileExist
 			LDA #!OverWorldBorderSlashCharacterTileNumb
-			STA !PlayerHP_Digit_OverworldBorderPos+((!Setting_PlayerHP_MaxDigits)*$02)
+			STA !Setting_PlayerHP_StringPos_Owb_XYPos+((!Setting_PlayerHP_MaxDigits)*$02)
 			LDA.b #!PlayerHP_TileProp_Ow_Text
-			STA !PlayerHP_Digit_OverworldBorderPosProp+((!Setting_PlayerHP_MaxDigits)*$02)
+			STA !Setting_PlayerHP_StringPos_Owb_XYPosProp+((!Setting_PlayerHP_MaxDigits)*$02)
 		endif
 		;This initializes !Freeram_PlayerHP_BarRecord so that when entering a level, the bar instantly represents just your current HP.
 		if !Setting_PlayerHP_DisplayBarOverworld
@@ -96,15 +96,15 @@ main:
 				-
 				LDA #!OverWorldBorderBlankTile
 				if !Setting_PlayerHP_DigitsAlignOverworld == 1
-					STA !PlayerHP_Digit_OverworldBorderPos,x
+					STA !Setting_PlayerHP_StringPos_Owb_XYPos,x
 				elseif !Setting_PlayerHP_DigitsAlignOverworld == 2
-					STA !PlayerHP_Digit_OverworldBorderPos_RightAligned-((((!Setting_PlayerHP_MaxDigits*2)+1)-1)*$02),x
+					STA !Setting_PlayerHP_StringPosRightAligned_Owb_XYPos-((((!Setting_PlayerHP_MaxDigits*2)+1)-1)*$02),x
 				endif
 				LDA.b #!PlayerHP_TileProp_Ow_Text
 				if !Setting_PlayerHP_DigitsAlignOverworld == 1
-					STA !PlayerHP_Digit_OverworldBorderPosProp,x
+					STA !Setting_PlayerHP_StringPos_Owb_XYPosProp,x
 				elseif !Setting_PlayerHP_DigitsAlignOverworld == 2
-					STA !PlayerHP_Digit_OverworldBorderPos_RightAlignedProp-((((!Setting_PlayerHP_MaxDigits*2)+1)-1)*$02),x
+					STA !Setting_PlayerHP_StringPosRightAligned_Owb_XYPosProp-((((!Setting_PlayerHP_MaxDigits*2)+1)-1)*$02),x
 				endif
 				DEX #$02
 				BPL -
@@ -113,12 +113,12 @@ main:
 				%GetHealthDigits(!Freeram_PlayerHP_CurrentHP)
 				%UberRoutine(RemoveLeadingZeroes16Bit)
 				%UberRoutine(SixteenBitHexDecDivisionToOWB)
-				%WriteFixedDigitsToLayer3(!PlayerHP_Digit_OverworldBorderPos, !PlayerHP_Digit_OverworldBorderPosProp)
+				%WriteFixedDigitsToLayer3(!Setting_PlayerHP_StringPos_Owb_XYPos, !Setting_PlayerHP_StringPos_Owb_XYPosProp)
 				if !Setting_PlayerHP_DisplayNumericalOverworld == 2
 					%GetHealthDigits(!Freeram_PlayerHP_MaxHP)
 					%UberRoutine(RemoveLeadingZeroes16Bit)
 					%UberRoutine(SixteenBitHexDecDivisionToOWB)
-					%WriteFixedDigitsToLayer3(!PlayerHP_Digit_OverworldBorderPos+((!Setting_PlayerHP_MaxDigits+1)*$02), !PlayerHP_Digit_OverworldBorderPosProp+((!Setting_PlayerHP_MaxDigits+1)*$02))
+					%WriteFixedDigitsToLayer3(!Setting_PlayerHP_StringPos_Owb_XYPos+((!Setting_PlayerHP_MaxDigits+1)*$02), !Setting_PlayerHP_StringPos_Owb_XYPosProp+((!Setting_PlayerHP_MaxDigits+1)*$02))
 				endif
 			elseif and(greaterequal(!Setting_PlayerHP_DigitsAlignOverworld, 1), lessequal(!Setting_PlayerHP_DigitsAlignOverworld, 2)) ;left/right-aligned
 				%GetHealthDigits(!Freeram_PlayerHP_CurrentHP)
@@ -137,9 +137,9 @@ main:
 					BCS ..TooMuchChar
 				endif
 				if !Setting_PlayerHP_DigitsAlignOverworld == 1
-					%WriteTileAddress(!PlayerHP_Digit_OverworldBorderPos, !PlayerHP_Digit_OverworldBorderPosProp)
+					%WriteTileAddress(!Setting_PlayerHP_StringPos_Owb_XYPos, !Setting_PlayerHP_StringPos_Owb_XYPosProp)
 				elseif !Setting_PlayerHP_DigitsAlignOverworld == 2
-					%WriteTileAddress(!PlayerHP_Digit_OverworldBorderPos_RightAligned, !PlayerHP_Digit_OverworldBorderPos_RightAlignedProp)
+					%WriteTileAddress(!Setting_PlayerHP_StringPosRightAligned_Owb_XYPos, !Setting_PlayerHP_StringPosRightAligned_Owb_XYPosProp)
 				endif
 				if !Setting_PlayerHP_DigitsAlignOverworld == 2 ;Right-aligned
 					if $02 == $01
@@ -162,18 +162,18 @@ main:
 			STA $00					;/
 			%UberRoutine(GraphicalBar_ConvertBarFillAmountToTiles)
 		..WriteToHUD
-			LDA.b #!Setting_PlayerHP_BarPosOverworld
+			LDA.b #!Setting_PlayerHP_GraphicalBarPos_Owb_XYPos
 			STA $00
-			LDA.b #!Setting_PlayerHP_BarPosOverworld>>8
+			LDA.b #!Setting_PlayerHP_GraphicalBarPos_Owb_XYPos>>8
 			STA $01
-			LDA.b #!Setting_PlayerHP_BarPosOverworld>>16
+			LDA.b #!Setting_PlayerHP_GraphicalBarPos_Owb_XYPos>>16
 			STA $02
 			if !StatusBar_UsingCustomProperties != 0
-				LDA.b #!Setting_PlayerHP_BarPosOverworldProp
+				LDA.b #!Setting_PlayerHP_GraphicalBarPos_Owb_XYPosProp
 				STA $03
-				LDA.b #!Setting_PlayerHP_BarPosOverworldProp>>8
+				LDA.b #!Setting_PlayerHP_GraphicalBarPos_Owb_XYPosProp>>8
 				STA $04
-				LDA.b #!Setting_PlayerHP_BarPosOverworldProp>>16
+				LDA.b #!Setting_PlayerHP_GraphicalBarPos_Owb_XYPosProp>>16
 				STA $05
 				if !Setting_PlayerHP_LeftwardsBarOverworld == 0
 					LDA.b #!PlayerHP_BarProps_Ow

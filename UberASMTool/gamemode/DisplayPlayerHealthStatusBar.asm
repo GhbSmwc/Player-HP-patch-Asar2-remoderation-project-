@@ -83,10 +83,10 @@ if or(!StaticSlashTileExist, !Setting_PlayerHP_BarAnimation)
 		;When displaying 2 numbers without aligned characters (not using left or right aligned, this writes a slash in between the two numbers)
 		if !StaticSlashTileExist
 			LDA #!StatusBarSlashCharacterTileNumb
-			STA !PlayerHP_Digit_StatBarPos+((!Setting_PlayerHP_MaxDigits)*!StatusbarFormat)
+			STA !Setting_PlayerHP_StringPos_Lvl_XYPos+((!Setting_PlayerHP_MaxDigits)*!StatusbarFormat)
 			if !StatusBar_UsingCustomProperties != 0
 				LDA.b #!PlayerHP_TileProp_Level_Text
-				STA !PlayerHP_Digit_StatBarPosProp+((!Setting_PlayerHP_MaxDigits)*!StatusbarFormat)
+				STA !Setting_PlayerHP_StringPos_Lvl_XYPosProp+((!Setting_PlayerHP_MaxDigits)*!StatusbarFormat)
 			endif
 		endif
 		;This initializes !Freeram_PlayerHP_BarRecord so that when entering a level, the bar instantly represents just your current HP.
@@ -115,16 +115,16 @@ main:
 				-
 				LDA #!StatusBarBlankTile
 				if !Setting_PlayerHP_DigitsAlignLevel == 1
-					STA !PlayerHP_Digit_StatBarPos,x
+					STA !Setting_PlayerHP_StringPos_Lvl_XYPos,x
 				elseif !Setting_PlayerHP_DigitsAlignLevel == 2
-					STA !PlayerHP_Digit_StatBarPos_RightAligned-((((!Setting_PlayerHP_MaxDigits*2)+1)-1)*!StatusbarFormat),x
+					STA !Setting_PlayerHP_StringPosRightAligned_Lvl_XYPos-((((!Setting_PlayerHP_MaxDigits*2)+1)-1)*!StatusbarFormat),x
 				endif
 				if !StatusBar_UsingCustomProperties != 0
 					LDA.b #!PlayerHP_TileProp_Level_Text
 					if !Setting_PlayerHP_DigitsAlignLevel == 1
-						STA !PlayerHP_Digit_StatBarPosProp,x
+						STA !Setting_PlayerHP_StringPos_Lvl_XYPosProp,x
 					elseif !Setting_PlayerHP_DigitsAlignLevel == 2
-						STA !PlayerHP_Digit_StatBarPos_RightAlignedProp-((((!Setting_PlayerHP_MaxDigits*2)+1)-1)*!StatusbarFormat),x
+						STA !Setting_PlayerHP_StringPosRightAligned_Lvl_XYPosProp-((((!Setting_PlayerHP_MaxDigits*2)+1)-1)*!StatusbarFormat),x
 					endif
 				endif
 				DEX #!StatusbarFormat
@@ -133,11 +133,11 @@ main:
 			if or(equal(!Setting_PlayerHP_DigitsAlignLevel, 0), equal(!IsUsingRightAlignedSingleNumber, 1)) ;fixed digit location
 				%GetHealthDigits(!Freeram_PlayerHP_CurrentHP)
 				%UberRoutine(RemoveLeadingZeroes16Bit)
-				%WriteFixedDigitsToLayer3(!PlayerHP_Digit_StatBarPos)
+				%WriteFixedDigitsToLayer3(!Setting_PlayerHP_StringPos_Lvl_XYPos)
 				if !Setting_PlayerHP_DisplayNumericalLevel == 2
 					%GetHealthDigits(!Freeram_PlayerHP_MaxHP)
 					%UberRoutine(RemoveLeadingZeroes16Bit)
-					%WriteFixedDigitsToLayer3(!PlayerHP_Digit_StatBarPos+((!Setting_PlayerHP_MaxDigits+1)*!StatusbarFormat))
+					%WriteFixedDigitsToLayer3(!Setting_PlayerHP_StringPos_Lvl_XYPos+((!Setting_PlayerHP_MaxDigits+1)*!StatusbarFormat))
 				endif
 			elseif and(greaterequal(!Setting_PlayerHP_DigitsAlignLevel, 1), lessequal(!Setting_PlayerHP_DigitsAlignLevel, 2)) ;left/right-aligned
 				%GetHealthDigits(!Freeram_PlayerHP_CurrentHP)
@@ -155,9 +155,9 @@ main:
 					BCS ..TooMuchChar
 				endif
 				if !Setting_PlayerHP_DigitsAlignLevel == 1
-					%WriteTileAddress(!PlayerHP_Digit_StatBarPos, !PlayerHP_Digit_StatBarPosProp)
+					%WriteTileAddress(!Setting_PlayerHP_StringPos_Lvl_XYPos, !Setting_PlayerHP_StringPos_Lvl_XYPosProp)
 				elseif !Setting_PlayerHP_DigitsAlignLevel == 2
-					%WriteTileAddress(!PlayerHP_Digit_StatBarPos_RightAligned, !PlayerHP_Digit_StatBarPos_RightAlignedProp)
+					%WriteTileAddress(!Setting_PlayerHP_StringPosRightAligned_Lvl_XYPos, !Setting_PlayerHP_StringPosRightAligned_Lvl_XYPosProp)
 				endif
 				if !Setting_PlayerHP_DigitsAlignLevel == 2 ;Right-aligned
 					if !StatusbarFormat == $01
@@ -172,163 +172,168 @@ main:
 		endif
 		..TooMuchChar
 	.WriteGraphicalBar
-	if !Setting_PlayerHP_DisplayBarLevel
-		..HandleTimersAndPreviousHPDisplay
-			JSR SetGraphicalBarAttributesAndPercentage	;>$00~$01 = current HP percentage
-			if !Setting_PlayerHP_BarAnimation
-				if !Setting_PlayerHP_BarChangeDelay
-					LDA !Freeram_Setting_PlayerHP_BarChangeDelayTmr
-					BEQ ...TimerEnded
-					DEC
-					STA !Freeram_Setting_PlayerHP_BarChangeDelayTmr
-					...TimerEnded
-				endif
-				
-				LDA $00
-				CMP !Freeram_PlayerHP_BarRecord
-				BEQ ...PreviousAndCurrentHPEqual
-				BCC ...Damage
-				
-				...Heal
-					if or(equal(!Setting_PlayerHP_RollingHP, 0), notequal(!Setting_PlayerHP_ShowHealedTransparent, 0))
-						if and(notequal(!Setting_PlayerHP_ShowHealedTransparent, 0), notequal(!Setting_PlayerHP_BarChangeDelay, 0))
-							LDA !Freeram_Setting_PlayerHP_BarChangeDelayTmr		;>Freeze if timer is still active
-							BNE ....OverwriteFill
-						endif
-						if and(notequal(!Setting_PlayerHP_FillDelayFrames, 0), less(!Setting_PlayerHP_BarFillUpPerFrame, 2))
-							LDA $13							;\every 2^n frames, don't increment for slower speed.
-							AND.b #!Setting_PlayerHP_FillDelayFrames		;|
-							BNE ....OverwriteFill					;/
-						endif
-						LDA !Freeram_PlayerHP_BarRecord
-						if !Setting_PlayerHP_BarFillUpPerFrame >= 2
-							CLC						;\Increment fill
-							ADC.b #!Setting_PlayerHP_BarFillUpPerFrame		;/
-							BCS ....IncrementPast				;>In case the record fill increments past 255.
-							CMP $00						;\Continue incrementing until greater than or equal to $00.
-							BCC ....Increment				;/
-							
-							....IncrementPast
-								LDA $00						;\If greater or equal to, set the record fill to $00.
-								STA !Freeram_PlayerHP_BarRecord			;/
-								BRA ..Calculate_WriteBar			
-							
-							....Increment
-								STA !Freeram_PlayerHP_BarRecord
-						else
-							INC						;\Increment fill by 1.
-							STA !Freeram_PlayerHP_BarRecord			;/
-						endif
-						
-						....OverwriteFill
-							if !Setting_PlayerHP_ShowHealedTransparent != 0
-								LDA $13				;\Check bit 0 of the frame counter
-								AND.b #%00000001		;/
-								BNE ..Calculate_WriteBar	;>If odd frame, display current HP.
+		if !Setting_PlayerHP_DisplayBarLevel
+			..HandleTimersAndPreviousHPDisplay
+				JSR SetGraphicalBarAttributesAndPercentage	;>$00~$01 = current HP percentage
+				if !Setting_PlayerHP_BarAnimation
+					if !Setting_PlayerHP_BarChangeDelay
+						LDA !Freeram_Setting_PlayerHP_BarChangeDelayTmr
+						BEQ ...TimerEnded
+						DEC
+						STA !Freeram_Setting_PlayerHP_BarChangeDelayTmr
+						...TimerEnded
+					endif
+					
+					LDA $00
+					CMP !Freeram_PlayerHP_BarRecord
+					BEQ ...PreviousAndCurrentHPEqual
+					BCC ...Damage
+					
+					...Heal
+						if or(equal(!Setting_PlayerHP_RollingHP, 0), notequal(!Setting_PlayerHP_ShowHealedTransparent, 0))
+							if and(notequal(!Setting_PlayerHP_ShowHealedTransparent, 0), notequal(!Setting_PlayerHP_BarChangeDelay, 0))
+								LDA !Freeram_Setting_PlayerHP_BarChangeDelayTmr		;>Freeze if timer is still active
+								BNE ....OverwriteFill
 							endif
-							LDA !Freeram_PlayerHP_BarRecord		;\Display previous HP.
-							STA $00					;/
+							if and(notequal(!Setting_PlayerHP_FillDelayFrames, 0), less(!Setting_PlayerHP_BarFillUpPerFrame, 2))
+								LDA $13							;\every 2^n frames, don't increment for slower speed.
+								AND.b #!Setting_PlayerHP_FillDelayFrames		;|
+								BNE ....OverwriteFill					;/
+							endif
+							LDA !Freeram_PlayerHP_BarRecord
+							if !Setting_PlayerHP_BarFillUpPerFrame >= 2
+								CLC						;\Increment fill
+								ADC.b #!Setting_PlayerHP_BarFillUpPerFrame		;/
+								BCS ....IncrementPast				;>In case the record fill increments past 255.
+								CMP $00						;\Continue incrementing until greater than or equal to $00.
+								BCC ....Increment				;/
+								
+								....IncrementPast
+									LDA $00						;\If greater or equal to, set the record fill to $00.
+									STA !Freeram_PlayerHP_BarRecord			;/
+									BRA ..Calculate_WriteBar			
+								
+								....Increment
+									STA !Freeram_PlayerHP_BarRecord
+							else
+								INC						;\Increment fill by 1.
+								STA !Freeram_PlayerHP_BarRecord			;/
+							endif
+							
+							....OverwriteFill
+								if !Setting_PlayerHP_ShowHealedTransparent != 0
+									LDA $13				;\Check bit 0 of the frame counter
+									AND.b #%00000001		;/
+									BNE ..Calculate_WriteBar	;>If odd frame, display current HP.
+								endif
+								LDA !Freeram_PlayerHP_BarRecord		;\Display previous HP.
+								STA $00					;/
+								BRA ..Calculate_WriteBar
+						else
+							LDA $00					;\Only display current HP sliding upwards when enabling rolling HP.
+							STA !Freeram_PlayerHP_BarRecord		;/(writes to bar record so if taking damage while healing doesn't have record fall behind)
 							BRA ..Calculate_WriteBar
-					else
-						LDA $00					;\Only display current HP sliding upwards when enabling rolling HP.
-						STA !Freeram_PlayerHP_BarRecord		;/(writes to bar record so if taking damage while healing doesn't have record fall behind)
-						BRA ..Calculate_WriteBar
-					endif
-				...Damage
-					if and(notequal(!Setting_PlayerHP_EmptyDelayFrames, 0), less(!Setting_PlayerHP_BarEmptyPerFrame, 2))
-						LDA $13							;\Decrement every 2^n frames
-						AND.b #!Setting_PlayerHP_EmptyDelayFrames		;|
-						if !Setting_PlayerHP_BarChangeDelay != 0
-							ORA !Freeram_Setting_PlayerHP_BarChangeDelayTmr		;|>Freeze if timer still active
 						endif
-						BNE ....TransperentAnimation				;/>If odd frame, display alternating frames of HP.
-					else
-						if !Setting_PlayerHP_BarChangeDelay != 0
-							LDA !Freeram_Setting_PlayerHP_BarChangeDelayTmr
-							BNE ....TransperentAnimation
+					...Damage
+						if and(notequal(!Setting_PlayerHP_EmptyDelayFrames, 0), less(!Setting_PlayerHP_BarEmptyPerFrame, 2))
+							LDA $13							;\Decrement every 2^n frames
+							AND.b #!Setting_PlayerHP_EmptyDelayFrames		;|
+							if !Setting_PlayerHP_BarChangeDelay != 0
+								ORA !Freeram_Setting_PlayerHP_BarChangeDelayTmr		;|>Freeze if timer still active
+							endif
+							BNE ....TransperentAnimation				;/>If odd frame, display alternating frames of HP.
+						else
+							if !Setting_PlayerHP_BarChangeDelay != 0
+								LDA !Freeram_Setting_PlayerHP_BarChangeDelayTmr
+								BNE ....TransperentAnimation
+							endif
 						endif
-					endif
-					if !Setting_PlayerHP_BarEmptyPerFrame >= 2
-						LDA !Freeram_PlayerHP_BarRecord			;\Decrement fill
-						SEC						;|
-						SBC.b #!Setting_PlayerHP_BarEmptyPerFrame	;/
-						BCC ....Underflow				;>Underflow check
-						CMP $00						;\Check if record decrements past the current HP.
-						BCS ....Decrement				;/
-						
-						....Underflow
-							LDA $00						;\Set record to current if it did goes past.
+						if !Setting_PlayerHP_BarEmptyPerFrame >= 2
+							LDA !Freeram_PlayerHP_BarRecord			;\Decrement fill
+							SEC						;|
+							SBC.b #!Setting_PlayerHP_BarEmptyPerFrame	;/
+							BCC ....Underflow				;>Underflow check
+							CMP $00						;\Check if record decrements past the current HP.
+							BCS ....Decrement				;/
+							
+							....Underflow
+								LDA $00						;\Set record to current if it did goes past.
+								STA !Freeram_PlayerHP_BarRecord			;/
+								BRA ..Calculate_WriteBar
+							
+							....Decrement
+								STA !Freeram_PlayerHP_BarRecord			;>And set the subtracted value to record
+								BRA ....TransperentAnimation
+						else
+							LDA !Freeram_PlayerHP_BarRecord			;\Decrement by 1
+							DEC						;|
 							STA !Freeram_PlayerHP_BarRecord			;/
-							BRA ..Calculate_WriteBar
-						
-						....Decrement
-							STA !Freeram_PlayerHP_BarRecord			;>And set the subtracted value to record
-							BRA ....TransperentAnimation
-					else
-						LDA !Freeram_PlayerHP_BarRecord			;\Decrement by 1
-						DEC						;|
-						STA !Freeram_PlayerHP_BarRecord			;/
-					endif
-					....TransperentAnimation
-						if !Setting_PlayerHP_ShowDamageTransperent != 0
-							LDA $13					;\Alternating frames
-							AND.b #%00000001			;/
-							BNE ..Calculate_WriteBar		;>If odd frame, display current HP.
 						endif
-						LDA !Freeram_PlayerHP_BarRecord			;\Otherwise if even, display previous HP
-						STA $00						;/
-				...PreviousAndCurrentHPEqual
-			endif
-		..Calculate
-			if !Setting_PlayerHP_BarAnimation
-				LDA $13
-				AND.b #%00000001
-				BEQ ...ShowCurrentHPOnEvenFrames
-				
-					...ShowPreviousHPOnOddFrames
-					LDA !Freeram_PlayerHP_BarRecord
-					STA $00
-				...ShowCurrentHPOnEvenFrames
-			endif
-			...WriteBar
-				%UberRoutine(GraphicalBar_DrawGraphicalBarSubtractionLoopEdition)
-			STZ $00					;>Use level sets of fill tiles
-			%UberRoutine(GraphicalBar_ConvertBarFillAmountToTiles)
-		..WriteToHUD
-			LDA.b #!Setting_PlayerHP_BarPosLevel
-			STA $00
-			LDA.b #!Setting_PlayerHP_BarPosLevel>>8
-			STA $01
-			LDA.b #!Setting_PlayerHP_BarPosLevel>>16
-			STA $02
-			if !StatusBar_UsingCustomProperties != 0
-				LDA.b #!Setting_PlayerHP_BarPosLevelProp
-				STA $03
-				LDA.b #!Setting_PlayerHP_BarPosLevelProp>>8
-				STA $04
-				LDA.b #!Setting_PlayerHP_BarPosLevelProp>>16
-				STA $05
+						....TransperentAnimation
+							if !Setting_PlayerHP_ShowDamageTransperent != 0
+								LDA $13					;\Alternating frames
+								AND.b #%00000001			;/
+								BNE ..Calculate_WriteBar		;>If odd frame, display current HP.
+							endif
+							LDA !Freeram_PlayerHP_BarRecord			;\Otherwise if even, display previous HP
+							STA $00						;/
+					...PreviousAndCurrentHPEqual
+				endif
+			..Calculate
+				if !Setting_PlayerHP_BarAnimation
+					LDA $13
+					AND.b #%00000001
+					BEQ ...ShowCurrentHPOnEvenFrames
+					
+						...ShowPreviousHPOnOddFrames
+						LDA !Freeram_PlayerHP_BarRecord
+						STA $00
+					...ShowCurrentHPOnEvenFrames
+				endif
+				...WriteBar
+					%UberRoutine(GraphicalBar_DrawGraphicalBarSubtractionLoopEdition)
+				STZ $00					;>Use level sets of fill tiles
+				%UberRoutine(GraphicalBar_ConvertBarFillAmountToTiles)
+			..WriteToHUD
+				LDA.b #!Setting_PlayerHP_GraphicalBarPos_Lvl_XYPos
+				STA $00
+				LDA.b #!Setting_PlayerHP_GraphicalBarPos_Lvl_XYPos>>8
+				STA $01
+				LDA.b #!Setting_PlayerHP_GraphicalBarPos_Lvl_XYPos>>16
+				STA $02
+				if !StatusBar_UsingCustomProperties != 0
+					LDA.b #!Setting_PlayerHP_GraphicalBarPos_Lvl_XYPosProp
+					STA $03
+					LDA.b #!Setting_PlayerHP_GraphicalBarPos_Lvl_XYPosProp>>8
+					STA $04
+					LDA.b #!Setting_PlayerHP_GraphicalBarPos_Lvl_XYPosProp>>16
+					STA $05
+					if !Setting_PlayerHP_LeftwardsBarLevel == 0
+						LDA.b #!PlayerHP_BarProps_Lvl
+					else
+						LDA.b #(!PlayerHP_BarProps_Lvl|(!Setting_PlayerHP_LeftwardsBarLevel<<6))
+					endif
+					STA $06
+				endif
 				if !Setting_PlayerHP_LeftwardsBarLevel == 0
-					LDA.b #!PlayerHP_BarProps_Lvl
+					if !StatusbarFormat == $01
+						%UberRoutine(GraphicalBar_WriteToStatusBar)
+					else
+						%UberRoutine(GraphicalBar_WriteToStatusBar_Format2)
+					endif
 				else
-					LDA.b #(!PlayerHP_BarProps_Lvl|(!Setting_PlayerHP_LeftwardsBarLevel<<6))
+					if !StatusbarFormat == $01
+						%UberRoutine(GraphicalBar_WriteToStatusBarLeftwards)
+					else
+						%UberRoutine(GraphicalBar_WriteToStatusBarLeftwards_Format2)
+					endif
 				endif
-				STA $06
-			endif
-			if !Setting_PlayerHP_LeftwardsBarLevel == 0
-				if !StatusbarFormat == $01
-					%UberRoutine(GraphicalBar_WriteToStatusBar)
-				else
-					%UberRoutine(GraphicalBar_WriteToStatusBar_Format2)
-				endif
-			else
-				if !StatusbarFormat == $01
-					%UberRoutine(GraphicalBar_WriteToStatusBarLeftwards)
-				else
-					%UberRoutine(GraphicalBar_WriteToStatusBarLeftwards_Format2)
-				endif
-			endif
-	endif
+		endif
+	.WriteHPLoss
+		if !Setting_PlayerHP_DisplayDamageTotal
+			;asdf
+		
+		endif
 	RTL
 	
 	if !Setting_PlayerHP_DisplayBarLevel
