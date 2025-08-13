@@ -151,6 +151,41 @@ endif
 	else
 		!Freeram_PlayerHP_MaxHPUpgradePickupFlag = $4001C1
 	endif
+;Numerical HP change display:
+	;[BytesUsed = !Setting_PlayerHP_DisplayDamageTotal * (1 + !Setting_PlayerHP_TwoByte)]
+	;A value representing the total damage to be displayed numerically on the status bar.
+	;Each time the player takes damage, this RAM value adds by how much damage the player
+	;receives. If 0, will not show.
+		if !sa1 == 0
+			!Freeram_PlayerHP_DamageTotalDisplay = $7FAD52
+		else
+			!Freeram_PlayerHP_DamageTotalDisplay = $4001C2
+		endif
+	;[BytesUsed = !Setting_PlayerHP_DisplayDamageTotal]
+	;A timer of how long the damage number persists on the status bar. Decrements every
+	;4th frame. Once 0, will reset !Freeram_PlayerHP_DamageTotalDisplay
+		if !sa1 == 0
+			!Freeram_PlayerHP_DamageTotalTimerDisplay = $7FAD54
+		else
+			!Freeram_PlayerHP_DamageTotalTimerDisplay = $4001C4
+		endif
+	;[BytesUsed = !Setting_PlayerHP_DisplayRecoveryTotal * (1 + !Setting_PlayerHP_TwoByte)]
+	;A value representing the total recovery to be displayed numerically on the status bar.
+	;Each time the player heals, this RAM value adds by how much recovery the player
+	;receives. If 0, will not show.
+		if !sa1 == 0
+			!Freeram_PlayerHP_RecoveryTotalDisplay = $7FAD52
+		else
+			!Freeram_PlayerHP_RecoveryTotalDisplay = $4001C2
+		endif
+	;[BytesUsed = !Setting_PlayerHP_DisplayRecoveryTotal]
+	;A timer of how long the recovery number persists on the status bar. Decrements every
+	;4th frame. Once 0, will reset !Freeram_PlayerHP_RecoveryTotalDisplay
+		if !sa1 == 0
+			!Freeram_PlayerHP_RecoveryTotalTimerDisplay = $7FAD54
+		else
+			!Freeram_PlayerHP_RecoveryTotalTimerDisplay = $4001C4
+		endif
 
 ;Settings:
 	!Setting_PlayerHP_DisplayNumericalLevel	= 2
@@ -241,7 +276,17 @@ endif
 	;-With fixed position digits, it simply displays incorrect values.
 	;This works as an indicator to prevent such glitches.
 		!Setting_PlayerHP_ExcessDigitProt	= 1
-
+	;Display of temporary numbers:
+		;Damage numbers
+				!Setting_PlayerHP_DisplayDamageTotal = 1	;>Display damage on the status bar temporarily: 0 = no, 1 = yes
+				
+				!Setting_PlayerHP_DamageNumber_x = 0		;\XY status bar position to display damage total
+				!Setting_PlayerHP_DamageNumber_y = 2		;/
+		;Recovery numbers
+				!Setting_PlayerHP_DisplayRecoveryTotal = 1	;>Display recovery on the status bar temporarily: 0 = no, 1 = yes
+				
+				!Setting_PlayerHP_RecoverNumber_x = 6		;\XY status bar position to display recovery total
+				!Setting_PlayerHP_RecoverNumber_y = 2		;/
 	;Bar animation stuff
 		!Setting_PlayerHP_BarAnimation			= 1
 			;^0 = HP bar instantly updates when the player heals or take damage
