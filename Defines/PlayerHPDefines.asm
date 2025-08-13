@@ -44,6 +44,10 @@ endif
 ; 7FAD4F Freeram_PlayerHP_Knockback
 ; 7FAD50 Freeram_PlayerHP_GradualHPChange
 ; 7FAD51-?????? Freeram_PlayerHP_MaxHPUpgradePickupFlag
+; 7FAD52-7FAD53 Freeram_PlayerHP_DamageTotalDisplay
+; 7FAD54 Freeram_PlayerHP_DamageTotalTimerDisplay
+; 7FAD55-7FAD56 Freeram_PlayerHP_RecoveryTotalDisplay
+; 7FAD57 Freeram_PlayerHP_RecoveryTotalTimerDisplay
 ; 7FAD61 Freeram_PlayerHP_MotherHPDirection
 ; 7FAD62-7FAD63 Freeram_PlayerHP_MotherHPChanger
 ; 7FAD64 Freeram_PlayerHP_MotherHPDelayFrameTimer
@@ -62,6 +66,10 @@ endif
 ; 4001BF Freeram_PlayerHP_Knockback
 ; 4001C0 Freeram_PlayerHP_GradualHPChange
 ; 4001C1-?????? Freeram_PlayerHP_MaxHPUpgradePickupFlag
+; 4001C2 Freeram_PlayerHP_DamageTotalDisplay
+; 4001C4 Freeram_PlayerHP_DamageTotalTimerDisplay
+; 4001C5-4001C6 Freeram_PlayerHP_RecoveryTotalDisplay
+; 4001C7 Freeram_PlayerHP_RecoveryTotalTimerDisplay
 ; 4001D1 Freeram_PlayerHP_MotherHPDirection
 ; 4001D2-4001D3 Freeram_PlayerHP_MotherHPChanger
 ; 4001D4 Freeram_PlayerHP_MotherHPDelayFrameTimer
@@ -174,17 +182,17 @@ endif
 	;Each time the player heals, this RAM value adds by how much recovery the player
 	;receives. If 0, will not show.
 		if !sa1 == 0
-			!Freeram_PlayerHP_RecoveryTotalDisplay = $7FAD52
+			!Freeram_PlayerHP_RecoveryTotalDisplay = $7FAD55
 		else
-			!Freeram_PlayerHP_RecoveryTotalDisplay = $4001C2
+			!Freeram_PlayerHP_RecoveryTotalDisplay = $4001C5
 		endif
 	;[BytesUsed = !Setting_PlayerHP_DisplayRecoveryTotal]
 	;A timer of how long the recovery number persists on the status bar. Decrements every
 	;4th frame. Once 0, will reset !Freeram_PlayerHP_RecoveryTotalDisplay
 		if !sa1 == 0
-			!Freeram_PlayerHP_RecoveryTotalTimerDisplay = $7FAD54
+			!Freeram_PlayerHP_RecoveryTotalTimerDisplay = $7FAD57
 		else
-			!Freeram_PlayerHP_RecoveryTotalTimerDisplay = $4001C4
+			!Freeram_PlayerHP_RecoveryTotalTimerDisplay = $4001C7
 		endif
 
 ;Settings:
