@@ -111,14 +111,14 @@ endif
 	else
 		!Freeram_Setting_PlayerHP_BarChangeDelayTmr	= $4001BE
 	endif
-;[BytesUsed = KnockbackEnabled]
+;[BytesUsed = Setting_PlayerHP_Knockback]
 ;Stun flag of the player getting knocked back. When nonzero, the
 ;player is unable to move.
 ; - If !Setting_PlayerHP_Knockback is set to 1, this acts as a frame
 ;   timer that goes down by 1 each frame.
 ; - If !Setting_PlayerHP_Knockback is set to 2, this stays at a
 ;   nonzero value until the player touches the ground
-;KnockbackEnabled = 1 if !Setting_PlayerHP_Knockback is nonzero
+;!Setting_PlayerHP_Knockback = 1 if !Setting_PlayerHP_Knockback is nonzero
 ;and 0 otherwise.
 	if !sa1 == 0
 		!Freeram_PlayerHP_Knockback	= $7FAD4F
@@ -196,73 +196,203 @@ endif
 		endif
 
 ;Settings:
-	!Setting_PlayerHP_DisplayNumericalLevel	= 2
-		;^0 = display no numbers.
-		; 1 = display only current HP.
-		; 2 = display Current/Max.
-	!Setting_PlayerHP_DisplayBarLevel = 1
-		;^0 = don't display percentage bar
-		; 1 = display a percentage bar
-
-	!Setting_PlayerHP_DisplayNumericalOverworld	= 2
-		;^Same as !Setting_PlayerHP_DisplayNumericalLevel, but for overworld
-	!Setting_PlayerHP_DisplayBarOverworld = 1
-		;^Same as !Setting_PlayerHP_DisplayBarLevel, but for overworld
-
-	!Setting_PlayerHP_DigitsAlignLevel		= 1
-		;^How digits are displayed in levels.
-		; 0 = allow leading spaces (digit place values are fixed)
-		; 1 = left align (positions the character (numbers and "/") to the left as much
-		;     as possible), no leading spaces before digits.
-		; 2 = right align (to the right as possible). No leading spaces before digits.
-		;
+	;HUD settings
 		;Notes:
-		;-The number of digits extends the 8x8 area RIGHTWARDS, therefore setting
-		; !Setting_PlayerHP_MaxDigits does not move the left part of the
-		; character table.
-		;-If you set the number display to only show current HP (and not max HP)
-		; and have it set to right-aligned, this patch treats this as having it
-		; set to 0 since numbers at fixed position are automatically right-aligned.
-
-	!Setting_PlayerHP_DigitsAlignOverworld	= 1
-		;^Same as above, but for overworld maps.
-	;Position (units of tiles, not pixels). XY must be integers with X ranging from 0-31.
-	;Y ranges depending on status bar type you using:
-	; - For vanilla SMW: Y can only be 2-3. And...
-	; -- When Y=2, X ranges 2-29.
-	; -- When Y=3, X ranges 3-29.
-	; - Super super status bar patch, Y ranges 0-4.
-	; - For Minimalist status bar patches:
-	; -- Top or Bottom: Y is always 0 as there is only a single row
-	; -- For double, then Y is either 0 for top or 1 for bottom.
-	; - For SMB3 status bar, Y is 0-3.
-	;
-	;Note that if tiles extend past the right edge of the screen, it will wrap to X=0 and Y+1 like text.
-	
-		;Position of the HP display string (which display the numbers). This is where:
-		; - If not aligned or right-aligned with only one number (digits at fixed locations), it is where
-		;   the leading zero/space would be at.
-		; - If left-aligned, it is where the leftmost visible digit would be located
-			!Setting_PlayerHP_StringPos_Lvl_x = 0
-			!Setting_PlayerHP_StringPos_Lvl_y = 0
-		;Position to display for right-aligned HP text (Current/Max) (This is the position of the rightmost
-		;tile, a position entered here will take this position and anything to the left)
-			!Setting_PlayerHP_StringPosRightAligned_Lvl_x = 31
-			!Setting_PlayerHP_StringPosRightAligned_Lvl_y = 0
+		;About XY positions:
+		;Position are in units of tiles, not pixels. XY must be integers with X ranging from 0-31.
+		;When X increases when going rightwards, and Y increases when going downwards.
+		;Y ranges depending on status bar type you using:
+		; - For vanilla SMW: Y can only be 2-3. And...
+		; -- When Y=2, X ranges 2-29.
+		; -- When Y=3, X ranges 3-29.
+		; - Super super status bar patch, Y ranges 0-4.
+		; - For Minimalist status bar patches:
+		; -- Top or Bottom: Y is always 0 as there is only a single row
+		; -- For double, then Y is either 0 for top or 1 for bottom.
+		; - For SMB3 status bar, Y is 0-3.
+		;
+		;For overworld border plus, positioning is similar to super status bar, except the Y position
+		;"skips" the intermediate rows of tiles between the top and bottom. This means that going
+		;downwards on the last row of "top lines" will immediately end up being on "bottom lines"
+		;on the first row. For example, with !Top_Lines set to 5 rows (Y ranges from 0-4), going from
+		;Y=4 to Y=5 would now be at the first row of the bottom lines (which the true Y position would
+		;be Y=26).
+		;
+		;You can convert TrueYPosition (this counts all rows of the layer 3, and must be 26-27) into
+		;EditableYPosition (numbering only rows the OWB+ can edit) when using the bottom lines:
+		;
+		; EditableYPosition = TrueYPosition - 26 + !Top_Lines
+		;
+		;For example (having !Top_Lines set to 5), I want a counter on the top row of bottom lines.
+		;I can literally just do this:
+		;
+		;!YPos = 26-26+5, which is row 5 (rows 0-4 are top lines, 5-6 are bottom lines)
+		;
+		;Conversion is not needed if you are having your stuff on the top-lines.
 		
-		;Same as above but for overworld border
-			!Setting_PlayerHP_StringPos_Owb_x = 7
-			!Setting_PlayerHP_StringPos_Owb_y = 1
-			
-			!Setting_PlayerHP_StringPosRightAligned_Owb_x = 31
-			!Setting_PlayerHP_StringPosRightAligned_Owb_y = 1
-	;Tile properties of the digits and slash (only used when !StatusBar_UsingCustomProperties == 1 in StatusBarDefines.asm)
-		!Setting_PlayerHP_StringTileProp_Level_Page = 0		;>Valid values: 0-3
-		!Setting_PlayerHP_StringTileProp_Level_Palette = 6	;>Valid values: 0-7
-		
-		!Setting_PlayerHP_StringTileProp_Ow_Page = 1		;>Valid values: 0-3
-		!Setting_PlayerHP_StringTileProp_Ow_Palette = 6		;>Valid values: 0-7
+		;Note that if tiles extend past the right edge of the screen, it will wrap to X=0 and Y+1 like text.
+		;Number display settings
+			;Global number settings (applies to both level and overworld)
+				;Failsafe when the string of the HP text exceeds a certain number of characters
+				; 0 = allow displaying digits despite exceeding how many digits can be displayed
+				;     (recommended if you 100% sure it is completely impossible to have that much
+				;     HP).
+				; 1 = avoid using number display routines and simply display a line of "-"s to avoid
+				;     glitches.
+				;^This setting was present due to the fact that when too much digits are written, glitches
+				; can happen:
+				;-With aligned digits, random tiles appear in odd places on the status bar (or write in places
+				; that isn't status bar data; corrupting other things).
+				;-With fixed position digits, it simply displays incorrect values.
+				;This works as an indicator to prevent such glitches.
+					!Setting_PlayerHP_ExcessDigitProt	= 1
+			;Level display
+				!Setting_PlayerHP_DisplayNumericalLevel	= 2
+					;^0 = display no numbers.
+					; 1 = display only current HP.
+					; 2 = display Current/Max.
+				!Setting_PlayerHP_DigitsAlignLevel		= 1
+					;^How digits are displayed in levels.
+					; 0 = allow leading spaces (digit place values are fixed)
+					; 1 = left align (positions the character (numbers and "/") to the left as much
+					;     as possible), no leading spaces before digits.
+					; 2 = right align (to the right as possible). No leading spaces before digits.
+					;
+					;Notes:
+					;-The number of digits extends the 8x8 area RIGHTWARDS, therefore setting
+					; !Setting_PlayerHP_MaxDigits does not move the left part of the
+					; character table.
+					;-If you set the number display to only show current HP (and not max HP)
+					; and have it set to right-aligned, this patch treats this as having it
+					; set to 0 since numbers at fixed position are automatically right-aligned.
 
+				;Position of the HP display string (which display the numbers). This is where:
+				; - If not aligned or right-aligned with only one number (digits at fixed locations), it is where
+				;   the leading zero/space would be at.
+				; - If left-aligned, it is where the leftmost visible digit would be located
+					!Setting_PlayerHP_StringPos_Lvl_x = 0
+					!Setting_PlayerHP_StringPos_Lvl_y = 0
+				;Position to display for right-aligned HP text (Current/Max) (This is the position of the rightmost
+				;tile, a position entered here will take this position and anything to the left)
+					!Setting_PlayerHP_StringPosRightAligned_Lvl_x = 31
+					!Setting_PlayerHP_StringPosRightAligned_Lvl_y = 0
+				;Tile properties of the digits and slash (only used when !StatusBar_UsingCustomProperties == 1 in StatusBarDefines.asm)
+					!Setting_PlayerHP_StringTileProp_Level_Page = 0		;>Valid values: 0-3
+					!Setting_PlayerHP_StringTileProp_Level_Palette = 6	;>Valid values: 0-7
+					
+				;Display numerical damage and recovery settings
+					;Damage numbers
+						!Setting_PlayerHP_DisplayDamageTotal = 1	;>Display damage on the status bar temporarily: 0 = no, 1 = yes
+						
+						!Setting_PlayerHP_DamageNumber_x = 0		;\XY status bar position to display damage total
+						!Setting_PlayerHP_DamageNumber_y = 2		;/
+					;Recovery numbers
+						!Setting_PlayerHP_DisplayRecoveryTotal = 1	;>Display recovery on the status bar temporarily: 0 = no, 1 = yes
+						
+						!Setting_PlayerHP_RecoverNumber_x = 6		;\XY status bar position to display recovery total
+						!Setting_PlayerHP_RecoverNumber_y = 2		;/
+			;Overworld display
+				!Setting_PlayerHP_DisplayNumericalOverworld	= 2
+					;^Same as !Setting_PlayerHP_DisplayNumericalLevel, but for overworld
+				!Setting_PlayerHP_DigitsAlignOverworld	= 1
+					;^Same as Setting_PlayerHP_DigitsAlignLevel, but for overworld maps.
+				;Position of the display text on the OWB. Same as Setting_PlayerHP_StringPos_Lvl_x/y
+					!Setting_PlayerHP_StringPos_Owb_x = 7
+					!Setting_PlayerHP_StringPos_Owb_y = 1
+				;Position of the display text on the OWB, but for right-aligned (same as !Setting_PlayerHP_StringPosRightAligned_Lvl_x/y)
+					!Setting_PlayerHP_StringPosRightAligned_Owb_x = 31
+					!Setting_PlayerHP_StringPosRightAligned_Owb_y = 1
+				;Tile properties of the digits and slash, same as Setting_PlayerHP_StringTileProp_Level_Page/Palette
+					!Setting_PlayerHP_StringTileProp_Ow_Page = 1		;>Valid values: 0-3
+					!Setting_PlayerHP_StringTileProp_Ow_Palette = 6		;>Valid values: 0-7
+		;Graphical bar display settings.
+		;(these are arguments, which are specific values to set the bar's value).
+		;For modifying the scratch RAM used, see "GraphicalBarDefines.asm".
+			;Universal settings (applies both level and overworld)
+				;Number of pieces in each part of the graphical bar
+					!Setting_PlayerHP_GraphicalBar_LeftPieces                  = 3             ;\These will by default, set the RAM for the pieces for each section
+					!Setting_PlayerHP_GraphicalBar_MiddlePieces                = 8             ;|(note that these apply for both levels and overworlds)
+					!Setting_PlayerHP_GraphicalBar_RightPieces                 = 3             ;/
+
+				;Avoid percentage bar from representing 0 or full when really close but not at those values:
+					!Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull	= 3
+						;^0 = allow bar to display 0% when HP is very close to zero and 100% when close to max.
+						; 1 = display 1 pixel or piece filled when low on HP and only 0 if HP is 0.
+						; 2 = display MaxPieces-1 when nearly full.
+						; 3 = Display 1 piece or MaxPieces-1 if close to 0 or MaxPieces.
+
+			;Level display
+				!Setting_PlayerHP_DisplayBarLevel = 1
+					;^0 = don't display percentage bar
+					; 1 = display a percentage bar
+				;Where to place the bar
+					!Setting_PlayerHP_GraphicalBarPos_Lvl_x = 0
+					!Setting_PlayerHP_GraphicalBarPos_Lvl_y = 1
+				;Length of bar (number of middle tiles).
+				;Full screen width is 32 tiles.
+					!Setting_PlayerHP_GraphicalBarMiddleLengthLevel           = 7
+				;Fill direction. 0 = Left-to-right, 1 = Right-to-left
+					!Setting_PlayerHP_LeftwardsBarLevel     = 0
+				;Tile properties (X-flip for leftwards bar is already handled.)
+					!Setting_PlayerHP_BarProps_Lvl_Page = 0                 ;>Use only values 0-3
+					!Setting_PlayerHP_BarProps_Lvl_Palette = 6              ;>Use only values 0-7
+
+
+				;Bar animation stuff
+					!Setting_PlayerHP_BarAnimation			= 1
+						;^0 = HP bar instantly updates when the player heals or take damage
+						;     (!Freeram_PlayerHP_BarRecord is no longer used).
+						; 1 = HP bar displays a changing animation (transparent segment to
+						;     indicate the amount of damage or recovery)
+
+					!Setting_PlayerHP_FillDelayFrames				= $00
+						;^Speed that the bar fills up. Only use these values:
+						; $00,$01,$03,$07$,$0F,$1F,$3F or $7F. Lower values = faster
+
+					!Setting_PlayerHP_BarFillUpPerFrame			= 0
+						;^How many pieces in the bar filled per frame. This overrides
+						; !Setting_PlayerHP_FillDelayFrames when 2+. Higher = faster filling animation.
+
+					!Setting_PlayerHP_EmptyDelayFrames				= $01
+						;^Speed that the bar drains after damage. Only use these values:
+						; $00,$01,$03,$07$,$0F,$1F,$3F or $7F. Lower values = faster
+
+					!Setting_PlayerHP_BarEmptyPerFrame		= 2
+						;^How many pieces in the bar drained per frame. This overrides
+						; !Setting_PlayerHP_EmptyDelayFrames when 2+. Higher = faster draining
+						; animation.
+
+					!Setting_PlayerHP_BarChangeDelay				= 30
+						;^How many frames the record effect (transparent effect) hangs
+						; before shrinking down to current HP, up to 255 is allowed.
+						; Set to 0 to disable (will also disable !Freeram_Setting_PlayerHP_BarChangeDelayTmr
+						; from being used,). Remember, the game runs 60 FPS. This also applies
+						; to healing should !Setting_PlayerHP_ShowHealedTransparent be enabled.
+
+					!Setting_PlayerHP_ShowHealedTransparent		= 1
+						;^0 = show sliding upwards animation
+						; 1 = show amount healed as transparent segment.
+
+					!Setting_PlayerHP_ShowDamageTransperent		= 1
+						;^0 = show no transparent (if !Setting_PlayerHP_BarAnimation is
+						;     enabled, would perform a sliding down animation as opaque)
+						; 1 = show transparent.
+						; This applies when the player takes damage.
+
+
+			;Overworld display
+				!Setting_PlayerHP_DisplayBarOverworld = 1
+					;^Same as !Setting_PlayerHP_DisplayBarLevel, but for overworld
+				;Where to place the bar
+					!Setting_PlayerHP_GraphicalBarPos_Owb_x = 7
+					!Setting_PlayerHP_GraphicalBarPos_Owb_y = 2
+				;Length of bar, same as !Setting_PlayerHP_GraphicalBarMiddleLengthLevel
+					!Setting_PlayerHP_GraphicalBarMiddleLengthOverworld       = 7
+				;Fill direction. Same as !Setting_PlayerHP_LeftwardsBarLevel
+					!Setting_PlayerHP_LeftwardsBarOverworld = 0
+				;Tile properties, same as !Setting_PlayerHP_BarProps_Lvl_Page/Palette
+					!Setting_PlayerHP_BarProps_Owb_Page = 1                 ;>Use only values 0-3
+					!Setting_PlayerHP_BarProps_Owb_Palette = 6              ;>Use only values 0-7
 	;small and Large HP settings:
 		;Size of the player's HP:
 		; - 0 = 8-bit HP (HP up to 255)
@@ -271,70 +401,7 @@ endif
 		;The maximum number of digits to be displayed. Obviously you
 		;wouldn't set this above 3 for 8-bit HP and above 5 or 16-bit.
 			!Setting_PlayerHP_MaxDigits	= 3
-	;Failsafe when the string of the HP text exceeds a certain number of characters
-	; 0 = allow displaying digits despite exceeding how many digits can be displayed
-	;     (recommended if you 100% sure it is completely impossible to have that much
-	;     HP).
-	; 1 = avoid using number display routines and simply display a line of "-"s to avoid
-	;     glitches.
-	;^This setting was present due to the fact that when too much digits are written, glitches
-	; can happen:
-	;-With aligned digits, random tiles appear in odd places on the status bar (or write in places
-	; that isn't status bar data; corrupting other things).
-	;-With fixed position digits, it simply displays incorrect values.
-	;This works as an indicator to prevent such glitches.
-		!Setting_PlayerHP_ExcessDigitProt	= 1
-	;Display of temporary numbers:
-		;Damage numbers
-				!Setting_PlayerHP_DisplayDamageTotal = 1	;>Display damage on the status bar temporarily: 0 = no, 1 = yes
-				
-				!Setting_PlayerHP_DamageNumber_x = 0		;\XY status bar position to display damage total
-				!Setting_PlayerHP_DamageNumber_y = 2		;/
-		;Recovery numbers
-				!Setting_PlayerHP_DisplayRecoveryTotal = 1	;>Display recovery on the status bar temporarily: 0 = no, 1 = yes
-				
-				!Setting_PlayerHP_RecoverNumber_x = 6		;\XY status bar position to display recovery total
-				!Setting_PlayerHP_RecoverNumber_y = 2		;/
-	;Bar animation stuff
-		!Setting_PlayerHP_BarAnimation			= 1
-			;^0 = HP bar instantly updates when the player heals or take damage
-			;     (!Freeram_PlayerHP_BarRecord is no longer used).
-			; 1 = HP bar displays a changing animation (transparent segment to
-			;     indicate the amount of damage or recovery)
 
-		!Setting_PlayerHP_FillDelayFrames				= $00
-			;^Speed that the bar fills up. Only use these values:
-			; $00,$01,$03,$07$,$0F,$1F,$3F or $7F. Lower values = faster
-
-		!Setting_PlayerHP_BarFillUpPerFrame			= 0
-			;^How many pieces in the bar filled per frame. This overrides
-			; !Setting_PlayerHP_FillDelayFrames when 2+. Higher = faster filling animation.
-
-		!Setting_PlayerHP_EmptyDelayFrames				= $01
-			;^Speed that the bar drains after damage. Only use these values:
-			; $00,$01,$03,$07$,$0F,$1F,$3F or $7F. Lower values = faster
-
-		!Setting_PlayerHP_BarEmptyPerFrame		= 2
-			;^How many pieces in the bar drained per frame. This overrides
-			; !Setting_PlayerHP_EmptyDelayFrames when 2+. Higher = faster draining
-			; animation.
-
-		!Setting_PlayerHP_BarChangeDelay				= 30
-			;^How many frames the record effect (transparent effect) hangs
-			; before shrinking down to current HP, up to 255 is allowed.
-			; Set to 0 to disable (will also disable !Freeram_Setting_PlayerHP_BarChangeDelayTmr
-			; from being used,). Remember, the game runs 60 FPS. This also applies
-			; to healing should !Setting_PlayerHP_ShowHealedTransparent be enabled.
-
-		!Setting_PlayerHP_ShowHealedTransparent		= 1
-			;^0 = show sliding upwards animation
-			; 1 = show amount healed as transparent segment.
-
-		!Setting_PlayerHP_ShowDamageTransperent		= 1
-			;^0 = show no transparent (if !Setting_PlayerHP_BarAnimation is
-			;     enabled, would perform a sliding down animation as opaque)
-			; 1 = show transparent.
-			; This applies when the player takes damage.
 
 	;HP recovery settings:
 	;In case if you're wondering, defines with "Dividend" and "Divisor"
@@ -431,54 +498,6 @@ endif
 		!Setting_PlayerHP_InvulnerabilityTmrCape		= $30
 			;^Same as above, but when taking a hit while cape flying.
 			; SMW originally had it at $30.
-
-;Graphical bar stuff (these are arguments, which are specific values to set the bar's value).
-;For modifying the scratch RAM used, see "GraphicalBarDefines.asm".
-	;Redefineable stuff (often preset settings, but some of them are intended for player HP only):
-		!Setting_PlayerHP_GraphicalBarMiddleLengthLevel           = 7             ;>30 = screen-wide (30 + 2 end tiles = 32, all 8x8 tile row in the screen's width)
-		!Setting_PlayerHP_GraphicalBarMiddleLengthOverworld       = 7             ;>Same as above but for overworld.
-	;Level Position (same rule as before, units of tiles, must be at certain range)
-		!Setting_PlayerHP_GraphicalBarPos_Lvl_x = 0
-		!Setting_PlayerHP_GraphicalBarPos_Lvl_y = 1
-	;Overworld position. Works similarly to the status bar, but the Y position "skips" the intermediate rows of tiles
-	;between the top and bottom. This means that going downwards on the last row of "top lines" will immediately
-	;end up being on "bottom lines" on the first row. For example, with !Top_Lines set to 5 rows (Y ranges from 0-4),
-	;going from Y=4 to Y=5 would now be at the first row of the bottom lines (which the true Y position would be Y=26).
-	;
-	;You can convert TrueYPosition (this counts all rows of the layer 3, and must be 26-27) into EditableYPosition
-	;(numbering only rows the OWB+ can edit) when using the bottom lines:
-	;
-	; EditableYPosition = TrueYPosition - 26 + !Top_Lines
-	;
-	;For example (having !Top_Lines set to 5), I want a counter on the top row of bottom lines. I can literally just do this:
-	;
-	;!YPos = 26-26+5, which is row 5 (rows 0-4 are top lines, 5-6 are bottom lines)
-	;
-	;Conversion is not needed if you are having your stuff on the top-lines.
-		!Setting_PlayerHP_GraphicalBarPos_Owb_x = 7
-		!Setting_PlayerHP_GraphicalBarPos_Owb_y = 2
-	;Number of pieces in each part of the graphical bar
-		!Setting_PlayerHP_GraphicalBar_LeftPieces                  = 3             ;\These will by default, set the RAM for the pieces for each section
-		!Setting_PlayerHP_GraphicalBar_MiddlePieces                = 8             ;|(note that these apply for both levels and overworlds)
-		!Setting_PlayerHP_GraphicalBar_RightPieces                 = 3             ;/
-
-	;Bar direction for level and overworld.
-		!Setting_PlayerHP_LeftwardsBarLevel     = 0             ;>Have the bar fill leftwards. Note that end tiles are also mirrored.
-		!Setting_PlayerHP_LeftwardsBarOverworld = 0             ;>Same as above but overworld.
-	;Tile props
-		!Setting_PlayerHP_BarProps_Lvl_Page = 0                 ;>Use only values 0-3
-		!Setting_PlayerHP_BarProps_Lvl_Palette = 6              ;>Use only values 0-7
-		
-		!Setting_PlayerHP_BarProps_Owb_Page = 1                 ;>Use only values 0-3
-		!Setting_PlayerHP_BarProps_Owb_Palette = 6              ;>Use only values 0-7
-
-	;Avoid percentage bar from representing 0 or full when really close but not at those values:
-		!Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull	= 3
-			;^0 = allow bar to display 0% when HP is very close to zero and 100% when close to max.
-			; 1 = display 1 pixel or piece filled when low on HP and only 0 if HP is 0.
-			; 2 = display MaxPieces-1 when nearly full.
-			; 3 = Display 1 piece or MaxPieces-1 if close to 0 or MaxPieces.
-
 	;Other
 		!Setting_PlayerHP_DamageAmount_ReflectBooStream	= 3
 			;^Due to only the boo stream itself (not the head) being the only
