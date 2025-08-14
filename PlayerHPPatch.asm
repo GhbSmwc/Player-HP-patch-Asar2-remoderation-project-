@@ -1109,17 +1109,17 @@ endif
 			ADC $00
 			BCS ..Overflow
 			if !Setting_PlayerHP_TwoByte != 0
-				CMP.w #(10**!Setting_PlayerHP_MaxDigits)-1
+				CMP.w #!Setting_PlayerHP_TrueMaximumHPAndDamageValue
 			else
-				CMP.b #(10**!Setting_PlayerHP_MaxDigits)-1
+				CMP.b #!Setting_PlayerHP_TrueMaximumHPAndDamageValue
 			endif
 			BCC ..Write
 			
 			..Overflow
 				if !Setting_PlayerHP_TwoByte != 0
-					LDA.w #(10**!Setting_PlayerHP_MaxDigits)-1
+					LDA.w #!Setting_PlayerHP_TrueMaximumHPAndDamageValue
 				else
-					LDA.b #(10**!Setting_PlayerHP_MaxDigits)-1
+					LDA.b #!Setting_PlayerHP_TrueMaximumHPAndDamageValue
 				endif
 			..Write
 				STA !Freeram_PlayerHP_RecoveryTotalDisplay

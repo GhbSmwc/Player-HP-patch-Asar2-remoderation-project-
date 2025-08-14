@@ -601,6 +601,8 @@ endif
 			!Setting_PlayerHP_Bar_Overworld_Prop = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_BarProps_Owb_Palette, !Setting_PlayerHP_BarProps_Owb_Page)
 			!Setting_PlayerHP_DamageNumber_Prop = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_DamageNumberProp_Palette, !Setting_PlayerHP_DamageNumberProp_Page)
 			!Setting_PlayerHP_RecoverNumber_Prop = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_RecoverNumberProp_Palette, !Setting_PlayerHP_RecoverNumberProp_Page)
+		;Maximum value for HP and damage display, to prevent overflows
+			!Setting_PlayerHP_TrueMaximumHPAndDamageValue = min((10**!Setting_PlayerHP_MaxDigits)-1, (2**(8*(1+!Setting_PlayerHP_TwoByte)))-1)
 
 	;Failsafe
 		assert !Setting_PlayerHP_MidwayRecoveryDividend != 0, "Invalid Dividend"
