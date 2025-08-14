@@ -417,7 +417,44 @@ main:
 		endif
 	.WriteHPRecover
 		if !Setting_PlayerHP_DisplayRecoveryTotal
+			LDA !Freeram_PlayerHP_RecoveryTotalTimerDisplay
+			BEQ ..Done
+			..DecrementDisplayTimer
+				LDA $13
+				AND.b #%00000011
+				BNE ...No
+				LDA !Freeram_PlayerHP_RecoveryTotalTimerDisplay
+				DEC
+				STA !Freeram_PlayerHP_RecoveryTotalTimerDisplay
+				BNE ...SkipClear
+				LDA #$00
+				STA !Freeram_PlayerHP_RecoveryTotalDisplay
+				if !Setting_PlayerHP_TwoByte != 0
+					STA !Freeram_PlayerHP_RecoveryTotalDisplay+1
+				endif
+				BRA ..Done ;>Prevent "-0" for 1 frame when timer ends
+				...SkipClear
+				...No
+			%GetHealthDigits(!Freeram_PlayerHP_RecoveryTotalDisplay)
+			LDA.b #!StatusBarPlusSymbol
+			STA !Scratchram_CharacterTileTable
+			LDX #$01
+			%UberRoutine(SuppressLeadingZeroes)
+			if !Setting_PlayerHP_ExcessDigitProt
+				CPX.b #(!Setting_PlayerHP_MaxDigits+1+1)	;>Number of digits at max, plus the "-" symbol, plus one again because it is the first character beyond limits
+				BCS ..Done
+			endif
+			if !Setting_PlayerHP_DisplayRecoveryTotal == 1
+				%WriteTileAddress(!Setting_PlayerHP_RecoverNumber_XYPos, !Setting_PlayerHP_RecoverNumber_XYPosProp, !Setting_PlayerHP_RecoverNumber_Prop)
+			elseif !Setting_PlayerHP_DisplayRecoveryTotal == 2
+				%WriteTileAddress(!Setting_PlayerHP_RecoverNumber_RightAligned_XYPos, !Setting_PlayerHP_RecoverNumber_RightAligned_XYPosProp, !Setting_PlayerHP_RecoverNumber_Prop)
+			endif
+			if !Setting_PlayerHP_DisplayRecoveryTotal == 2
+				%ConvertToRightAligned()
+			endif
+			%WriteAlignedDigitsToLayer3()
 			
+			..Done
 		endif
 	RTL
 	

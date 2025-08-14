@@ -15,7 +15,7 @@
 ; decrement are done, this allow showing the total amount of HP have been changed.
 
 ;Setting
-	!Setting_PlayerHP_RollingHP	= 1
+	!Setting_PlayerHP_RollingHP	= 0
 		;^0 = instant damage (normal)
 		; 1 = rolling HP.
 		;

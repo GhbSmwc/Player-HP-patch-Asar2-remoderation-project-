@@ -1099,6 +1099,37 @@ endif
 	;heal past the maximum HP.
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	RecoverPlayerHP:
+		.DisplayRecovery
+		if !Setting_PlayerHP_DisplayRecoveryTotal
+			LDA.b #!Setting_PlayerHP_DamageHeal_Duration
+			STA !Freeram_PlayerHP_RecoveryTotalTimerDisplay
+			if !Setting_PlayerHP_TwoByte != 0
+				REP #$20
+			endif
+			LDA !Freeram_PlayerHP_RecoveryTotalDisplay
+			CLC
+			ADC $00
+			BCS ..Overflow
+			if !Setting_PlayerHP_TwoByte != 0
+				CMP.w #(10**!Setting_PlayerHP_MaxDigits)-1
+			else
+				CMP.b #(10**!Setting_PlayerHP_MaxDigits)-1
+			endif
+			BCC ..Write
+			
+			..Overflow
+				if !Setting_PlayerHP_TwoByte != 0
+					LDA.w #(10**!Setting_PlayerHP_MaxDigits)-1
+				else
+					LDA.b #(10**!Setting_PlayerHP_MaxDigits)-1
+				endif
+			..Write
+				STA !Freeram_PlayerHP_RecoveryTotalDisplay
+			..Done
+			if !Setting_PlayerHP_TwoByte != 0
+				SEP #$20
+			endif
+		endif
 	if !Setting_PlayerHP_RollingHP == 0
 		if !Setting_PlayerHP_TwoByte == 0
 			LDA !Freeram_PlayerHP_CurrentHP		;\Health + Recovery

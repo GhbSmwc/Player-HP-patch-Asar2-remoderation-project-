@@ -277,7 +277,7 @@ endif
 				;Display numerical damage and recovery settings
 				;NOTE: Each of these occupy [!Setting_PlayerHP_MaxDigits+1] tiles (the digits and the "-" for damage and "+" for recovery).
 					;Timer of how long the number appears after damage or heal occurs
-						!Setting_PlayerHP_DamageHeal_Duration = 15
+						!Setting_PlayerHP_DamageHeal_Duration = 2*15
 							;ValueHere = DurationInRealSeconds * 15
 							;This is what value !Freeram_PlayerHP_DamageTotalTimerDisplay and !Freeram_PlayerHP_RecoveryTotalTimerDisplay
 							;gets set to.
