@@ -69,9 +69,7 @@ incsrc "../../../MotherHPDefines.asm"
 	LDA #$01					;\Place mushroom in item box
 	STA $0DC2|!addr					;/
 	RTL
-	
 	ConsumeMushroom:
-	print "crashing              $",pc
 	if !Setting_PlayerHP_GrowFromSmallFailsafe != 0
 		LDA $19
 		BNE AlreadyBig
@@ -91,9 +89,7 @@ incsrc "../../../MotherHPDefines.asm"
 			LDA.b #!Setting_PlayerHP_MidwayRecoveryFixedAmt
 			STA $00
 		else
-			if !Setting_PlayerHP_MushroomToItemBox == 0
-				REP #$20
-			endif
+			REP #$20
 			LDA.w #!Setting_PlayerHP_MidwayRecoveryFixedAmt
 			STA $00
 			SEP #$20
@@ -191,4 +187,4 @@ incsrc "../../../MotherHPDefines.asm"
 	Return:
 	RTL
 
-;print "Mushroom that recovers the player's HP"
+print "Mushroom that recovers the player's HP")
