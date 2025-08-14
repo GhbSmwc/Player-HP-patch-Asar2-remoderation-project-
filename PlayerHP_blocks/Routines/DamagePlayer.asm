@@ -17,7 +17,6 @@ incsrc "../MotherHPDefines.asm"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ?DamagePlayer:
 	if !Setting_PlayerHP_DisplayDamageTotal
-		?.DamageNumberDisplay
 		LDA.b #!Setting_PlayerHP_DamageHeal_Duration
 		STA !Freeram_PlayerHP_DamageTotalTimerDisplay
 		if !Setting_PlayerHP_TwoByte != 0
@@ -32,14 +31,12 @@ incsrc "../MotherHPDefines.asm"
 		else
 			CMP.b #(10**!Setting_PlayerHP_MaxDigits)-1
 		endif
-		BCS ?..Overflow
-		STA !Freeram_PlayerHP_DamageTotalDisplay
-		BRA ?..Done
+		BCC ?..Write
 		
 		?..Overflow
 			LDA.b #(10**!Setting_PlayerHP_MaxDigits)-1
+		?..Write
 			STA !Freeram_PlayerHP_DamageTotalDisplay
-			
 		?..Done
 		if !Setting_PlayerHP_TwoByte != 0
 			SEP #$20
