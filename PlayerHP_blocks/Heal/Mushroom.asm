@@ -187,4 +187,4 @@ incsrc "../../../MotherHPDefines.asm"
 	Return:
 	RTL
 
-print "Mushroom that recovers the player's HP")
+print "Mushroom that recovers the player's HP"
