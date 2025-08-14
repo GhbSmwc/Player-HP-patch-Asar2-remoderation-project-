@@ -297,3 +297,5 @@ Things to do:
  --Removed depreciated HTML elements
  -Status bar and OWB locations define now uses XY rather than address.
  -Fixed an issue where the player's invulnerability timer wasn't set due to forgetting the "|!addr".
+ -Fixed a game crashing error due to an oversight on fixed-healing codes for mushroom and the custom block
+  equivalent.

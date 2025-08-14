@@ -227,9 +227,7 @@ freecode
 			LDA.b #!Setting_PlayerHP_MidwayRecoveryFixedAmt
 			STA $00
 		else
-			if !Setting_PlayerHP_MushroomToItemBox == 0
-				REP #$20
-			endif
+			REP #$20
 			LDA.w #!Setting_PlayerHP_MidwayRecoveryFixedAmt
 			STA $00
 			SEP #$20
