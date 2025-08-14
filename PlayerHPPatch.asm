@@ -942,7 +942,7 @@ endif
 	
 	.Survive
 	LDA.b #!Setting_PlayerHP_InvulnerabilityTmrMostDamages			;\From $00D140 (jumped from $00C599 as player animation trigger)(smw activates the invulnerability
-	STA $1497						;/during the powerdown code, not during the hurt subroutine besides losing cape flight.
+	STA $1497|!addr						;/during the powerdown code, not during the hurt subroutine besides losing cape flight.
 	if !Setting_PlayerHP_LosePowerupOnDamage != 0
 		LDA #$01					;\lose powerup
 		STA $19						;/
@@ -1194,30 +1194,55 @@ endif
 	;subtract HP to below zero.
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	SubtractPlayerHP:
-	if !Setting_PlayerHP_RollingHP == 0
-		if !Setting_PlayerHP_TwoByte == 0
-			LDA !Freeram_PlayerHP_CurrentHP		;\Health - damage
-			SEC					;|
-			SBC $00					;/
-			BCS .NotPastZero			;>If value didn't subtract by larger value, go write HP.
-			
-			.PastZero
-			LDA #$00				;>Otherwise set HP to 0.
-			
-			.NotPastZero
-			STA !Freeram_PlayerHP_CurrentHP		;>Write HP value.
-		else
+	.DisplayDamage
+	if !Setting_PlayerHP_DisplayDamageTotal
+		LDA.b #!Setting_PlayerHP_DamageHeal_Duration
+		STA !Freeram_PlayerHP_DamageTotalTimerDisplay
+		if !Setting_PlayerHP_TwoByte != 0
 			REP #$20
-			LDA !Freeram_PlayerHP_CurrentHP
-			SEC
-			SBC $00
-			BCS .NotPastZero
+		endif
+		LDA !Freeram_PlayerHP_DamageTotalDisplay
+		CLC
+		ADC $00
+		BCS ..Overflow
+		if !Setting_PlayerHP_TwoByte != 0
+			CMP.w #(10**!Setting_PlayerHP_MaxDigits)-1
+		else
+			CMP.b #(10**!Setting_PlayerHP_MaxDigits)-1
+		endif
+		BCS ..Overflow
+		STA !Freeram_PlayerHP_DamageTotalDisplay
+		BRA ..Done
+		
+		..Overflow
+			LDA.b #(10**!Setting_PlayerHP_MaxDigits)-1
+			STA !Freeram_PlayerHP_DamageTotalDisplay
 			
-			.PastZero
-			LDA #$0000
-			
-			.NotPastZero
-			STA !Freeram_PlayerHP_CurrentHP
+		..Done
+		if !Setting_PlayerHP_TwoByte != 0
+			SEP #$20
+		endif
+	endif
+	.SubtractHealth
+	if !Setting_PlayerHP_RollingHP == 0
+		if !Setting_PlayerHP_TwoByte != 0
+			REP #$20
+		endif
+		LDA !Freeram_PlayerHP_CurrentHP		;\Health - damage
+		SEC					;|
+		SBC $00					;/
+		BCS .NotPastZero			;>If value didn't subtract by larger value, go write HP.
+		
+		.PastZero
+		if !Setting_PlayerHP_TwoByte != 0
+			LDA #$0000				;>Otherwise set HP to 0.
+		else
+			LDA #$00				;>Otherwise set HP to 0.
+		endif
+		
+		.NotPastZero
+		STA !Freeram_PlayerHP_CurrentHP		;>Write HP value.
+		if !Setting_PlayerHP_TwoByte != 0
 			SEP #$20
 		endif
 	else

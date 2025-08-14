@@ -28,7 +28,7 @@ macro WriteFixedDigitsToLayer3(TileLocation)
 	endif
 endmacro
 
-macro WriteTileAddress(TileLocation, PropLocation)
+macro WriteTileAddress(TileLocation, PropLocation, PropValue)
 	LDA.b #<TileLocation>
 	STA $00
 	LDA.b #<TileLocation>>>8
@@ -42,7 +42,7 @@ macro WriteTileAddress(TileLocation, PropLocation)
 		STA $04
 		LDA.b #<PropLocation>>>16
 		STA $05
-		LDA.b #!Setting_PlayerHP_CurrentAndMax_Level_Prop
+		LDA.b #<PropValue>
 		STA $06
 	endif
 endmacro
@@ -67,6 +67,14 @@ macro GetHealthDigits(ValueToDisplay)
 		STA $00
 		SEP #$20
 		%UberRoutine(SixteenBitHexDecDivision)
+	endif
+endmacro
+
+macro ConvertToRightAligned()
+	if !StatusbarFormat == $01
+		%UberRoutine(ConvertToRightAligned)
+	else
+		%UberRoutine(ConvertToRightAlignedFormat2)
 	endif
 endmacro
 
@@ -150,21 +158,17 @@ main:
 					%GetHealthDigits(!Freeram_PlayerHP_MaxHP)
 					%UberRoutine(SuppressLeadingZeroes)
 				endif
-				if !Setting_PlayerHP_ExcessDigitProt != 0
+				if !Setting_PlayerHP_ExcessDigitProt
 					CPX.b #(((!Setting_PlayerHP_MaxDigits*2)+1)+1)
 					BCS ..TooMuchChar
 				endif
 				if !Setting_PlayerHP_DigitsAlignLevel == 1
-					%WriteTileAddress(!Setting_PlayerHP_StringPos_Lvl_XYPos, !Setting_PlayerHP_StringPos_Lvl_XYPosProp)
+					%WriteTileAddress(!Setting_PlayerHP_StringPos_Lvl_XYPos, !Setting_PlayerHP_StringPos_Lvl_XYPosProp, !Setting_PlayerHP_CurrentAndMax_Level_Prop)
 				elseif !Setting_PlayerHP_DigitsAlignLevel == 2
-					%WriteTileAddress(!Setting_PlayerHP_StringPosRightAligned_Lvl_XYPos, !Setting_PlayerHP_StringPosRightAligned_Lvl_XYPosProp)
+					%WriteTileAddress(!Setting_PlayerHP_StringPosRightAligned_Lvl_XYPos, !Setting_PlayerHP_StringPosRightAligned_Lvl_XYPosProp, !Setting_PlayerHP_CurrentAndMax_Level_Prop)
 				endif
 				if !Setting_PlayerHP_DigitsAlignLevel == 2 ;Right-aligned
-					if !StatusbarFormat == $01
-						%UberRoutine(ConvertToRightAligned)
-					else
-						%UberRoutine(ConvertToRightAlignedFormat2)
-					endif
+					%ConvertToRightAligned()
 				endif
 				%WriteAlignedDigitsToLayer3()
 				
@@ -329,10 +333,91 @@ main:
 					endif
 				endif
 		endif
-	.WriteHPLoss
+	.ClearDamageRecover
+		if or(notequal(!Setting_PlayerHP_DisplayDamageTotal, 0), notequal(!Setting_PlayerHP_DisplayRecoveryTotal, 0))
+			LDX.b #((!Setting_PlayerHP_MaxDigits+1)-1)*!StatusbarFormat
+				;^Number of digits, plus the "-" and "+" symbol, making it 6 characters when !Setting_PlayerHP_MaxDigits == 5
+				; minus 1 because we include "index zero"
+			..Loop
+				...TileNumber
+					LDA.b #!StatusBarBlankTile
+					if !Setting_PlayerHP_DisplayDamageTotal == 1
+						STA !Setting_PlayerHP_DamageNumber_XYPos,x
+					elseif !Setting_PlayerHP_DisplayDamageTotal == 2
+						STA !Setting_PlayerHP_DamageNumber_RightAligned_XYPos-(!Setting_PlayerHP_MaxDigits+1-1),x
+					endif
+					if !Setting_PlayerHP_DisplayRecoveryTotal == 1
+						STA !Setting_PlayerHP_RecoverNumber_XYPos,x
+					elseif !Setting_PlayerHP_DisplayRecoveryTotal == 2
+						STA !Setting_PlayerHP_RecoverNumber_RightAligned_XYPos-(!Setting_PlayerHP_MaxDigits+1-1),x
+					endif
+				...TileProp
+					if !StatusBar_UsingCustomProperties
+						if !Setting_PlayerHP_DisplayDamageTotal != 0
+							LDA.b #!Setting_PlayerHP_DamageNumber_Prop
+						endif
+						if !Setting_PlayerHP_DisplayDamageTotal == 1
+							STA !Setting_PlayerHP_DamageNumber_XYPosProp,x
+						elseif !Setting_PlayerHP_DisplayDamageTotal == 2
+							STA !Setting_PlayerHP_DamageNumber_RightAligned_XYPosProp-(!Setting_PlayerHP_MaxDigits+1-1),x
+						endif
+						if !Setting_PlayerHP_DisplayRecoveryTotal != 0
+							LDA.b #!Setting_PlayerHP_RecoverNumber_Prop
+						endif
+						if !Setting_PlayerHP_DisplayRecoveryTotal == 1
+							STA !Setting_PlayerHP_RecoverNumber_XYPosProp,x
+						elseif !Setting_PlayerHP_DisplayRecoveryTotal == 2
+							STA !Setting_PlayerHP_RecoverNumber_RightAligned_XYPosProp-(!Setting_PlayerHP_MaxDigits+1-1),x
+						endif
+					endif
+				...Next
+					DEX #!StatusbarFormat
+					BPL ..Loop
+		endif
+	.WriteHPDamage
 		if !Setting_PlayerHP_DisplayDamageTotal
-			;asdf
-		
+			LDA !Freeram_PlayerHP_DamageTotalTimerDisplay
+			BEQ ..Done
+			..DecrementDisplayTimer
+				LDA $13
+				AND.b #%00000011
+				BNE ...No
+				LDA !Freeram_PlayerHP_DamageTotalTimerDisplay
+				DEC
+				STA !Freeram_PlayerHP_DamageTotalTimerDisplay
+				BNE ...SkipClear
+				LDA #$00
+				STA !Freeram_PlayerHP_DamageTotalDisplay
+				if !Setting_PlayerHP_TwoByte != 0
+					STA !Freeram_PlayerHP_DamageTotalDisplay+1
+				endif
+				BRA ..Done ;>Prevent "-0" for 1 frame when timer ends
+				...SkipClear
+				...No
+			%GetHealthDigits(!Freeram_PlayerHP_DamageTotalDisplay)
+			LDA.b #!StatusBarMinusSymbol
+			STA !Scratchram_CharacterTileTable
+			LDX #$01
+			%UberRoutine(SuppressLeadingZeroes)
+			if !Setting_PlayerHP_ExcessDigitProt
+				CMP.b #(!Setting_PlayerHP_MaxDigits+1+1)	;>Number of digits at max, plus the "-" symbol, plus one again because it is the first character beyond limits
+				BCS ..Done
+			endif
+			if !Setting_PlayerHP_DisplayDamageTotal == 1
+				%WriteTileAddress(!Setting_PlayerHP_DamageNumber_XYPos, !Setting_PlayerHP_DamageNumber_XYPosProp, !Setting_PlayerHP_DamageNumber_Prop)
+			elseif !Setting_PlayerHP_DisplayDamageTotal == 2
+				%WriteTileAddress(!Setting_PlayerHP_DamageNumber_RightAligned_XYPos, !Setting_PlayerHP_DamageNumber_RightAligned_XYPosProp, !Setting_PlayerHP_DamageNumber_Prop)
+			endif
+			if !Setting_PlayerHP_DisplayDamageTotal == 2
+				%ConvertToRightAligned()
+			endif
+			%WriteAlignedDigitsToLayer3()
+			
+			..Done
+		endif
+	.WriteHPRecover
+		if !Setting_PlayerHP_DisplayRecoveryTotal
+			
 		endif
 	RTL
 	

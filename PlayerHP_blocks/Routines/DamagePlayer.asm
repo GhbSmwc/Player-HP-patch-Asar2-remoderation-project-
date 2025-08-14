@@ -16,6 +16,35 @@ incsrc "../MotherHPDefines.asm"
 ;check invulnerability.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ?DamagePlayer:
+	if !Setting_PlayerHP_DisplayDamageTotal
+		?.DamageNumberDisplay
+		LDA.b #!Setting_PlayerHP_DamageHeal_Duration
+		STA !Freeram_PlayerHP_DamageTotalTimerDisplay
+		if !Setting_PlayerHP_TwoByte != 0
+			REP #$20
+		endif
+		LDA !Freeram_PlayerHP_DamageTotalDisplay
+		CLC
+		ADC $00
+		BCS ?..Overflow
+		if !Setting_PlayerHP_TwoByte != 0
+			CMP.w #(10**!Setting_PlayerHP_MaxDigits)-1
+		else
+			CMP.b #(10**!Setting_PlayerHP_MaxDigits)-1
+		endif
+		BCS ?..Overflow
+		STA !Freeram_PlayerHP_DamageTotalDisplay
+		BRA ?..Done
+		
+		?..Overflow
+			LDA.b #(10**!Setting_PlayerHP_MaxDigits)-1
+			STA !Freeram_PlayerHP_DamageTotalDisplay
+			
+		?..Done
+		if !Setting_PlayerHP_TwoByte != 0
+			SEP #$20
+		endif
+	endif
 	LDA $1407|!addr			;\If not flying
 	BEQ ?++				;/
 	JSL $00F5E2|!bank		;>Cancel soaring instead
