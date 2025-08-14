@@ -400,7 +400,7 @@ main:
 			LDX #$01
 			%UberRoutine(SuppressLeadingZeroes)
 			if !Setting_PlayerHP_ExcessDigitProt
-				CMP.b #(!Setting_PlayerHP_MaxDigits+1+1)	;>Number of digits at max, plus the "-" symbol, plus one again because it is the first character beyond limits
+				CPX.b #(!Setting_PlayerHP_MaxDigits+1+1)	;>Number of digits at max, plus the "-" symbol, plus one again because it is the first character beyond limits
 				BCS ..Done
 			endif
 			if !Setting_PlayerHP_DisplayDamageTotal == 1
