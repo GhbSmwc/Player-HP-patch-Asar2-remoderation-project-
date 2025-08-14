@@ -29,9 +29,9 @@ incsrc "../../../MotherHPDefines.asm"
 	WallFeet:
 	WallBody:
 	
-	JSL $03B664					;>Get player clipping (hitbox/clipping B)
+	JSL $03B664|!bank				;>Get player clipping (hitbox/clipping B)
 	%ItemSpriteHitbox()				;>Get item sprite hitbox
-	JSL $03B72B					;>Check collision
+	JSL $03B72B|!bank				;>Check collision
 	BCS +
 	RTL
 	+
@@ -71,6 +71,7 @@ incsrc "../../../MotherHPDefines.asm"
 	RTL
 	
 	ConsumeMushroom:
+	print "crashing              $",pc
 	if !Setting_PlayerHP_GrowFromSmallFailsafe != 0
 		LDA $19
 		BNE AlreadyBig
@@ -190,4 +191,4 @@ incsrc "../../../MotherHPDefines.asm"
 	Return:
 	RTL
 
-print "Mushroom that recovers the player's HP"
+;print "Mushroom that recovers the player's HP"
