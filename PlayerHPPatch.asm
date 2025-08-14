@@ -1213,7 +1213,11 @@ endif
 		BCC ..Write
 		
 		..Overflow
-			LDA.b #(10**!Setting_PlayerHP_MaxDigits)-1
+			if !Setting_PlayerHP_TwoByte != 0
+				LDA.w #(10**!Setting_PlayerHP_MaxDigits)-1
+			else
+				LDA.b #(10**!Setting_PlayerHP_MaxDigits)-1
+			endif
 		..Write
 			STA !Freeram_PlayerHP_DamageTotalDisplay
 		..Done
