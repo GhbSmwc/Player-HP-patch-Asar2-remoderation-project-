@@ -14,6 +14,7 @@ JMP TopCorner : JMP BodyInside : JMP HeadInside
 incsrc "../../../StatusBarDefines.asm"
 incsrc "../../../PlayerHPDefines.asm"
 incsrc "../../../MotherHPDefines.asm"
+incsrc "../../../GraphicalBarDefines.asm"
 
 	MarioBelow:
 	LDA #$20		;\Bounce player down to prevent multiple activations

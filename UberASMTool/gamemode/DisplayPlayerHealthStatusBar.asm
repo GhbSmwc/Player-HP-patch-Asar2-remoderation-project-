@@ -460,7 +460,6 @@ main:
 	
 	if !Setting_PlayerHP_DisplayBarLevel
 		SetGraphicalBarAttributesAndPercentage:
-			;$00~$01 = percentage
 			LDA !Freeram_PlayerHP_CurrentHP
 			STA !Scratchram_GraphicalBar_FillByteTbl
 			LDA !Freeram_PlayerHP_MaxHP
@@ -486,6 +485,7 @@ main:
 			elseif !Setting_PlayerHP_BarFillRoundDirection == 2
 				%UberRoutine(GraphicalBar_CalculatePercentageRoundUp)
 			endif
+			;$00~$01 = percentage
 			if !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull == 1
 				%UberRoutine(GraphicalBar_RoundAwayEmpty)
 			elseif !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull == 2

@@ -3,161 +3,41 @@ incsrc "../PlayerHPDefines.asm"
 incsrc "../MotherHPDefines.asm"
 incsrc "../GraphicalBarDefines.asm"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;Remove record effect.
-;;
+;This subroutine cancels out the graphical bar's damage/recovery display
+;
+;This is needed so that if your max HP changes, will not misleadingly
+;display that you have healed or taken damage (since the percentage changes
+;also if the denominator of the fraction changes. For example, having 10/10
+; (100%) HP, and when the player picks up a +10 max HP without affecting
+;his current HP, he would have 10/20 (50%) HP, and this can cause the
+;graphical bar's damage indicator to show.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	LDA !Freeram_PlayerHP_CurrentHP			;\Current HP
-	STA !Scratchram_GraphicalBar_FillByteTbl	;|
-	if !Setting_PlayerHP_TwoByte == 0		;|
-		LDA #$00				;|
-	else						;|
-		LDA !Freeram_PlayerHP_CurrentHP+1		;|
-	endif						;|
-	STA !Scratchram_GraphicalBar_FillByteTbl+1	;/
-	LDA !Freeram_PlayerHP_MaxHP			;\Max HP
-	STA !Scratchram_GraphicalBar_FillByteTbl+2	;|
-	if !Setting_PlayerHP_TwoByte == 0		;|
-		LDA #$00				;|
-	else						;|
-		LDA !Freeram_PlayerHP_MaxHP+1		;|
-	endif						;|
-	STA !Scratchram_GraphicalBar_FillByteTbl+3	;/
-	if !Setting_PlayerHP_GraphicalBar_LeftPieces == !Setting_PlayerHP_GraphicalBar_RightPieces		;\Number of pieces in each 8x8.
-		LDA.b #!Setting_PlayerHP_GraphicalBar_LeftPieces			;|
-		STA !Scratchram_GraphicalBar_LeftEndPiece	;|
-		STA !Scratchram_GraphicalBar_RightEndPiece	;|
-	else							;|
-		LDA.b #!Setting_PlayerHP_GraphicalBar_LeftPieces			;|
-		STA !Scratchram_GraphicalBar_LeftEndPiece	;|
-		LDA.b #!Setting_PlayerHP_GraphicalBar_RightPieces			;|
-		STA !Scratchram_GraphicalBar_RightEndPiece	;|
-	endif							;|
-	LDA.b #!Setting_PlayerHP_GraphicalBar_MiddlePieces				;|
-	STA !Scratchram_GraphicalBar_MiddlePiece		;/
-	LDA.b #!Setting_PlayerHP_GraphicalBarMiddleLengthLevel	;\number of middle 8x8s
-	STA !Scratchram_GraphicalBar_TempLength			;/
-	;JSR CalculateGraphicalBarPercentage
-	;RTL
-
-?CalculateGraphicalBarPercentage:
-?.FindTotalPieces
-?..FindTotalMiddle
-	LDA !Scratchram_GraphicalBar_MiddlePiece
-	STA $00
-	STZ $01
-	LDA !Scratchram_GraphicalBar_TempLength
-	STA $02
-	STZ $03
-	%MathMul16_16()				;MiddlePieceper8x8 * NumberOfMiddle8x8. Stored into $04-$07 (will read $04-$05 since number of pieces are 16bit, not 32)
-?..FindTotalEnds ;>2 8-bit pieces added together, should result a 16-bit number not exceeding $01FE (if $200 or higher, can cause overflow since carry is only 0 or 1, highest highbyte increase is 1).
-	STZ $01						;>Clear highbyte
-	LDA !Scratchram_GraphicalBar_LeftEndPiece	;\Lowbyte total
-	CLC						;|
-	ADC !Scratchram_GraphicalBar_RightEndPiece	;|
-	STA $00						;/
-	LDA $01						;\Handle high byte (if an 8-bit low byte number exceeds #$FF, the high byte will be #$01.
-	ADC #$00					;|$00-$01 should now hold the total fill pieces in the end bytes/8x8 tiles.
-	STA $01						;/
-?..FindGrandTotal
-	REP #$20
-	LDA $04						;>Total middle pieces
-	CLC
-	ADC $00						;>Plus total end
-?.TotalPiecesTimesQuantity
-	STA $00						;>Store grand total in input A of 32x32bit multiplication
-	STZ $02						;>Rid the highword (#$0000XXXX)
-	LDA !Scratchram_GraphicalBar_FillByteTbl	;\Store quantity
-	STA $04						;/
-	STZ $06						;>Rid the highword (#$0000XXXX)
-	SEP #$20
-	%MathMul16_16()					;>Multiply together. Results in $04-$07 (4 bytes; 32 bit).
-
-?.DivideByMaxQuantity
-	REP #$20
-	LDA $04						;\Store result into dividend (32 bit only, its never to exceed #$FFFFFFFF), highest it can go is #$FFFE0001
-	STA $00						;|
-	LDA $07						;|
-	STA $02						;/
-	LDA !Scratchram_GraphicalBar_FillByteTbl+2	;\Store MaxQuantity into divisor.
-	STA $04						;/
-	SEP #$20
-	%MathDiv32_16()					;>;[$00-$03 : Quotient, $04-$05 : Remainder], After this division, its impossible to be over #$FFFF.
-?..Rounding
-	REP #$20
-	LDA !Scratchram_GraphicalBar_FillByteTbl+2	;>Max Quantity
-	LSR						;>Divide by 2 (halfway point of max)..
-	BCC ?...ExactHalfPoint				;>Should a remainder in the carry is 0 (no remainder), don't round the 1/2 point
-	INC						;>Round the 1/2 point
-
-	?...ExactHalfPoint
-	CMP $04						;>Half of max compares with remainder
-	BEQ ?...RoundDivQuotient			;>If HalfPoint = Remainder, round upwards
-	BCS ?...NoRoundDivQuotient			;>If HalfPoint > remainder (or remainder is smaller), round down (if exactly full, this branch is taken).
-
-	?...RoundDivQuotient
-	;^this also gets branched to if the value is already an exact integer number of pieces (so if the
-	;quantity is 50 out of 100, and a bar of 62, it would be perfectly at 31 [(50*62)/100 = 31]
-	LDA $00						;\Round up an integer
-	INC						;/
-	STA $08						;>move towards $08 because 16bit*16bit multiplication uses $00 to $07
-
-	;check should this rounded value made a full bar when it is actually not:
-	
-	?....RoundingUpTowardsFullCheck
-	;Just as a side note, should the bar be EXACTLY full (so 62/62 and NOT 61.9/62, it guarantees
-	;that the remainder is 0, so thus, no rounding is needed.) This is due to the fact that
-	;[Quantity * FullAmount / MaxQuantity] when Quantity and MaxQuantity are the same number,
-	;thus, canceling each other out (so 62 divide by 62 = 1) and left with FullAmount (the
-	;number of pieces in the bar)
-	
-	;Get the full number of pieces
-	LDA !Scratchram_GraphicalBar_MiddlePiece	;\Get amount of pieces in middle
-	AND #$00FF					;|
-	STA $00						;|
-	LDA !Scratchram_GraphicalBar_TempLength		;|
-	AND #$00FF					;|
-	STA $02						;/
-	SEP #$20
-	%MathMul16_16()					;>[$04-$07: Product]
-	LDY #$00					;>Default that the meter didn't round towards empty/full (cannot be before the above subroutine since it overwrites Y).
-
-	;add the 2 ends tiles amount (both are 8-bit, but results 16-bit)
-	
-	;NOTE: should the fill amount be exactly full OR greater, Y will be #$00.
-	;This is so that greater than full is 100% treated as exactly full.
-	LDA #$00					;\A = $YYXX, (initially YY is $00)
-	XBA						;/
-	LDA !Scratchram_GraphicalBar_LeftEndPiece	;\get total pieces
-	CLC						;|\carry is set should overflow happens (#$FF -> #$00)
-	ADC !Scratchram_GraphicalBar_RightEndPiece	;//
-	XBA						;>A = $XXYY
-	ADC #$00					;>should that overflow happen, increase the A's upper byte (the YY) by 1 ($01XX)
-	XBA						;>A = $YYXX, addition maximum shouldn't go higher than $01FE. A = 16-bit total ends pieces
-	REP #$20
-	CLC						;\plus middle pieces = full amount
-	ADC $04						;/
-	CMP $08						;>compare with rounded fill amount
-	BNE ?.....TransferFillAmtBack			;\should the rounded up fill matches with the full value, flag that
-	LDY #$02					;/it had rounded to full.
-
-	?.....TransferFillAmtBack
-	LDA $08						;\move the fill amount back to $00.
-	STA $00						;/
-	BRA ?.Done
-	
-	?...NoRoundDivQuotient
-	?....RoundingDownTowardsEmptyCheck
-	LDY #$00					;>Default that the meter didn't round towards empty/full.
-	LDA $00						;\if the rounded down (result from fraction part is less than .5) quotient value ISN't zero,
-	BNE ?.Done					;/(exactly 1 piece filled or more) don't even consider setting Y to #$01.
-	LDA $04						;\if BOTH rounded down quotient and the remainder are zero, the bar is TRUELY completely empty
-	BEQ ?.Done					;/and don't set Y to #$01.
-	
-	LDY #$01					;>indicate that the value was rounded down towards empty
-	
-	?.Done
-	SEP #$20
-	
+	LDA !Freeram_PlayerHP_CurrentHP
+	STA !Scratchram_GraphicalBar_FillByteTbl
+	LDA !Freeram_PlayerHP_MaxHP
+	STA !Scratchram_GraphicalBar_FillByteTbl+2
+	if !Setting_PlayerHP_TwoByte != 0
+		LDA !Freeram_PlayerHP_CurrentHP+1
+		STA !Scratchram_GraphicalBar_FillByteTbl+1
+		LDA !Freeram_PlayerHP_MaxHP+1
+		STA !Scratchram_GraphicalBar_FillByteTbl+3
+	endif
+	LDA.b #!Setting_PlayerHP_GraphicalBar_LeftPieces		;\Left end normally have 3 pieces.
+	STA !Scratchram_GraphicalBar_LeftEndPiece			;/
+	LDA.b #!Setting_PlayerHP_GraphicalBar_MiddlePieces		;\Number of pieces in each middle byte/8x8 tile
+	STA !Scratchram_GraphicalBar_MiddlePiece			;/
+	LDA.b #!Setting_PlayerHP_GraphicalBar_RightPieces		;\Right end
+	STA !Scratchram_GraphicalBar_RightEndPiece			;/
+	LDA.b #!Setting_PlayerHP_GraphicalBarMiddleLengthLevel		;\length (number of middle tiles)
+	STA !Scratchram_GraphicalBar_TempLength				;/
+	if !Setting_PlayerHP_BarFillRoundDirection == 0
+		%GraphicalBar_CalculatePercentage()
+	elseif !Setting_PlayerHP_BarFillRoundDirection == 1
+		%GraphicalBar_CalculatePercentageRoundDown()
+	elseif !Setting_PlayerHP_BarFillRoundDirection == 2
+		%GraphicalBar_CalculatePercentageRoundUp()
+	endif
+	;$00~$01 = percentage
 	if !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull == 1
 		%GraphicalBar_RoundAwayEmpty()
 	elseif !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull == 2
@@ -165,8 +45,6 @@ incsrc "../GraphicalBarDefines.asm"
 	elseif !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull == 3
 		%GraphicalBar_RoundAwayEmptyFull()
 	endif
-	
-	;Set record to current HP percentage
 	LDA $00
 	STA !Freeram_PlayerHP_BarRecord
 	RTL

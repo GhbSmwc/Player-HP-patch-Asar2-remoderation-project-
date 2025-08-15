@@ -59,7 +59,7 @@ incsrc "MaxHPUpgradeDef/HPUpgradeDef.asm"
 		else
 			LDA !Freeram_PlayerHP_MaxHP
 			CLC
-			ADC MaxHPUpgradeBit0IncreaseList,x
+			ADC MaxHPUpgradeBit3IncreaseList,x
 		endif
 		BCS .AboveTrueMax					;>When unsigned overflow occurs, the carry bit is set, so this prevents max HP from overflowing.
 		CMP.b #!Setting_PlayerHP_TrueMaximumHPAndDamageValue
@@ -74,7 +74,7 @@ incsrc "MaxHPUpgradeDef/HPUpgradeDef.asm"
 			TAX						;/
 			LDA !Freeram_PlayerHP_MaxHP
 			CLC
-			ADC MaxHPUpgradeBit0IncreaseList,x
+			ADC MaxHPUpgradeBit3IncreaseList,x
 		endif
 		BCS .AboveTrueMax					;>When unsigned overflow occurs, the carry bit is set, so this prevents max HP from overflowing.
 		CMP.w #!Setting_PlayerHP_TrueMaximumHPAndDamageValue
