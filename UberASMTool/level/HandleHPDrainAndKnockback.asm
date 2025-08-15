@@ -1,4 +1,4 @@
-;Run this as "level"
+;Run this as "level" on any level number.
 
 incsrc "../StatusBarDefines.asm"
 incsrc "../GraphicalBarDefines.asm"

@@ -1,3 +1,5 @@
+;Insert this as gamemode $0C
+;
 ;This prevents Mario from being small mario whenever the player boots up the game
 ;and when continuing after a game over.
 init:

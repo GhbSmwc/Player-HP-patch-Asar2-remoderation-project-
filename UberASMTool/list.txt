@@ -1,4 +1,5 @@
 gamemode:
+		07	ClearDamageAndRecoveryNumbers.asm ;>Remove these if you have both damage numbers and recovery numbers turned off (!Setting_PlayerHP_DisplayDamageTotal and !Setting_PlayerHP_DisplayRecoveryTotal set to 0).
 	;Why these under gamemode instead of levels and overworld?
 	;it's because levels and overworld code only run when they
 	;are fully loaded, this means the meters will abruptly
@@ -12,9 +13,10 @@ gamemode:
 
 level:
 *	HandleHPDrainAndKnockback.asm, RememberHPUpgradePickupState.asm
-;^This handles HP going down (rolling effect when enabled) after enemy damages the player, as well as the knockback.
-; The second one prevents upgrade blocks from respawning in the level when the player leaves and re-enter the level
+		;^This handles HP going down (rolling effect when enabled) after enemy damages the player, as well as the knockback.
+		; The second one prevents upgrade blocks from respawning in the level when the player leaves and re-enter the level
 
 overworld:
 *	RestoreHealthAfterDeath.asm
-		;^This makes sure that on the map, the player cannot have 0HP, and be Small Mario
+		;^This makes sure that on the map, the player cannot have 0HP, and be Small Mario,
+		; also if having Mother HP system enabled, this resets the gradual HP change effects.

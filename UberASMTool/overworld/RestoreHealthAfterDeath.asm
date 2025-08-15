@@ -2,7 +2,8 @@
 ;top screen flickering)).
 
 ;This restores HP when the player returns to the map, most of these
-;restores HP after the player dies.
+;restores HP after the player dies, and if you have MotherHP system
+;enabled, will clear out the gradual HP change effect.
 
 incsrc "../StatusBarDefines.asm"
 incsrc "../PlayerHPDefines.asm"
