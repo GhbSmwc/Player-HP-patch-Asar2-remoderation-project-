@@ -24,7 +24,7 @@ incsrc "MaxHPUpgradeDef/HPUpgradeDef.asm"
 	JSL $03B72B|!bank				;>Check collision
 	BCC Return
 	
-	%LevelListedIndex()							;\Get level indexing
+	%LevelListedIndex()							;\Get level indexing (X = which level sets to use)
 	BCS Return								;/
 	
 	LDA !Freeram_PlayerHP_MaxHPUpgradePickupFlag,x				;\Set flag to not respawn.
@@ -48,41 +48,49 @@ incsrc "MaxHPUpgradeDef/HPUpgradeDef.asm"
 		STA $1426|!addr				;/
 	endif
 	
-	if !HPUpgrade_VaryingIncrease == 0
-		if !Setting_PlayerHP_TwoByte == 0		;\Increase max health
-			LDA !Freeram_PlayerHP_MaxHP		;|
-			CLC					;|
-			ADC.b #!HPUpgrade_MaxIncreaseBy		;|
-			STA !Freeram_PlayerHP_MaxHP		;|
-			STA !Freeram_PlayerHP_CurrentHP		;|
-		else						;|
-			REP #$20				;|
-			LDA !Freeram_PlayerHP_MaxHP		;|
-			CLC					;|
-			ADC.w #!HPUpgrade_MaxIncreaseBy		;|
-			STA !Freeram_PlayerHP_MaxHP		;|
-			STA !Freeram_PlayerHP_CurrentHP		;|
-			SEP #$20				;/
+	if !Setting_PlayerHP_TwoByte
+		REP #$20
+	endif
+	if !Setting_PlayerHP_TwoByte == 0
+		if !HPUpgrade_VaryingIncrease == 0
+			LDA !Freeram_PlayerHP_MaxHP
+			CLC
+			ADC.b #!HPUpgrade_MaxIncreaseBy
+		else
+			LDA !Freeram_PlayerHP_MaxHP
+			CLC
+			ADC MaxHPUpgradeBit0IncreaseList,x
 		endif
+		BCS .AboveTrueMax					;>When unsigned overflow occurs, the carry bit is set, so this prevents max HP from overflowing.
+		CMP.b #!Setting_PlayerHP_TrueMaximumHPAndDamageValue
 	else
-		if !Setting_PlayerHP_TwoByte == 0		;\Increase max health
-			LDA !Freeram_PlayerHP_MaxHP		;|
-			CLC					;|
-			ADC MaxHPUpgradeBit0IncreaseList,x	;|
-			STA !Freeram_PlayerHP_MaxHP		;|
-			STA !Freeram_PlayerHP_CurrentHP		;|
-		else						;|
-			TXA					;|
-			ASL					;|
-			TAX					;|
-			REP #$20				;|
-			LDA !Freeram_PlayerHP_MaxHP		;|
-			CLC					;|
-			ADC MaxHPUpgradeBit0IncreaseList,x	;|
-			STA !Freeram_PlayerHP_MaxHP		;|
-			STA !Freeram_PlayerHP_CurrentHP		;|
-			SEP #$20				;/
+		if !HPUpgrade_VaryingIncrease == 0
+			LDA !Freeram_PlayerHP_MaxHP
+			CLC
+			ADC.w #!HPUpgrade_MaxIncreaseBy
+		else
+			TXA						;\Double the index because each entry are 2 byte addresses long
+			ASL						;|
+			TAX						;/
+			LDA !Freeram_PlayerHP_MaxHP
+			CLC
+			ADC MaxHPUpgradeBit0IncreaseList,x
 		endif
+		BCS .AboveTrueMax					;>When unsigned overflow occurs, the carry bit is set, so this prevents max HP from overflowing.
+		CMP.w #!Setting_PlayerHP_TrueMaximumHPAndDamageValue
+	endif
+	BCC .SetNewMaxHP						;>If between [9, 99, 999, 9999] and [255, 65535], also cap the max HP
+	.AboveTrueMax
+		if !Setting_PlayerHP_TwoByte == 0
+			LDA.b #!Setting_PlayerHP_TrueMaximumHPAndDamageValue
+		else
+			LDA.w #!Setting_PlayerHP_TrueMaximumHPAndDamageValue
+		endif
+	.SetNewMaxHP
+		STA !Freeram_PlayerHP_MaxHP				;>Set max HP to the increased value
+		STA !Freeram_PlayerHP_CurrentHP				;>Fully restore to new max HP
+	if !Setting_PlayerHP_TwoByte
+		SEP #$20
 	endif
 	if and(notequal(!Setting_PlayerHP_BarAnimation, 0), notequal(!Setting_PlayerHP_BarChangeDelay, 0))
 		LDA.b #!Setting_PlayerHP_BarChangeDelay
