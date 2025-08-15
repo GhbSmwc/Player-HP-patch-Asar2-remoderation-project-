@@ -1,7 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Unlike the "%give_points()" already given on GPS, that only gives 10 points without
-;;displaying the score sprite. Attempting to use "JSL $02ACE5" is dangerous as the
-;;code itself uses sprite tables. This one displays the score sprite as if the
+;;displaying the score sprite. Attempting to use "JSL $02ACE5|!bank" is dangerous as
+;;the code itself uses sprite tables. This one displays the score sprite as if the
 ;;player kills a sprite. Inspired by code located at $02ACEF to $02ACF6 and
 ;;$02AD34 to $02AD4B.
 ;;

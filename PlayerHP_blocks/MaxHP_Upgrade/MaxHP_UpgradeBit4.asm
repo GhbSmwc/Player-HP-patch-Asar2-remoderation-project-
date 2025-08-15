@@ -19,9 +19,9 @@ incsrc "MaxHPUpgradeDef/HPUpgradeDef.asm"
 	BodyInside:
 	HeadInside:
 	
-	JSL $03B664					;>Get player clipping (hitbox/clipping B)
+	JSL $03B664|!bank				;>Get player clipping (hitbox/clipping B)
 	%ItemSpriteHitbox()				;>Get item sprite hitbox
-	JSL $03B72B					;>Check collision
+	JSL $03B72B|!bank				;>Check collision
 	BCC Return
 
 	%LevelListedIndex()							;\Get level indexing
