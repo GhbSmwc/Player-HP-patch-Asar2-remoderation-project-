@@ -287,11 +287,12 @@ Things to do:
   rounding towards full detection if the user sets to use the SNES math only on a sa-1 hack.
 2025-08-10 - 4.2 ASM section remoderation update
  -Made changes that no longer uses asar's depreciated features.
+ -Made use of the newer versions of my graphical bar and status bar tutorials' routines.
  -Updated uberasm tool codes so that they utilizes its new routines system.
  -Define files are now separated due to the routines used can have more uses beyond displaying the
   player's health.
  -Improved the slash graphic for the overworld border when displaying numerical HP values with max HP
-  display enabled
+  display enabled.
  -Readme changes:
  --now lets you easily copy codes via CTRL+double-click to select.
  --Removed depreciated HTML elements ("tt" tag are now replaced with "kbd")
