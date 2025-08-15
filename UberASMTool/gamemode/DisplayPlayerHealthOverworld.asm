@@ -211,7 +211,13 @@ main:
 			STA !Scratchram_GraphicalBar_RightEndPiece			;/
 			LDA.b #!Setting_PlayerHP_GraphicalBarMiddleLengthOverworld	;\length (number of middle tiles)
 			STA !Scratchram_GraphicalBar_TempLength				;/
-			%UberRoutine(GraphicalBar_CalculatePercentage)
+			if !Setting_PlayerHP_BarFillRoundDirection == 0
+				%UberRoutine(GraphicalBar_CalculatePercentage)
+			elseif !Setting_PlayerHP_BarFillRoundDirection == 1
+				%UberRoutine(GraphicalBar_CalculatePercentageRoundDown)
+			elseif !Setting_PlayerHP_BarFillRoundDirection == 2
+				%UberRoutine(GraphicalBar_CalculatePercentageRoundUp)
+			endif
 			if !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull == 1
 				%UberRoutine(GraphicalBar_RoundAwayEmpty)
 			elseif !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull == 2

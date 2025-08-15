@@ -336,6 +336,11 @@ endif
 						; 1 = display 1 pixel or piece filled when low on HP and only 0 if HP is 0.
 						; 2 = display MaxPieces-1 when nearly full.
 						; 3 = Display 1 piece or MaxPieces-1 if close to 0 or MaxPieces.
+				;Rounding the amount of fill settings:
+					!Setting_PlayerHP_BarFillRoundDirection = 0
+						; 0 = Round to nearest
+						; 1 = Round down (bar may display 0 fill amount when !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull isn't 1 or 3)
+						; 2 = Round up
 
 			;Level display
 				!Setting_PlayerHP_DisplayBarLevel = 1

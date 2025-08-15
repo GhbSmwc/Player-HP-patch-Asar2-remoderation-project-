@@ -471,15 +471,21 @@ main:
 				LDA !Freeram_PlayerHP_MaxHP+1
 				STA !Scratchram_GraphicalBar_FillByteTbl+3
 			endif
-			LDA.b #!Setting_PlayerHP_GraphicalBar_LeftPieces				;\Left end normally have 3 pieces.
+			LDA.b #!Setting_PlayerHP_GraphicalBar_LeftPieces	;\Left end normally have 3 pieces.
 			STA !Scratchram_GraphicalBar_LeftEndPiece		;/
-			LDA.b #!Setting_PlayerHP_GraphicalBar_MiddlePieces				;\Number of pieces in each middle byte/8x8 tile
+			LDA.b #!Setting_PlayerHP_GraphicalBar_MiddlePieces	;\Number of pieces in each middle byte/8x8 tile
 			STA !Scratchram_GraphicalBar_MiddlePiece		;/
-			LDA.b #!Setting_PlayerHP_GraphicalBar_RightPieces				;\Right end
+			LDA.b #!Setting_PlayerHP_GraphicalBar_RightPieces	;\Right end
 			STA !Scratchram_GraphicalBar_RightEndPiece		;/
 			LDA.b #!Setting_PlayerHP_GraphicalBarMiddleLengthLevel	;\length (number of middle tiles)
 			STA !Scratchram_GraphicalBar_TempLength			;/
-			%UberRoutine(GraphicalBar_CalculatePercentage)
+			if !Setting_PlayerHP_BarFillRoundDirection == 0
+				%UberRoutine(GraphicalBar_CalculatePercentage)
+			elseif !Setting_PlayerHP_BarFillRoundDirection == 1
+				%UberRoutine(GraphicalBar_CalculatePercentageRoundDown)
+			elseif !Setting_PlayerHP_BarFillRoundDirection == 2
+				%UberRoutine(GraphicalBar_CalculatePercentageRoundUp)
+			endif
 			if !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull == 1
 				%UberRoutine(GraphicalBar_RoundAwayEmpty)
 			elseif !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull == 2
