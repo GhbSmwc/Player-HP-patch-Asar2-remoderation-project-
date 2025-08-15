@@ -268,7 +268,7 @@ main:
 		%UberRoutine(SubtractPlayerHPNonRoll)		;>Of course, both the filename and the label to jump to is required in uberasm tool's library (avoid having the same name).
 		LDA !Freeram_PlayerHP_CurrentHP			;\Kill player on 0HP
 		if !Setting_PlayerHP_TwoByte != 0		;|
-			ORA !Freeram_PlayerHP_CurrentHP		;|
+			ORA !Freeram_PlayerHP_CurrentHP+1	;|
 		endif						;|
 		BNE ..ClearSlowHPChange				;/
 		

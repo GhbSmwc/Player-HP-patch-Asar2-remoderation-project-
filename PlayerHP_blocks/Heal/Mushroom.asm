@@ -4,8 +4,13 @@
 ;1 = heal as percentage of max HP.
 	!Setting_PlayerHP_BlockMushroomRecoveryType = 1
 
+;Recover HP by fixed amount. Used when
+;!Setting_PlayerHP_BlockMushroomRecoveryType == 0
+	!Setting_PlayerHP_BlockMushroomRecoveryFixedAmount = 5
+
 ;Recover HP by Dividend/Divisor of max HP (rounded
-;to nearest integer but not to zero).
+;to nearest integer but not to zero). Used when
+;!Setting_PlayerHP_BlockMushroomRecoveryType == 1.
 	!Setting_PlayerHP_BlockMushroomRecoveryDividend = 2
 	!Setting_PlayerHP_BlockMushroomRecoveryDivisor = 5
 
@@ -86,11 +91,11 @@ incsrc "../../../MotherHPDefines.asm"
 	endif
 	if !Setting_PlayerHP_BlockMushroomRecoveryType == 0
 		if !Setting_PlayerHP_TwoByte == 0
-			LDA.b #!Setting_PlayerHP_MidwayRecoveryFixedAmt
+			LDA.b #!Setting_PlayerHP_BlockMushroomRecoveryFixedAmount
 			STA $00
 		else
 			REP #$20
-			LDA.w #!Setting_PlayerHP_MidwayRecoveryFixedAmt
+			LDA.w #!Setting_PlayerHP_BlockMushroomRecoveryFixedAmount
 			STA $00
 			SEP #$20
 		endif

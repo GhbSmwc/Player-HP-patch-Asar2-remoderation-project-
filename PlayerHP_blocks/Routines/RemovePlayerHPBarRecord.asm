@@ -70,29 +70,13 @@ incsrc "../GraphicalBarDefines.asm"
 	STA $04						;/
 	STZ $06						;>Rid the highword (#$0000XXXX)
 	SEP #$20
-	%MathMul32_32()					;>Multiply together. Results in $08-$0F (8 bytes; 64 bit).
-
-	;Okay, the reason why I use the 32x32 bit multiplication is because
-	;it is very easy to exceed the value of #$FFFF (65535) should you
-	;have a number of pieces in the bar (long bar, or large number per
-	;byte).
-	
-	;Also, you may see "duplicate" routines with the only difference is
-	;that they are different number of bytes for the size of values to
-	;handle, they are included and used because some of my code preserves
-	;them and are not to be overwritten by those routines, so a smaller
-	;version is needed, and plus, its faster to avoid using unnecessarily
-	;large values when they normally can't reach that far.
-	
-	;And finally, I don't directly use SA-1's multiplication and division
-	;registers outside of routines here, because they are signed. The
-	;amount of fill are unsigned.
+	%MathMul16_16()					;>Multiply together. Results in $04-$07 (4 bytes; 32 bit).
 
 ?.DivideByMaxQuantity
 	REP #$20
-	LDA $08						;\Store result into dividend (32 bit only, its never to exceed #$FFFFFFFF), highest it can go is #$FFFE0001
+	LDA $04						;\Store result into dividend (32 bit only, its never to exceed #$FFFFFFFF), highest it can go is #$FFFE0001
 	STA $00						;|
-	LDA $0A						;|
+	LDA $07						;|
 	STA $02						;/
 	LDA !Scratchram_GraphicalBar_FillByteTbl+2	;\Store MaxQuantity into divisor.
 	STA $04						;/
@@ -175,11 +159,11 @@ incsrc "../GraphicalBarDefines.asm"
 	SEP #$20
 	
 	if !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull == 1
-		%UberRoutine(GraphicalBar_RoundAwayEmpty)
+		%GraphicalBar_RoundAwayEmpty()
 	elseif !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull == 2
-		%UberRoutine(GraphicalBar_RoundAwayFull)
+		%GraphicalBar_RoundAwayFull()
 	elseif !Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull == 3
-		%UberRoutine(GraphicalBar_RoundAwayEmptyFull)
+		%GraphicalBar_RoundAwayEmptyFull()
 	endif
 	
 	;Set record to current HP percentage
