@@ -344,12 +344,12 @@ main:
 					if !Setting_PlayerHP_DisplayDamageTotal == 1
 						STA !Setting_PlayerHP_DamageNumber_XYPos,x
 					elseif !Setting_PlayerHP_DisplayDamageTotal == 2
-						STA !Setting_PlayerHP_DamageNumber_RightAligned_XYPos-(!Setting_PlayerHP_MaxDigits+1-1),x
+						STA !Setting_PlayerHP_DamageNumber_RightAligned_XYPos-((!Setting_PlayerHP_MaxDigits+1-1)*!StatusbarFormat),x
 					endif
 					if !Setting_PlayerHP_DisplayRecoveryTotal == 1
 						STA !Setting_PlayerHP_RecoverNumber_XYPos,x
 					elseif !Setting_PlayerHP_DisplayRecoveryTotal == 2
-						STA !Setting_PlayerHP_RecoverNumber_RightAligned_XYPos-(!Setting_PlayerHP_MaxDigits+1-1),x
+						STA !Setting_PlayerHP_RecoverNumber_RightAligned_XYPos-((!Setting_PlayerHP_MaxDigits+1-1)*!StatusbarFormat),x
 					endif
 				...TileProp
 					if !StatusBar_UsingCustomProperties
@@ -359,7 +359,7 @@ main:
 						if !Setting_PlayerHP_DisplayDamageTotal == 1
 							STA !Setting_PlayerHP_DamageNumber_XYPosProp,x
 						elseif !Setting_PlayerHP_DisplayDamageTotal == 2
-							STA !Setting_PlayerHP_DamageNumber_RightAligned_XYPosProp-(!Setting_PlayerHP_MaxDigits+1-1),x
+							STA !Setting_PlayerHP_DamageNumber_RightAligned_XYPosProp-((!Setting_PlayerHP_MaxDigits+1-1)*!StatusbarFormat),x
 						endif
 						if !Setting_PlayerHP_DisplayRecoveryTotal != 0
 							LDA.b #!Setting_PlayerHP_RecoverNumber_Prop
@@ -367,7 +367,7 @@ main:
 						if !Setting_PlayerHP_DisplayRecoveryTotal == 1
 							STA !Setting_PlayerHP_RecoverNumber_XYPosProp,x
 						elseif !Setting_PlayerHP_DisplayRecoveryTotal == 2
-							STA !Setting_PlayerHP_RecoverNumber_RightAligned_XYPosProp-(!Setting_PlayerHP_MaxDigits+1-1),x
+							STA !Setting_PlayerHP_RecoverNumber_RightAligned_XYPosProp-((!Setting_PlayerHP_MaxDigits+1-1)*!StatusbarFormat),x
 						endif
 					endif
 				...Next
