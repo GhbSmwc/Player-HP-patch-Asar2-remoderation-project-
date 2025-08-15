@@ -294,8 +294,6 @@ freecode
 		endif
 		;Rounding to nearest integer
 		
-		;;math round off
-		
 		.Round
 		REP #$20
 		LDA.w #round(!Setting_PlayerHP_MushroomRecoveryDivisor/2, 0)	;\If HalfDivisor > Remainder (remainder smaller), don't round quotient.

@@ -11,11 +11,18 @@
 ;to prevent frustration that the player can get hit by enemies while
 ;lava bouncing (which those stun the player when knockback is enabled.)
 
-;Damage when touching the block.
+;Damage type: 0 = fixed amount (uses !Sm64LavaDamage), 1 = proportion
+;of max HP.
+	!Sm64DamageType = 0
+;Damage when touching the block, only used  when !Sm64DamageType == 0.
 	!Sm64LavaDamage			= 10
+;Proportion of max HP damage when touching the block, only used when
+;!Sm64DamageType == 1
+	!SM64DamageDividend	= 2
+	!SM64DamageDivisor	= 5
 
-;Knockback speeds (note that these speeds is always applied even if you disabled it beforehand),
-;it will not utilize the stun timer.
+;Knockback speeds (note that these speeds is always applied even if
+;you disabled it beforehand), it will not utilize the stun timer.
 	!Sm64LavaKnockUpSpd		= $B0 ;>$80 to $FF (the top of the block)
 	!Sm64LavaKnockDownSpd		= $30 ;>$01 to $7F (the bottom of the block)
 	!Sm64LavaKnockHorizXSpd		= $20 ;>$01 to $7F (both left and right calculated).
@@ -39,15 +46,7 @@ incsrc "../../../MotherHPDefines.asm"
 	BNE AboveReturn				;/
 	
 	STZ $1407|!addr				;>Cancel cape flying (always damage with no exceptions)
-	if !Setting_PlayerHP_TwoByte == 0
-		LDA.b #!Sm64LavaDamage
-		STA $00
-	else
-		REP #$20
-		LDA.w #!Sm64LavaDamage
-		STA $00
-		SEP #$20
-	endif
+	JSR GetDamageAmount
 	%DamagePlayer()				;>damage player
 	
 	LDA $71					;\Don't apply knockback on death.
@@ -91,15 +90,7 @@ incsrc "../../../MotherHPDefines.asm"
 	PHA					;>Push A.
 	
 	STZ $1407|!addr				;>Cancel cape flying (always damage with no exceptions)
-	if !Setting_PlayerHP_TwoByte == 0
-		LDA.b #!Sm64LavaDamage
-		STA $00
-	else
-		REP #$20
-		LDA.w #!Sm64LavaDamage
-		STA $00
-		SEP #$20
-	endif
+	JSR GetDamageAmount
 	%DamagePlayer()				;>damage player
 	PLX					;>Pull A as X
 	LDA $71					;\Don't apply knockback on death.
@@ -129,15 +120,7 @@ incsrc "../../../MotherHPDefines.asm"
 	BNE BelowReturn				;/
 	
 	STZ $1407|!addr				;>Cancel cape flying (always damage with no exceptions)
-	if !Setting_PlayerHP_TwoByte == 0
-		LDA.b #!Sm64LavaDamage
-		STA $00
-	else
-		REP #$20
-		LDA.w #!Sm64LavaDamage
-		STA $00
-		SEP #$20
-	endif
+	JSR GetDamageAmount
 	%DamagePlayer()				;>damage player
 	
 	LDA $71					;\Don't apply knockback on death.
@@ -174,6 +157,102 @@ incsrc "../../../MotherHPDefines.asm"
 	WallFeet:
 	WallBody:
 	RTL
+	GetDamageAmount:
+		if !Sm64DamageType == 0
+			if !Setting_PlayerHP_TwoByte == 0
+				LDA.b #!Sm64LavaDamage
+				STA $00
+			else
+				REP #$20
+				LDA.w #!Sm64LavaDamage
+				STA $00
+				SEP #$20
+			endif
+		else
+		;Damage = MaxHP*Dividend/Divisor  ;>if Dividend is > 1
+		;Damage = MaxHP/Divisor           ;>if Dividend is = 1
+			if !Setting_PlayerHP_TwoByte == 0
+				LDA !Freeram_PlayerHP_MaxHP
+				if !SM64DamageDividend > 1
+					STA $00							;\MaxHP...
+					STZ $01							;/
+					REP #$20						;\...Times dividend
+					LDA.w #!SM64DamageDividend				;|
+					STA $02							;|
+					SEP #$20						;|
+					PHY							;|
+					%MathMul16_16()						;|
+					PLY							;/
+					REP #$20
+					LDA $04							;\Product...
+					STA $00							;|
+					LDA $06							;|
+					STA $02							;/
+				else
+					STA $00
+					STZ $01
+					STZ $02
+					STZ $03
+				endif
+				REP #$20						;\...divide by divisor
+				LDA.w #!SM64DamageDivisor				;|
+				STA $04							;|
+				SEP #$20						;|
+				PHY							;|
+				%MathDiv32_16()						;/;>$00 should be <= $FFFF
+				PLY
+			else
+				REP #$20
+				LDA !Freeram_PlayerHP_MaxHP
+				if !SM64DamageDividend > 1
+					STA $00
+					LDA.w #!SM64DamageDividend
+					STA $02
+					SEP #$20
+					PHY
+					%MathMul16_16()
+					PLY
+					REP #$20
+					LDA $04
+					STA $00
+					LDA $06
+					STA $02
+				else
+					STA $00
+					STZ $02
+				endif
+				LDA.w #!SM64DamageDivisor
+				STA $04
+				SEP #$20
+				PHY
+				%MathDiv32_16() ;>$00 should be <= $FFFF
+				PLY
+			endif
+			;Rounding to nearest integer
+			
+			.Round
+			REP #$20
+			LDA.w #round(!SM64DamageDivisor/2, 0)				;\If HalfDivisor > Remainder (remainder smaller), don't round quotient.
+			CMP $04								;/
+			BEQ ..RoundQuotient						;>If =, round up
+			BCS ..NoRoundQuotient
+			
+			..RoundQuotient
+			INC $00
+			
+			..NoRoundQuotient
+			;Check if rounded down to zero:
+			.HealAtLeast1HP
+			LDA #$0001
+			CMP $00
+			BCC ..ValidHealing					;>if 1 < $00 (or $00 greater than 1), don't set $00 to 1.
+			STA $00
+			
+			..ValidHealing
+			SEP #$20
+		endif
+	
+	RTS
 	
 	AboveBlockYDisp:
 	;How many pixels up the player warps. First number (index #$00) is not riding yoshi, second number (index #$02)
