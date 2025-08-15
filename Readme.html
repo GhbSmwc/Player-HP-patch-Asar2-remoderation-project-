@@ -78,7 +78,8 @@ frame in the main patch, I rather have it all in the same hijack produced by ube
 patch that also runs all frames.)</a></li></li>
 <li><a href="https://www.smwcentral.net/?p=section&a=details&id=16031">Super Status Bar patch</a> (optional, but recommended any other status bar
 patches should also work, make sure you understand how they work, this includes knowing their tile data tables format (the tile properties, tile
-numbers, etc) as well as editing the status bar code included in this package.)</li>
+numbers, etc) as well as editing the status bar code included in this package.) Note defines settings in <kbd>StatusBarDefines.asm</kbd> for formats,
+tile property manipulation, and tile table addresses and in <kbd>PlayerHPDefines.asm</kbd> for HP HUD elements positioning assumes you are using this patch.</li>
 <li><a href="https://www.smwcentral.net/?p=section&a=details&id=14762">SRAM and BW-RAM Plus patch</a> To prevent uninitialized (garbage) HP values.</li>
 </ul>
 <h2>Notes</h2>
@@ -98,7 +99,7 @@ all up-to-date and reinsert. You'll be pasting the individual defines ASM files 
 need the player HP patch to function with.<br><br>
 
 Now you may be wondering why I have multiple separate define files and that some defines are not intuitively in some ASM text files. This is because this system uses a potentially general-purpose
-routines (the graphical bar and string-handling system) that can be used for anything other than player HP. Most stuff specific to the player HP system are in <kbd>PlayerHPDefines.asm</kbd>,
+routines (the graphical bar and string (text)-handling system) that can be used for anything other than player HP. Most stuff specific to the player HP system are in <kbd>PlayerHPDefines.asm</kbd>,
 while routines and other things such as freeram for graphical bar, number displays, string handling system, and tiles to use (such as the slash character) are in other defines.
 
 For uberasm tool, pixi, most other stuff, you place the copy of the define asm files in the same directory (or area) as the .exe, not in any of the subfolders.<br><br>

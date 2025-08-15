@@ -10,18 +10,18 @@ includeonce
 	!sa1 = 0
 	!gsu = 0
 	!bank = $800000			; Long address remap ($800000 - FastROM, $000000 - SA-1 ROM)
-if read1($00FFD6) == $15
-	sfxrom
-	!dp = $6000
-	!addr = !dp
-	!gsu = 1
-elseif read1($00FFD5) == $23
-	sa1rom
-	!dp = $3000
-	!addr = $6000
-	!sa1 = 1
-	!bank = $000000
-endif
+	if read1($00FFD6) == $15
+		sfxrom
+		!dp = $6000
+		!addr = !dp
+		!gsu = 1
+	elseif read1($00FFD5) == $23
+		sa1rom
+		!dp = $3000
+		!addr = $6000
+		!sa1 = 1
+		!bank = $000000
+	endif
 
 macro define_sprite_table(name, name2, addr, addr_sa1)
 if !sa1 == 0

@@ -70,124 +70,123 @@ endif
 ; 4001D5 Freeram_PlayerHP_MotherHPDelayDamageLast
 ; 
 
-;[BytesUsed = 1 + !Setting_PlayerHP_TwoByte]
-;Player current HP.
-	if !sa1 == 0
-		!Freeram_PlayerHP_CurrentHP		= $7FAD49 ;>Normal ROM version
-	else
-		!Freeram_PlayerHP_CurrentHP		= $4001B9 ;>SA-1 Version
-	endif
-;[BytesUsed = 1 + !Setting_PlayerHP_TwoByte]
-;Player max HP.
-	if !sa1 == 0
-		!Freeram_PlayerHP_MaxHP		= $7FAD4B
-	else
-		!Freeram_PlayerHP_MaxHP		= $4001BB
-	endif
-;[BytesUsed = !Setting_PlayerHP_BarAnimation]
-;A display that shows the amount of HP as a bar prior to taking damage
-;or healing. This shows how much HP lost or recovered only on levels and
-;never used on the overworld map (the player never takes damage or heal
-;during that game state).
-	if !sa1 == 0
-		!Freeram_PlayerHP_BarRecord	= $7FAD4D
-	else
-		!Freeram_PlayerHP_BarRecord	= $4001BD
-	endif
-;[BytesUsed = RecordTimerEnabled]
-;A timer that indicates how long the bar shows the previous HP prior
-;heal or damage before it moves towards the player's current HP.
-;RecordTimerEnabled = 1 if !Setting_PlayerHP_BarAnimation,
-;!Setting_PlayerHP_BarChangeDelay and !Setting_PlayerHP_DisplayBarLevel are
-;non-zero values and 0 otherwise.
-	if !sa1 == 0
-		!Freeram_Setting_PlayerHP_BarChangeDelayTmr	= $7FAD4E
-	else
-		!Freeram_Setting_PlayerHP_BarChangeDelayTmr	= $4001BE
-	endif
-;[BytesUsed = Setting_PlayerHP_Knockback]
-;Stun flag of the player getting knocked back. When nonzero, the
-;player is unable to move.
-; - If !Setting_PlayerHP_Knockback is set to 1, this acts as a frame
-;   timer that goes down by 1 each frame.
-; - If !Setting_PlayerHP_Knockback is set to 2, this stays at a
-;   nonzero value until the player touches the ground
-;!Setting_PlayerHP_Knockback = 1 if !Setting_PlayerHP_Knockback is nonzero
-;and 0 otherwise.
-	if !sa1 == 0
-		!Freeram_PlayerHP_Knockback	= $7FAD4F
-	else
-		!Freeram_PlayerHP_Knockback	= $4001BF
-	endif
-;[BytesUsed = !Setting_PlayerHP_GradualHPChange]
-; RAM value that slowly increments and decrements
-; the player's HP by that amount per frame. Positive
-; values (1 to 127 heals the player, while negative
-; values (-128 to -1 drains the player's HP)). Note
-; that you have to periodically  (at your own frequency)
-; set this to a nonzero for this to work. This exist
-; because custom blocks can have codes executed multiple
-; times a frame when multiple player collision points
-; touches the block. After changing the player's HP,
-; this reset itself to 0. Not to be confused with the
-; rolling HP that damage and healing will keep going
-; despite the player not taking hits or healing.
-	if !sa1 == 0
-		!Freeram_PlayerHP_GradualHPChange = $7FAD50
-	else
-		!Freeram_PlayerHP_GradualHPChange = $4001C0
-	endif
-;[BytesUsed = NumberOfLevelsThatUsesMaxHPUpgradeBlocks]
-;A RAM table containing pickup flags to prevent the
-;HP upgrade blocks from re-spawning after they are picked up.
-;
-;Format: each level that do uses the HP upgrade takes a
-;single byte (8-bit). Each bit corresponds what block writes
-;a set bit to (so "MaxHP_UpgradeBit0.asm" writes to bit 0).
-;Therefore you can only have up to 8 upgrade blocks per
-;level, and you cannot have duplicates in a level (both will
-;disappear). They will switch what byte based on what level
-;listed the player is in.
-	if !sa1 == 0
-		!Freeram_PlayerHP_MaxHPUpgradePickupFlag = $7FAD51
-	else
-		!Freeram_PlayerHP_MaxHPUpgradePickupFlag = $4001C1
-	endif
-;Numerical HP change display:
-	;[BytesUsed = (!Setting_PlayerHP_DisplayDamageTotal != 0) * (1 + !Setting_PlayerHP_TwoByte)]
-	;A value representing the total damage to be displayed numerically on the status bar.
-	;Each time the player takes damage, this RAM value adds by how much damage the player
-	;receives. If 0, will not show.
+	;[BytesUsed = 1 + !Setting_PlayerHP_TwoByte]
+	;Player current HP.
 		if !sa1 == 0
-			!Freeram_PlayerHP_DamageTotalDisplay = $7FAD52
+			!Freeram_PlayerHP_CurrentHP		= $7FAD49 ;>Normal ROM version
 		else
-			!Freeram_PlayerHP_DamageTotalDisplay = $4001C2
+			!Freeram_PlayerHP_CurrentHP		= $4001B9 ;>SA-1 Version
 		endif
-	;[BytesUsed = (!Setting_PlayerHP_DisplayDamageTotal != 0)]
-	;A timer of how long the damage number persists on the status bar. Decrements every
-	;4th frame. Once 0, will reset !Freeram_PlayerHP_DamageTotalDisplay
+	;[BytesUsed = 1 + !Setting_PlayerHP_TwoByte]
+	;Player max HP.
 		if !sa1 == 0
-			!Freeram_PlayerHP_DamageTotalTimerDisplay = $7FAD54
+			!Freeram_PlayerHP_MaxHP		= $7FAD4B
 		else
-			!Freeram_PlayerHP_DamageTotalTimerDisplay = $4001C4
+			!Freeram_PlayerHP_MaxHP		= $4001BB
 		endif
-	;[BytesUsed = (!Setting_PlayerHP_DisplayRecoveryTotal != 0) * (1 + !Setting_PlayerHP_TwoByte)]
-	;A value representing the total recovery to be displayed numerically on the status bar.
-	;Each time the player heals, this RAM value adds by how much recovery the player
-	;receives. If 0, will not show.
+	;[BytesUsed = !Setting_PlayerHP_BarAnimation]
+	;A display that shows the amount of HP as a bar prior to taking damage
+	;or healing. This shows how much HP lost or recovered only on levels and
+	;never used on the overworld map (the player never takes damage or heal
+	;during that game state).
 		if !sa1 == 0
-			!Freeram_PlayerHP_RecoveryTotalDisplay = $7FAD55
+			!Freeram_PlayerHP_BarRecord	= $7FAD4D
 		else
-			!Freeram_PlayerHP_RecoveryTotalDisplay = $4001C5
+			!Freeram_PlayerHP_BarRecord	= $4001BD
 		endif
-	;[BytesUsed = (!Setting_PlayerHP_DisplayRecoveryTotal != 0)]
-	;A timer of how long the recovery number persists on the status bar. Decrements every
-	;4th frame. Once 0, will reset !Freeram_PlayerHP_RecoveryTotalDisplay
+	;[BytesUsed = RecordTimerEnabled]
+	;A timer that indicates how long the bar shows the previous HP prior
+	;heal or damage before it moves towards the player's current HP.
+	;RecordTimerEnabled = 1 if !Setting_PlayerHP_BarAnimation,
+	;!Setting_PlayerHP_BarChangeDelay and !Setting_PlayerHP_DisplayBarLevel are
+	;non-zero values and 0 otherwise.
 		if !sa1 == 0
-			!Freeram_PlayerHP_RecoveryTotalTimerDisplay = $7FAD57
+			!Freeram_Setting_PlayerHP_BarChangeDelayTmr	= $7FAD4E
 		else
-			!Freeram_PlayerHP_RecoveryTotalTimerDisplay = $4001C7
+			!Freeram_Setting_PlayerHP_BarChangeDelayTmr	= $4001BE
 		endif
+	;[BytesUsed = (!Setting_PlayerHP_Knockback != 0)]
+	;Stun flag of the player getting knocked back. When nonzero, the
+	;player is unable to move.
+	; - If !Setting_PlayerHP_Knockback is set to 1, this acts as a frame
+	;   timer that goes down by 1 each frame.
+	; - If !Setting_PlayerHP_Knockback is set to 2, this stays at a
+	;   nonzero value until the player touches the ground.
+		if !sa1 == 0
+			!Freeram_PlayerHP_Knockback	= $7FAD4F
+		else
+			!Freeram_PlayerHP_Knockback	= $4001BF
+		endif
+	;[BytesUsed = !Setting_PlayerHP_GradualHPChange]
+	; RAM value that slowly increments and decrements
+	; the player's HP by that amount per frame. Positive
+	; values (1 to 127 heals the player, while negative
+	; values (-128 to -1 drains the player's HP)). Note
+	; that you have to periodically  (at your own frequency)
+	; set this to a nonzero for this to work. This exist
+	; because custom blocks can have codes executed multiple
+	; times a frame when multiple player collision points
+	; or block offsets; MarioAbove/MarioBelow/MarioSide/etc.
+	; touches the block. After changing the player's HP,
+	; this reset itself to 0. Not to be confused with the
+	; rolling HP that damage and healing will keep going
+	; despite the player not taking hits or healing afterwards.
+		if !sa1 == 0
+			!Freeram_PlayerHP_GradualHPChange = $7FAD50
+		else
+			!Freeram_PlayerHP_GradualHPChange = $4001C0
+		endif
+	;[BytesUsed = NumberOfLevelsThatUsesMaxHPUpgradeBlocks]
+	;A RAM table containing pickup flags to prevent the
+	;HP upgrade blocks from re-spawning after they are picked up.
+	;
+	;Format: each level that do uses the HP upgrade takes a
+	;single byte (8-bit). Each bit corresponds what block writes
+	;a set bit to (so "MaxHP_UpgradeBit0.asm" writes to bit 0).
+	;Therefore you can only have up to 8 upgrade blocks per
+	;level, and you cannot have duplicates in a level (both will
+	;disappear if any are collected and level reloads). They will
+	;switch what byte based on what level listed the player is in.
+		if !sa1 == 0
+			!Freeram_PlayerHP_MaxHPUpgradePickupFlag = $7FAD51
+		else
+			!Freeram_PlayerHP_MaxHPUpgradePickupFlag = $4001C1
+		endif
+	;Numerical HP change display:
+		;[BytesUsed = (!Setting_PlayerHP_DisplayDamageTotal != 0) * (1 + !Setting_PlayerHP_TwoByte)]
+		;A value representing the total damage to be displayed numerically on the status bar.
+		;Each time the player takes damage, this RAM value adds by how much damage the player
+		;receives. If 0, will not show.
+			if !sa1 == 0
+				!Freeram_PlayerHP_DamageTotalDisplay = $7FAD52
+			else
+				!Freeram_PlayerHP_DamageTotalDisplay = $4001C2
+			endif
+		;[BytesUsed = (!Setting_PlayerHP_DisplayDamageTotal != 0)]
+		;A timer of how long the damage number persists on the status bar. Decrements every
+		;4th frame. Once 0, will reset !Freeram_PlayerHP_DamageTotalDisplay
+			if !sa1 == 0
+				!Freeram_PlayerHP_DamageTotalTimerDisplay = $7FAD54
+			else
+				!Freeram_PlayerHP_DamageTotalTimerDisplay = $4001C4
+			endif
+		;[BytesUsed = (!Setting_PlayerHP_DisplayRecoveryTotal != 0) * (1 + !Setting_PlayerHP_TwoByte)]
+		;A value representing the total recovery to be displayed numerically on the status bar.
+		;Each time the player heals, this RAM value adds by how much recovery the player
+		;receives. If 0, will not show.
+			if !sa1 == 0
+				!Freeram_PlayerHP_RecoveryTotalDisplay = $7FAD55
+			else
+				!Freeram_PlayerHP_RecoveryTotalDisplay = $4001C5
+			endif
+		;[BytesUsed = (!Setting_PlayerHP_DisplayRecoveryTotal != 0)]
+		;A timer of how long the recovery number persists on the status bar. Decrements every
+		;4th frame. Once 0, will reset !Freeram_PlayerHP_RecoveryTotalDisplay
+			if !sa1 == 0
+				!Freeram_PlayerHP_RecoveryTotalTimerDisplay = $7FAD57
+			else
+				!Freeram_PlayerHP_RecoveryTotalTimerDisplay = $4001C7
+			endif
 
 ;Settings:
 	;HUD settings
