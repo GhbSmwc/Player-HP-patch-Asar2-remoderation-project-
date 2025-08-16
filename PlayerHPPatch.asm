@@ -778,8 +778,8 @@ endif
 ;It then compares SpriteCenterXPos with Mario's X position ($94-$95) if it
 ;is signed less than or greater than /equal-to.
 ;
-;Note that SpriteCenterXPos doesn't mean the center position of the sprite's
-;left and right edge, for example if:
+;Note that SpriteCenterXPos doesn't always mean the center position of the
+;sprite's left and right edge, for example if:
 ;
 ; -A sprite have a width of 8-pixels with a X position point to the left edge.
 ; -A player with a width of 16-pixels also with a X position point on left
