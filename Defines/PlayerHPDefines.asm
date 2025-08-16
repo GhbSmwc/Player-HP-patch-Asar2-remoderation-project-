@@ -518,6 +518,12 @@ endif
 		!Setting_PlayerHP_InvulnerabilityTmrCape		= $30
 			;^Same as above, but when taking a hit while cape flying.
 			; SMW originally had it at $30.
+	;Bugfixes and workaround
+		!Setting_PlayerHP_BugFix_IggyLarryKnockbackFix		= 1
+			;^Fix tilting platform teleportation bug with the Iggy and Larry
+			; boss fight? 
+			; - 0 = no (use this option if you are not using Iggy or Larry)
+			; - 1 = yes (this will disable the knockback entirely)
 	;Other
 		!Setting_PlayerHP_DamageAmount_ReflectBooStream	= 3
 			;^Due to only the boo stream itself (not the head) being the only

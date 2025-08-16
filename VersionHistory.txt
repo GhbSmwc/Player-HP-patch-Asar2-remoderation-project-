@@ -310,3 +310,5 @@ Things to do:
   [255, 65535] based on the HP size, whichever of the 2 groups are lower.
  -Added an optional feature that custom blocks that deal damage to the player (save for the SlowDamage
   block) can now deal a proportion of max HP.
+ -Fixed Iggy and Larry knockback teleportation bug (knockback is disabled), to save space, if you are not
+  using those bosses, have !Setting_PlayerHP_BugFix_IggyLarryKnockbackFix set to 0.

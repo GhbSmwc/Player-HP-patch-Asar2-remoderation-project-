@@ -972,8 +972,12 @@ endif
 		;knockback code
 		;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 		SpriteKnockBack:
+		if !Setting_PlayerHP_BugFix_IggyLarryKnockbackFix
+			LDA $1925|!addr
+			CMP #$0B
+			BEQ CompareWithMarioAndKnockBk_Done
+		endif
 		JSL SharedKnockBack
-		
 		LDA !14E0,x				;\Sprite's X position
 		XBA					;|
 		LDA !E4,x				;/
@@ -1032,14 +1036,15 @@ endif
 		
 		;LDA.b #!Setting_PlayerHP_KnockbackLength	;\stun player.
 		;STA !Freeram_PlayerHP_Knockback		;/
+		.Done
 		RTL
 		
 		SharedKnockBack:
 		LDA.b #!Setting_PlayerHP_KnockbackLength	;\Set mario to be stunned
-		STA !Freeram_PlayerHP_Knockback		;/
-		STZ $74					;>Lose climbing
+		STA !Freeram_PlayerHP_Knockback			;/
+		STZ $74						;>Lose climbing
 		LDA.b #!Setting_PlayerHP_KnockbackUpwardsSpd	;\Mario flies upward
-		STA $7D					;/
+		STA $7D						;/
 		if !Setting_PlayerHP_Knockback >= 2
 			LDA.b #00000100			;\So if mario get hit while on ground,
 			TRB $77				;/doesn't immediately gain control when damaged while on ground.
@@ -1047,6 +1052,11 @@ endif
 		RTL
 		
 		ExtenSpriteKnockback:
+		if !Setting_PlayerHP_BugFix_IggyLarryKnockbackFix
+			LDA $1925|!addr
+			CMP #$0B
+			BEQ CompareWithMarioAndKnockBk_Done
+		endif
 		JSL SharedKnockBack
 		LDA $1733|!addr,x			;\Extended sprite X position
 		XBA					;|
@@ -1067,6 +1077,11 @@ endif
 		BRA CompareWithMarioAndKnockBk
 		
 		ClusterSpriteKnockback:
+		if !Setting_PlayerHP_BugFix_IggyLarryKnockbackFix
+			LDA $1925|!addr
+			CMP #$0B
+			BEQ CompareWithMarioAndKnockBk_Done
+		endif
 		JSL SharedKnockBack
 		LDA $1E3E|!addr,x				;\Extended sprite X position into stack
 		XBA						;|
