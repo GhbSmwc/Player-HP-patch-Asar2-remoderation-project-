@@ -538,6 +538,10 @@ main:
 				STA !Scratchram_GraphicalBar_FillByteTbl+1
 				LDA !Freeram_PlayerHP_MaxHP+1
 				STA !Scratchram_GraphicalBar_FillByteTbl+3
+			else
+				LDA #$00
+				STA !Scratchram_GraphicalBar_FillByteTbl+1
+				STA !Scratchram_GraphicalBar_FillByteTbl+3
 			endif
 			LDA.b #!Setting_PlayerHP_GraphicalBar_LeftPieces	;\Left end normally have 3 pieces.
 			STA !Scratchram_GraphicalBar_LeftEndPiece		;/

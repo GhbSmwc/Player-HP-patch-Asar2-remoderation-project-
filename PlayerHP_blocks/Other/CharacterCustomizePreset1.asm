@@ -26,6 +26,7 @@ incsrc "../../../GraphicalBarDefines.asm"
 		CMP !Freeram_PlayerHP_CurrentHP		;\If new max HP falls below current HP, set current HP
 		BCS +					;|to the new max HP (prevent current HP over the max).
 		STA !Freeram_PlayerHP_CurrentHP		;/
+		+
 	else
 		REP #$20
 		LDA.w #!MaxHealthSetTo			;\Change max HP
