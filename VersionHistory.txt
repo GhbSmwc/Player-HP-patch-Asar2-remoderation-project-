@@ -297,14 +297,6 @@ Things to do:
  --now lets you easily copy codes via CTRL+double-click to select.
  --Removed depreciated HTML elements ("tt" tag are now replaced with "kbd")
  -Status bar and OWB locations define now uses XY rather than address.
- -Fixed an issue where the player's invulnerability timer wasn't set due to forgetting the "|!addr" on SA-1.
- -Fixed a game crashing error due to an oversight on fixed-healing amounts for mushroom and the custom block
-  equivalent.
- -Fixed a bug where if having 16-bit health, HP drain would kill the player if only the low bytes of his
-  HP value are $00 (so values multiple of 256 are treated as if his HP is 0). This is due to a missing
-  "+1" on !ORA !Freeram_PlayerHP_CurrentHP to check the high byte.
- -Fixed various issues when the user sets the HP to be 8-bit instead of 16-bit (graphical bar not representing
-  properly, CharacterCustomizePreset0.asm and CharacterCustomizePreset1.asm failing to insert).
  -Removed MathMul32_32.asm since I actually don't need it (HPs are up to 16-bit, and MathMul16_16 have a
   32-bit product, nowhere possible to output an incorrect overflown value).
  -Added graphical bar rounding options rather than just round to nearest.
@@ -315,3 +307,12 @@ Things to do:
  -Fixed Iggy and Larry knockback teleportation bug (knockback is disabled), to save space, if you are not
   using those bosses, have !Setting_PlayerHP_BugFix_IggyLarryKnockbackFix set to 0.
  -Added an optional feature: low HP warning when at or below 25% HP.
+ -Various fixes:
+ --Fixed an issue where the player's invulnerability timer wasn't set due to forgetting the "|!addr" on SA-1.
+ --Fixed a game crashing error due to an oversight on fixed-healing amounts for mushroom and the custom block
+   equivalent.
+ --Fixed a bug where if having 16-bit health, HP drain would kill the player if only the low bytes of his
+   HP value are $00 (so values multiple of 256 are treated as if his HP is 0). This is due to a missing
+   "+1" on !ORA !Freeram_PlayerHP_CurrentHP to check the high byte.
+ --Fixed various issues when the user sets the HP to be 8-bit instead of 16-bit (graphical bar not representing
+   properly, CharacterCustomizePreset0.asm and CharacterCustomizePreset1.asm failing to insert).
