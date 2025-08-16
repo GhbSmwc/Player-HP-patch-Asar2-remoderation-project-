@@ -18,8 +18,8 @@
 	!Sm64LavaDamage			= 10
 ;Proportion of max HP damage when touching the block, only used when
 ;!Sm64DamageType == 1
-	!SM64DamageDividend	= 2
-	!SM64DamageDivisor	= 5
+	!DamageDividend	= 2
+	!DamageDivisor	= 5
 
 ;Knockback speeds (note that these speeds is always applied even if
 ;you disabled it beforehand), it will not utilize the stun timer.
@@ -169,15 +169,15 @@ incsrc "../../../MotherHPDefines.asm"
 				SEP #$20
 			endif
 		else
-		;Damage = MaxHP*Dividend/Divisor  ;>if Dividend is > 1
-		;Damage = MaxHP/Divisor           ;>if Dividend is = 1
+			;Damage = MaxHP*Dividend/Divisor  ;>if Dividend is > 1
+			;Damage = MaxHP/Divisor           ;>if Dividend is = 1
 			if !Setting_PlayerHP_TwoByte == 0
 				LDA !Freeram_PlayerHP_MaxHP
-				if !SM64DamageDividend > 1
+				if !DamageDividend > 1
 					STA $00							;\MaxHP...
 					STZ $01							;/
 					REP #$20						;\...Times dividend
-					LDA.w #!SM64DamageDividend				;|
+					LDA.w #!DamageDividend					;|
 					STA $02							;|
 					SEP #$20						;|
 					PHY							;|
@@ -195,7 +195,7 @@ incsrc "../../../MotherHPDefines.asm"
 					STZ $03
 				endif
 				REP #$20						;\...divide by divisor
-				LDA.w #!SM64DamageDivisor				;|
+				LDA.w #!DamageDivisor					;|
 				STA $04							;|
 				SEP #$20						;|
 				PHY							;|
@@ -204,9 +204,9 @@ incsrc "../../../MotherHPDefines.asm"
 			else
 				REP #$20
 				LDA !Freeram_PlayerHP_MaxHP
-				if !SM64DamageDividend > 1
+				if !DamageDividend > 1
 					STA $00
-					LDA.w #!SM64DamageDividend
+					LDA.w #!DamageDividend
 					STA $02
 					SEP #$20
 					PHY
@@ -221,7 +221,7 @@ incsrc "../../../MotherHPDefines.asm"
 					STA $00
 					STZ $02
 				endif
-				LDA.w #!SM64DamageDivisor
+				LDA.w #!DamageDivisor
 				STA $04
 				SEP #$20
 				PHY
@@ -232,7 +232,7 @@ incsrc "../../../MotherHPDefines.asm"
 			
 			.Round
 			REP #$20
-			LDA.w #round(!SM64DamageDivisor/2, 0)				;\If HalfDivisor > Remainder (remainder smaller), don't round quotient.
+			LDA.w #round(!DamageDivisor/2, 0)				;\If HalfDivisor > Remainder (remainder smaller), don't round quotient.
 			CMP $04								;/
 			BEQ ..RoundQuotient						;>If =, round up
 			BCS ..NoRoundQuotient
