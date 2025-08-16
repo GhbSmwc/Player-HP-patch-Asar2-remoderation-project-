@@ -285,7 +285,7 @@ Things to do:
 10/23/2018 - 4.2 - ANOTHER graphical bar update
  -Updated to version 3.16 due to a forgotten SEP #$20 (this makes A 8-bit value) when dealing with
   rounding towards full detection if the user sets to use the SNES math only on a sa-1 hack.
-2025-08-10 - 4.3 ASM section remoderation update
+2025-08-16 - 4.3 ASM section remoderation update
  -Made changes that no longer uses asar's depreciated features.
  -Made use of the newer versions of my graphical bar and status bar tutorials' routines.
  -Updated uberasm tool codes so that they utilizes its new routines system.
