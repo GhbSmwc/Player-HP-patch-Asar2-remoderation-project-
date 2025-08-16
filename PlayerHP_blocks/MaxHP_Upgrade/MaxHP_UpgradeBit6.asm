@@ -96,7 +96,17 @@ incsrc "MaxHPUpgradeDef/HPUpgradeDef.asm"
 		LDA.b #!Setting_PlayerHP_BarChangeDelay
 		STA !Freeram_Setting_PlayerHP_BarChangeDelayTmr
 	endif
-
+	if !Setting_PlayerHP_RollingHP != 0
+		if !Setting_PlayerHP_TwoByte == 0
+			LDA #$00
+			STA !Freeram_PlayerHP_MotherHPChanger
+		else
+			REP #$20
+			LDA #$0000
+			STA !Freeram_PlayerHP_MotherHPChanger
+			SEP #$20
+		endif
+	endif
 	WallFeet:
 	WallBody:
 
