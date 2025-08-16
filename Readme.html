@@ -304,10 +304,6 @@ This will help you avoid freeram conflicts between patches.</li><br>
 custom sprite bit at <kbd>$7FAB10</kbd> or <kbd>$6040</kbd> (sa-1)) as well as the X index to identify what amount of damage the player receives. Check out
 <kbd>PlayerHP_blocks/Routines/</kbd> on <kbd>InvincibilityCheck.asm</kbd> and <kbd>DamagePlayer.asm</kbd> to see how the damage works.</li><br>
 
-<li>I don't recommend using SMW's Iggy and Larry boss (or some other mode 7 bosses from SMW) fights because they're broken with the knockback code; which causes the player to teleport into the lava.
-Because all koopalings share the same sprite number, they all deal the same damage to the player. You probably wouldn't use mode 7 SMW bosses anyway, because they are not very customizable
-and are boring for hack players.</li><br>
-
 <li>When having knockback enabled, if the player takes damage in Iggy and Larry Koopa boss battles, the player would teleport to seemingly random XY positions. I had to disable this due to some physics
 override from the original game. If you plan on not having those boss battles, you can save a few bytes by opening <kbd>PlayerHPDefines</kbd> and set <kbd>!Setting_PlayerHP_BugFix_IggyLarryKnockbackFix</kbd> to <kbd>0</kbd>.</li>
 
