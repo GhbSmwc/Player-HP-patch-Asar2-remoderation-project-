@@ -305,5 +305,8 @@ incsrc "../../../MotherHPDefines.asm"
 	INX #2
 	+
 	RTS
-
-print "Sm64 lava. Deals ", dec(!FixedDamageAmount), " damage to the player."
+if !DamageType == 0
+	print "SM64 lava. Deals ", dec(!FixedDamageAmount), " damage to the player."
+else
+	print "SM64 lava. Deals ", dec(!DamageDividend), "/", dec(!DamageDivisor), " of the player's max HP."
+endif

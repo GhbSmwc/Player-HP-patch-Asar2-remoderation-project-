@@ -2,21 +2,21 @@
 
 ;Same as the muncher block, but is unaffected by any switches.
 
-;Damage or instant kill:
-; - 0 = fixed damage amount
-; - 1 = damage amount equal to 
-; - 2 = instant kill (regardless of invincibility frames)
+;Damage type:
+; - 0 = fixed damage amount.
+; - 1 = damage amount equal to proportion of max HP.
+; - 2 = instant kill (regardless of invincibility frames).
 	!DamageType		= 0
 
-;^How much HP loss from touching this block on the harmful side (when !DamageType == 0).
-	!DamageAmount		= 5
+;How much HP loss from touching this block on the harmful side (when !DamageType == 0).
+	!FixedDamageAmount		= 5
 ;Proportion of max HP damage when touching the block, only used when
 ;!Sm64DamageType == 1
 	!DamageDividend	= 2
 	!DamageDivisor	= 5
 
-;^Knockback speeds. For left and up speeds, use only values #$80-#$FF with #$80 being the fastest, for
-; right/down speeds, use only values #$01-#$7F with #$7F being the fastest speed.
+;Knockback speeds. For left and up speeds, use only values #$80-#$FF with #$80 being the fastest, for
+;right/down speeds, use only values #$01-#$7F with #$7F being the fastest speed.
 	!MuncherKnockbackUp		= $C0
 	!MuncherKnockbackDown		= $70
 	!MuncherKnockbackHorizSpd	= !Setting_PlayerHP_KnockbackHorizSpd
@@ -245,7 +245,7 @@ SpriteH:
 	endif
 ;========================================================================================
 if !DamageType == 0
-	print "Deals !DamageAmount damage to the player."
+	print "Deals ", dec(!FixedDamageAmount), " damage to the player."
 elseif !DamageType == 1
 	print "Deals ", dec(!DamageDividend), "/", dec(!DamageDivisor), " of the player's max HP."
 elseif !DamageType == 2

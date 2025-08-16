@@ -1,13 +1,18 @@
 ;This is a defines file for all 4 directional hurt block preset defines, needed if the user wanted all 4 of them to have
 ;consistency with the damage, rather to hurt the player or instant kill, etc.
 
-;Damage or instant kill:
-; *0 = hurt
-; *1 = instant kill (regardless of invincibility frames)
-	!HurtKill		= 0
+;Damage type:
+; - 0 = fixed damage amount.
+; - 1 = damage amount equal to proportion of max HP.
+; - 2 = instant kill (regardless of invincibility frames).
+	!DamageType		= 0
 
-;How much HP loss from touching this block on harmful side (only when above setting set to hurt).
-	!DamageAmount		= 5
+;How much HP loss from touching this block on the harmful side (when !DamageType == 0).
+	!FixedDamageAmount		= 5
+;Proportion of max HP damage when touching the block, only used when
+;!Sm64DamageType == 1
+	!DamageDividend	= 2
+	!DamageDivisor	= 5
 
 ;Knockback speeds. For left and up speeds, use only values #$80-#$FF with #$80 being the fastest, for
 ; right/down speeds, use only values #$01-#$7F with #$7F being the fastest speed.

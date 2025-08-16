@@ -308,3 +308,5 @@ Things to do:
  -Added graphical bar rounding options rather than just round to nearest.
  -Max HP upgrade blocks now caps the maximum HP to [9, 99, 999, 9999] based on how many digits or
   [255, 65535] based on the HP size, whichever of the 2 groups are lower.
+ -Added an optional feature that custom blocks that deal damage to the player (save for the SlowDamage
+  block) can now deal a proportion of max HP.
