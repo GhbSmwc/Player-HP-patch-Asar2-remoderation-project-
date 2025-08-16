@@ -2,13 +2,18 @@
 
 ;Same as the muncher block, but is unaffected by any switches.
 
-;^Damage or instant kill:
-; *0 = hurt
-; *1 = instant kill (regardless of invincibility frames)
-	!HurtKill		= 0
+;Damage or instant kill:
+; - 0 = fixed damage amount
+; - 1 = damage amount equal to 
+; - 2 = instant kill (regardless of invincibility frames)
+	!DamageType		= 0
 
-;^How much HP loss from touching this block on the harmful side.
+;^How much HP loss from touching this block on the harmful side (when !DamageType == 0).
 	!DamageAmount		= 5
+;Proportion of max HP damage when touching the block, only used when
+;!Sm64DamageType == 1
+	!DamageDividend	= 2
+	!DamageDivisor	= 5
 
 ;^Knockback speeds. For left and up speeds, use only values #$80-#$FF with #$80 being the fastest, for
 ; right/down speeds, use only values #$01-#$7F with #$7F being the fastest speed.
@@ -43,20 +48,10 @@ MarioAbove:
 			LDA $187A|!addr				;\If riding yoshi, act like a cement block
 			BNE AboveReturn				;/
 		endif
-		if !HurtKill == 0
+		if !DamageType < 2
 			%InvincibilityCheck()			;\Don't hurt if invincible.
 			BNE AboveReturn				;/
-
-			if !Setting_PlayerHP_TwoByte == 0
-				LDA.b #!DamageAmount
-				STA $00
-			else
-				REP #$20
-				LDA.w #!DamageAmount
-				STA $00
-				SEP #$20
-			endif
-			
+			JSR GetDamageAmount
 			%DamagePlayer()
 			
 			if !Setting_PlayerHP_Knockback != 0
@@ -83,7 +78,7 @@ MarioSide:
 HeadInside:
 	if or(notequal(!Damage_LeftSide, 0), notequal(!Damage_RightSide, 0))
 		ContactSide:
-		if !HurtKill == 0
+		if !DamageType < 2
 			%InvincibilityCheck()			;\Don't hurt the player if invincible,
 			BNE SideReturn				;/
 		endif
@@ -98,21 +93,12 @@ HeadInside:
 			CMP #$02			;|
 			BEQ SideReturn			;|
 		endif					;/
-		if !HurtKill == 0
+		if !DamageType < 2
 			SideDamage:
-			if !Setting_PlayerHP_TwoByte == 0	;\Damage the player
-				LDX.b #!DamageAmount		;|
-				STX $00				;|
-			else					;|
-				REP #$10			;|
-				LDX.w #!DamageAmount		;|
-				STX $00				;|
-				SEP #$10			;|
-			endif					;|
-			PHA					;|
-			%DamagePlayer()				;|
-			PLA					;/
-			
+			PHA
+			JSR GetDamageAmount
+			%DamagePlayer()
+			PLA
 			if !Setting_PlayerHP_Knockback != 0
 				LDX.b #!MuncherKnockbackHorizSpd
 				STX $00
@@ -133,19 +119,10 @@ HeadInside:
 MarioBelow:
 BodyInside:
 	if !Damage_Bottom != 0
-		if !HurtKill == 0
+		if !DamageType < 2
 			%InvincibilityCheck()				;\Don't hurt if invincible
 			BNE BottomDone					;/
-			
-			if !Setting_PlayerHP_TwoByte == 0
-				LDA.b #!DamageAmount
-				STA $00
-			else
-				REP #$20
-				LDA.w #!DamageAmount
-				STA $00
-				SEP #$20
-			endif
+			JSR GetDamageAmount
 			%DamagePlayer()
 			
 			if !Setting_PlayerHP_Knockback != 0
@@ -169,9 +146,108 @@ MarioFireBall:
 SpriteV:
 SpriteH:
 	RTL		;>return as a solid
+	if !DamageType < 2
+		GetDamageAmount:
+			if !DamageType == 0
+				if !Setting_PlayerHP_TwoByte == 0
+					LDA.b #!FixedDamageAmount
+					STA $00
+				else
+					REP #$20
+					LDA.w #!FixedDamageAmount
+					STA $00
+					SEP #$20
+				endif
+			else
+				;Damage = MaxHP*Dividend/Divisor  ;>if Dividend is > 1
+				;Damage = MaxHP/Divisor           ;>if Dividend is = 1
+				if !Setting_PlayerHP_TwoByte == 0
+					LDA !Freeram_PlayerHP_MaxHP
+					if !DamageDividend > 1
+						STA $00							;\MaxHP...
+						STZ $01							;/
+						REP #$20						;\...Times dividend
+						LDA.w #!DamageDividend					;|
+						STA $02							;|
+						SEP #$20						;|
+						PHY							;|
+						%MathMul16_16()						;|
+						PLY							;/
+						REP #$20
+						LDA $04							;\Product...
+						STA $00							;|
+						LDA $06							;|
+						STA $02							;/
+					else
+						STA $00
+						STZ $01
+						STZ $02
+						STZ $03
+					endif
+					REP #$20						;\...divide by divisor
+					LDA.w #!DamageDivisor					;|
+					STA $04							;|
+					SEP #$20						;|
+					PHY							;|
+					%MathDiv32_16()						;/;>$00 should be <= $FFFF
+					PLY
+				else
+					REP #$20
+					LDA !Freeram_PlayerHP_MaxHP
+					if !DamageDividend > 1
+						STA $00
+						LDA.w #!DamageDividend
+						STA $02
+						SEP #$20
+						PHY
+						%MathMul16_16()
+						PLY
+						REP #$20
+						LDA $04
+						STA $00
+						LDA $06
+						STA $02
+					else
+						STA $00
+						STZ $02
+					endif
+					LDA.w #!DamageDivisor
+					STA $04
+					SEP #$20
+					PHY
+					%MathDiv32_16() ;>$00 should be <= $FFFF
+					PLY
+				endif
+				;Rounding to nearest integer
+				
+				.Round
+				REP #$20
+				LDA.w #round(!DamageDivisor/2, 0)				;\If HalfDivisor > Remainder (remainder smaller), don't round quotient.
+				CMP $04								;/
+				BEQ ..RoundQuotient						;>If =, round up
+				BCS ..NoRoundQuotient
+				
+				..RoundQuotient
+				INC $00
+				
+				..NoRoundQuotient
+				;Check if rounded down to zero:
+				.HealAtLeast1HP
+				LDA #$0001
+				CMP $00
+				BCC ..ValidHealing					;>if 1 < $00 (or $00 greater than 1), don't set $00 to 1.
+				STA $00
+				
+				..ValidHealing
+				SEP #$20
+			endif
+		RTS
+	endif
 ;========================================================================================
-if !HurtKill == 0
+if !DamageType == 0
 	print "Deals !DamageAmount damage to the player."
-else
+elseif !DamageType == 1
+	print "Deals ", dec(!DamageDividend), "/", dec(!DamageDivisor), " of the player's max HP."
+elseif !DamageType == 2
 	print "Instantly kills the player."
 endif

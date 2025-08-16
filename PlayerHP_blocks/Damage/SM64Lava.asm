@@ -11,13 +11,13 @@
 ;to prevent frustration that the player can get hit by enemies while
 ;lava bouncing (which those stun the player when knockback is enabled.)
 
-;Damage type: 0 = fixed amount (uses !Sm64LavaDamage), 1 = proportion
+;Damage type: 0 = fixed amount (uses !FixedDamageAmount), 1 = proportion
 ;of max HP.
-	!Sm64DamageType = 0
-;Damage when touching the block, only used  when !Sm64DamageType == 0.
-	!Sm64LavaDamage			= 10
+	!DamageType = 0
+;Damage when touching the block, only used  when !DamageType == 0.
+	!FixedDamageAmount			= 10
 ;Proportion of max HP damage when touching the block, only used when
-;!Sm64DamageType == 1
+;!DamageType == 1
 	!DamageDividend	= 2
 	!DamageDivisor	= 5
 
@@ -158,13 +158,13 @@ incsrc "../../../MotherHPDefines.asm"
 	WallBody:
 	RTL
 	GetDamageAmount:
-		if !Sm64DamageType == 0
+		if !DamageType == 0
 			if !Setting_PlayerHP_TwoByte == 0
-				LDA.b #!Sm64LavaDamage
+				LDA.b #!FixedDamageAmount
 				STA $00
 			else
 				REP #$20
-				LDA.w #!Sm64LavaDamage
+				LDA.w #!FixedDamageAmount
 				STA $00
 				SEP #$20
 			endif
@@ -251,7 +251,6 @@ incsrc "../../../MotherHPDefines.asm"
 			..ValidHealing
 			SEP #$20
 		endif
-	
 	RTS
 	
 	AboveBlockYDisp:
@@ -307,4 +306,4 @@ incsrc "../../../MotherHPDefines.asm"
 	+
 	RTS
 
-print "Sm64 lava. Deals !Sm64LavaDamage damage to the player."
+print "Sm64 lava. Deals ", dec(!FixedDamageAmount), " damage to the player."
