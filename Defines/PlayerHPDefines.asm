@@ -224,6 +224,12 @@ endif
 		;Conversion is not needed if you are having your stuff on the top-lines.
 		
 		;Note that if tiles extend past the right edge of the screen, it will wrap to X=0 and Y+1 like text.
+		;Broad setting(s)
+			!Setting_PlayerHP_LowHPWarning = 1
+				; 0 = no
+				; 1 = yes (number and bar alternate colors every 64 frames when equal or below 25%
+				;     HP) only in levels. Only works if you use status bar patches that enable
+				;     tile property manipulation.
 		;Number display settings
 			;Global number settings (applies to both level and overworld)
 				;Failsafe when the string of the HP text exceeds a certain number of characters
@@ -272,6 +278,7 @@ endif
 				;Tile properties of the digits and slash (only used when !StatusBar_UsingCustomProperties == 1 in StatusBarDefines.asm)
 					!Setting_PlayerHP_CurrentAndMax_Level_PropPage = 0	;>Valid values: 0-3
 					!Setting_PlayerHP_CurrentAndMax_Level_PropPalette = 6	;>Valid values: 0-7
+					!Setting_PlayerHP_CurrentAndMax_Level_PropPalette2 = 3	;>Valid values: 0-7 (used for low HP warning, !Setting_PlayerHP_LowHPWarning  == 1)
 					
 				;Display numerical damage and recovery settings
 				;NOTE: Each of these occupy [!Setting_PlayerHP_MaxDigits+1] tiles (the digits and the "-" for damage and "+" for recovery).
@@ -356,7 +363,7 @@ endif
 				;Tile properties (X-flip for leftwards bar is already handled.)
 					!Setting_PlayerHP_BarProps_Lvl_Page = 0                 ;>Use only values 0-3
 					!Setting_PlayerHP_BarProps_Lvl_Palette = 6              ;>Use only values 0-7
-
+					!Setting_PlayerHP_BarProps_Lvl_Palette2 = 3             ;>Use only values 0-7 (low HP warning, !Setting_PlayerHP_LowHPWarning == 1)
 
 				;Bar animation stuff
 					!Setting_PlayerHP_BarAnimation			= 1
@@ -606,13 +613,17 @@ endif
 			endif
 		;Calculate tile properties
 			!Setting_PlayerHP_CurrentAndMax_Level_Prop = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_CurrentAndMax_Level_PropPalette, !Setting_PlayerHP_CurrentAndMax_Level_PropPage)
+			!Setting_PlayerHP_CurrentAndMax_Level_LowHP_Prop = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_CurrentAndMax_Level_PropPalette2, !Setting_PlayerHP_CurrentAndMax_Level_PropPage)
 			!Setting_PlayerHP_CurrentAndMax_Overworld_Prop = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_CurrentAndMax_Overworld_PropPalette, !Setting_PlayerHP_CurrentAndMax_Overworld_PropPage)
 			!Setting_PlayerHP_Bar_Level_Prop = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_BarProps_Lvl_Palette, !Setting_PlayerHP_BarProps_Lvl_Page)
+			!Setting_PlayerHP_Bar_Level_LowHP_Prop = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_BarProps_Lvl_Palette2, !Setting_PlayerHP_BarProps_Lvl_Page)
 			!Setting_PlayerHP_Bar_Overworld_Prop = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_BarProps_Owb_Palette, !Setting_PlayerHP_BarProps_Owb_Page)
 			!Setting_PlayerHP_DamageNumber_Prop = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_DamageNumberProp_Palette, !Setting_PlayerHP_DamageNumberProp_Page)
 			!Setting_PlayerHP_RecoverNumber_Prop = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_RecoverNumberProp_Palette, !Setting_PlayerHP_RecoverNumberProp_Page)
 		;Maximum value for HP and damage display, to prevent overflows
 			!Setting_PlayerHP_TrueMaximumHPAndDamageValue = min((10**!Setting_PlayerHP_MaxDigits)-1, (2**(8*(1+!Setting_PlayerHP_TwoByte)))-1)
+		;Check if low HP palette warning is possible
+			!Setting_PlayerHP_LowHPWarning_CanPaletteChange = and(!Setting_PlayerHP_LowHPWarning, !StatusBar_UsingCustomProperties)
 
 	;Failsafe
 		assert !Setting_PlayerHP_MidwayRecoveryDividend != 0, "Invalid Dividend"

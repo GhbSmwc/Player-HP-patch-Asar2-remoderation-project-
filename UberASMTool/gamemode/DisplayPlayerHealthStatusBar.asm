@@ -8,12 +8,25 @@ incsrc "../StatusBarDefines.asm"
 incsrc "../PlayerHPDefines.asm"
 incsrc "../NumberDisplayRoutinesDefines.asm"
 incsrc "../MotherHPDefines.asm"
-macro WriteFixedDigitsToLayer3(TileLocation)
+
+macro WriteFixedDigitsToLayer3(TileLocation, TileLocationProps)
 	if !StatusbarFormat == $01
 		LDX.b #(!Setting_PlayerHP_MaxDigits-1)
 		-
 		LDA.b !Scratchram_16bitHexDecOutput+$04-(!Setting_PlayerHP_MaxDigits-1),x
 		STA <TileLocation>,x
+		
+		if !StatusBar_UsingCustomProperties
+			if !Setting_PlayerHP_LowHPWarning == 0
+				LDA.b #!Setting_PlayerHP_CurrentAndMax_Level_Prop
+				STA <TileLocationProps>,x
+			else
+				LDY $8A
+				LDA CurrentAndMaxHPPropsCycle,y
+				STA <TileLocationProps>,x
+			endif
+		endif
+		
 		DEX
 		BPL -
 	else
@@ -22,6 +35,18 @@ macro WriteFixedDigitsToLayer3(TileLocation)
 		-
 		LDA.w !Scratchram_16bitHexDecOutput+$04-(!Setting_PlayerHP_MaxDigits-1)|!dp,y
 		STA <TileLocation>,x
+		
+		if !StatusBar_UsingCustomProperties
+			if !Setting_PlayerHP_LowHPWarning == 0
+				LDA.b #!Setting_PlayerHP_CurrentAndMax_Level_Prop
+				STA <TileLocationProps>,x
+			else
+				LDY $8A
+				LDA CurrentAndMaxHPPropsCycle,y
+				STA <TileLocationProps>,x
+			endif
+		endif
+		
 		DEY
 		DEX #2
 		BPL -
@@ -111,6 +136,39 @@ main:
 		RTL
 		.RunSA1
 	endif
+	PHB
+	PHK
+	PLB
+	.LowHealthIndex
+		if !Setting_PlayerHP_LowHPWarning
+			LDA #$00				;\$8A = YXPCCCTT index for alternating palette
+			STA $8A					;/$00 for default palette, $01 for showing it in red when at or below 25%
+			if !Setting_PlayerHP_TwoByte
+				REP #$20
+			endif
+			LDA !Freeram_PlayerHP_CurrentHP
+			BEQ ..Flash				;>If 0 HP, don't flash, but stay in palette 2 at all times.
+			LDA !Freeram_PlayerHP_MaxHP		;\1/4 of max HP (rounded down)
+			LSR #2					;/
+			CMP !Freeram_PlayerHP_CurrentHP
+			BCC ..Above25Percent
+			
+			..Below25Percent
+				if !Setting_PlayerHP_TwoByte
+					SEP #$20
+				endif
+				LDA $13
+				AND.b #%00100000		;>Every 64 frames
+				BNE ..NoFlash
+				
+			..Flash
+				INC $8A
+			..NoFlash
+			..Above25Percent
+			if !Setting_PlayerHP_TwoByte
+				SEP #$20
+			endif
+		endif
 	.WriteHPString
 		;Detect user trying to make a right-aligned single number (which avoids unnecessarily uses suppress leading zeroes)
 			!IsUsingRightAlignedSingleNumber = and(equal(!Setting_PlayerHP_DigitsAlignLevel, 2),equal(!Setting_PlayerHP_DisplayNumericalLevel, 1))
@@ -141,11 +199,11 @@ main:
 			if or(equal(!Setting_PlayerHP_DigitsAlignLevel, 0), equal(!IsUsingRightAlignedSingleNumber, 1)) ;fixed digit location
 				%GetHealthDigits(!Freeram_PlayerHP_CurrentHP)
 				%UberRoutine(RemoveLeadingZeroes16Bit)
-				%WriteFixedDigitsToLayer3(!Setting_PlayerHP_StringPos_Lvl_XYPos)
+				%WriteFixedDigitsToLayer3(!Setting_PlayerHP_StringPos_Lvl_XYPos, !Setting_PlayerHP_StringPos_Lvl_XYPosProp)
 				if !Setting_PlayerHP_DisplayNumericalLevel == 2
 					%GetHealthDigits(!Freeram_PlayerHP_MaxHP)
 					%UberRoutine(RemoveLeadingZeroes16Bit)
-					%WriteFixedDigitsToLayer3(!Setting_PlayerHP_StringPos_Lvl_XYPos+((!Setting_PlayerHP_MaxDigits+1)*!StatusbarFormat))
+					%WriteFixedDigitsToLayer3(!Setting_PlayerHP_StringPos_Lvl_XYPos+((!Setting_PlayerHP_MaxDigits+1)*!StatusbarFormat), !Setting_PlayerHP_StringPos_Lvl_XYPosProp+((!Setting_PlayerHP_MaxDigits+1)*!StatusbarFormat))
 				endif
 			elseif and(greaterequal(!Setting_PlayerHP_DigitsAlignLevel, 1), lessequal(!Setting_PlayerHP_DigitsAlignLevel, 2)) ;left/right-aligned
 				%GetHealthDigits(!Freeram_PlayerHP_CurrentHP)
@@ -166,6 +224,11 @@ main:
 					%WriteTileAddress(!Setting_PlayerHP_StringPos_Lvl_XYPos, !Setting_PlayerHP_StringPos_Lvl_XYPosProp, !Setting_PlayerHP_CurrentAndMax_Level_Prop)
 				elseif !Setting_PlayerHP_DigitsAlignLevel == 2
 					%WriteTileAddress(!Setting_PlayerHP_StringPosRightAligned_Lvl_XYPos, !Setting_PlayerHP_StringPosRightAligned_Lvl_XYPosProp, !Setting_PlayerHP_CurrentAndMax_Level_Prop)
+				endif
+				if !Setting_PlayerHP_LowHPWarning_CanPaletteChange
+					LDY $8A
+					LDA CurrentAndMaxHPPropsCycle,y
+					STA $06
 				endif
 				if !Setting_PlayerHP_DigitsAlignLevel == 2 ;Right-aligned
 					%ConvertToRightAligned()
@@ -312,10 +375,15 @@ main:
 					STA $04
 					LDA.b #!Setting_PlayerHP_GraphicalBarPos_Lvl_XYPosProp>>16
 					STA $05
-					if !Setting_PlayerHP_LeftwardsBarLevel == 0
-						LDA.b #!Setting_PlayerHP_Bar_Level_Prop
+					if not(!Setting_PlayerHP_LowHPWarning_CanPaletteChange)
+						if !Setting_PlayerHP_LeftwardsBarLevel == 0
+							LDA.b #!Setting_PlayerHP_Bar_Level_Prop
+						else
+							LDA.b #(!Setting_PlayerHP_Bar_Level_Prop|(!Setting_PlayerHP_LeftwardsBarLevel<<6))
+						endif
 					else
-						LDA.b #(!Setting_PlayerHP_Bar_Level_Prop|(!Setting_PlayerHP_LeftwardsBarLevel<<6))
+						LDY $8A
+						LDA GraphicalBarPropsCycle,y
 					endif
 					STA $06
 				endif
@@ -456,6 +524,7 @@ main:
 			
 			..Done
 		endif
+	PLB
 	RTL
 	
 	if !Setting_PlayerHP_DisplayBarLevel
@@ -494,4 +563,12 @@ main:
 				%UberRoutine(GraphicalBar_RoundAwayEmptyFull)
 			endif
 			RTS
+	endif
+	if !Setting_PlayerHP_LowHPWarning_CanPaletteChange
+		CurrentAndMaxHPPropsCycle:
+		db !Setting_PlayerHP_CurrentAndMax_Level_Prop
+		db !Setting_PlayerHP_CurrentAndMax_Level_LowHP_Prop
+		GraphicalBarPropsCycle:
+		db !Setting_PlayerHP_Bar_Level_Prop|(!Setting_PlayerHP_LeftwardsBarLevel<<6)
+		db !Setting_PlayerHP_Bar_Level_LowHP_Prop|(!Setting_PlayerHP_LeftwardsBarLevel<<6)
 	endif

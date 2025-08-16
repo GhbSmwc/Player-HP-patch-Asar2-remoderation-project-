@@ -104,8 +104,8 @@ while routines and other things such as freeram for graphical bar, number displa
 
 For uberasm tool, pixi, most other stuff, you place the copy of the define asm files in the same directory (or area) as the .exe, not in any of the subfolders.<br><br>
 
-Note that <kbd>incsrc "&lt;path&gt;/StatusBarDefines.asm"</kbd> must be included first before any other <kbd>incsrc</kbd>s to include other define files. This is because other define files uses
-asar's function included in <kbd>StatusBarDefines.asm</kbd>.<br><br>
+Note that <kbd>incsrc "&lt;path&gt;/StatusBarDefines.asm"</kbd> must be included first before any other <kbd>incsrc</kbd>s to include other define files, if you are creating your own ASM files using
+the said defines or modifying/updating my HP patches. This is because other define files uses asar's function included in <kbd>StatusBarDefines.asm</kbd>.<br><br>
 
 The description regarding how much bytes freeram they take are mostly formula-based due to the fact that they vary in size. For example:
 <table><tr><td><pre>
@@ -222,7 +222,7 @@ were to use a separate hijack). Be sure to check out the following informations:
 <li>Patch Super Status Bar (advanced version) or any status bar patches (may need editing of the display code in this package, such as changing <kbd>!StatusbarFormat</kbd>
 (inside <kbd>StatusBarDefines.asm</kbd>) to have 1 byte per tile) into your ROM. This enables more change-able tiles and space for the HUD.</li><br>
 
-<li>Patch Overworld Border plus patch into your game (if your hack use the overworld). This allows easy tile write to the overworld border. Unlike writing to VRAM
+<li>Patch Overworld Border plus patch into your game (if you want the HP display on the overworld border). This allows easy tile write to the overworld border. Unlike writing to VRAM
 or stripe image, this avoids (or at least tries to) having vblank overflow (the flickering at the top of the screen) as well as tiles not properly written on certain
 emulators. If your hack doesn't or barely uses the overworld, you can simply avoid running <kbd>UberASMTool/DisplayPlayerHealthOverworld.asm</kbd> in your game.</li><br>
 
@@ -307,6 +307,9 @@ custom sprite bit at <kbd>$7FAB10</kbd> or <kbd>$6040</kbd> (sa-1)) as well as t
 <li>I don't recommend using SMW's Iggy and Larry boss (or some other mode 7 bosses from SMW) fights because they're broken with the knockback code; which causes the player to teleport into the lava.
 Because all koopalings share the same sprite number, they all deal the same damage to the player. You probably wouldn't use mode 7 SMW bosses anyway, because they are not very customizable
 and are boring for hack players.</li><br>
+
+<li>When having knockback enabled, if the player takes damage in Iggy and Larry Koopa boss battles, the player would teleport to seemingly random XY positions. I had to disable this due to some physics
+override from the original game. If you plan on not having those boss battles, you can save a few bytes by opening <kbd>PlayerHPDefines</kbd> and set <kbd>!Setting_PlayerHP_BugFix_IggyLarryKnockbackFix</kbd> to <kbd>0</kbd>.</li>
 
 </ul>
 

@@ -312,3 +312,4 @@ Things to do:
   block) can now deal a proportion of max HP.
  -Fixed Iggy and Larry knockback teleportation bug (knockback is disabled), to save space, if you are not
   using those bosses, have !Setting_PlayerHP_BugFix_IggyLarryKnockbackFix set to 0.
+ -Added an optional feature: low HP warning when at or below 25% HP.
