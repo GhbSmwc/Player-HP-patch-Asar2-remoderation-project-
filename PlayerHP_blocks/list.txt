@@ -20,3 +20,6 @@
 535:025 PlayerHP_blocks/MaxHP_Upgrade/MaxHP_UpgradeBit5.asm
 536:025 PlayerHP_blocks/MaxHP_Upgrade/MaxHP_UpgradeBit6.asm
 537:025 PlayerHP_blocks/MaxHP_Upgrade/MaxHP_UpgradeBit7.asm
+
+550:130 PlayerHP_blocks/Other/CharacterCustomizePreset0.asm
+551:130 PlayerHP_blocks/Other/CharacterCustomizePreset1.asm
