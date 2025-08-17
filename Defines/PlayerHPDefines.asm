@@ -258,9 +258,6 @@ endif
 					; 2 = right align (to the right as possible). No leading spaces before digits.
 					;
 					;Notes:
-					;-The number of digits extends the 8x8 area RIGHTWARDS, therefore setting
-					; !Setting_PlayerHP_MaxDigits does not move the left part of the
-					; character table.
 					;-If you set the number display to only show current HP (and not max HP)
 					; and have it set to right-aligned, this patch treats this as having it
 					; set to 0 since numbers at fixed position are automatically right-aligned.
@@ -269,6 +266,7 @@ endif
 				; - If not aligned or right-aligned with only one number (digits at fixed locations), it is where
 				;   the leading zero/space would be at.
 				; - If left-aligned, it is where the leftmost visible digit would be located
+				;In either cases, the tiles are written here and N tiles to the right, based on the string length.
 					!Setting_PlayerHP_StringPos_Lvl_x = 0
 					!Setting_PlayerHP_StringPos_Lvl_y = 0
 				;Position to display for right-aligned HP text (Current/Max) (This is the position of the rightmost
@@ -352,7 +350,7 @@ endif
 				!Setting_PlayerHP_DisplayBarLevel = 1
 					;^0 = don't display percentage bar
 					; 1 = display a percentage bar
-				;Where to place the bar
+				;Where to place the bar (this always take this position and N tiles to the right, even when leftwards).
 					!Setting_PlayerHP_GraphicalBarPos_Lvl_x = 0
 					!Setting_PlayerHP_GraphicalBarPos_Lvl_y = 1
 				;Length of bar (number of middle tiles).
@@ -410,7 +408,7 @@ endif
 			;Overworld display
 				!Setting_PlayerHP_DisplayBarOverworld = 1
 					;^Same as !Setting_PlayerHP_DisplayBarLevel, but for overworld
-				;Where to place the bar
+				;Where to place the bar (again, this takes this position and tiles to the right, even when leftwards.)
 					!Setting_PlayerHP_GraphicalBarPos_Owb_x = 7
 					!Setting_PlayerHP_GraphicalBarPos_Owb_y = 2
 				;Length of bar, same as !Setting_PlayerHP_GraphicalBarMiddleLengthLevel
