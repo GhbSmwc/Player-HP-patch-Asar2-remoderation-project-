@@ -73,14 +73,19 @@ a lot of features into it and released as a separate patch. These features inclu
 <ul>
 <li><a href="https://www.smwcentral.net/?p=section&a=details&id=17109">Lunar Magic</a></li>
 <li><a href="https://www.smwcentral.net/?p=section&a=details&id=15222">Overworld Border plus</a> (if you want HP to be displayed on the overworld)
-<li><a href="https://www.smwcentral.net/?p=section&a=details&id=16540">Uberasm tool v2.0+</a> (although I could just have hijacks on codes that run every
-frame in the main patch, I rather have it all in the same hijack produced by uberasm tool to avoid increased potential incompatibility when another
-patch that also runs all frames.)</a></li></li>
-<li><a href="https://www.smwcentral.net/?p=section&a=details&id=16031">Super Status Bar patch</a> (optional, but recommended any other status bar
-patches should also work, make sure you understand how they work, this includes knowing their tile data tables format (the tile properties, tile
-numbers, etc) as well as editing the status bar code included in this package.) Note defines settings in <kbd>StatusBarDefines.asm</kbd> for formats,
-tile property manipulation, and tile table addresses and in <kbd>PlayerHPDefines.asm</kbd> for HP HUD elements positioning assumes you are using this patch.</li>
+<li><a href="https://www.smwcentral.net/?p=section&a=details&id=16540">Uberasm tool v2.0+</a>, Although I could just have hijacks on codes that run once every
+frame in the main patch, I rather have it all in the same hijack produced by uberasm tool to avoid increased risk of incompatibility when another
+patch that also runs once every frame.</a></li></li>
+<li><a href="https://www.smwcentral.net/?p=section&a=details&id=16031">Super Status Bar patch</a> (optional, but strongly recommended, Other status bar
+patches should also work, make sure you understand how they work, this includes knowing their tile data tables format (the tile numbers, tile
+properties (YXPCCCTT), etc) as well as code writing tiles to the status bar included in this package.) Note that defines settings are in <kbd>StatusBarDefines.asm</kbd> for general status bar usage,
+tile property manipulation, the left/right aligned text and tile table addresses, etc. For <kbd>PlayerHPDefines.asm</kbd>, it is settings specific for player HP. The default defines settings assumes
+you are using the super status bar patch.</li>
 <li><a href="https://www.smwcentral.net/?p=section&a=details&id=14762">SRAM and BW-RAM Plus patch</a> To prevent uninitialized (garbage) HP values.</li>
+</ul>
+<h2>Recommended</h2>
+<ul>
+	<li><a href="https://www.smwcentral.net/?p=section&a=details&id=39887">Address tracker</a>, this ASM resource have lots of freeram defines.</li>
 </ul>
 <h2>Notes</h2>
 <ul>
@@ -95,19 +100,17 @@ tile property manipulation, and tile table addresses and in <kbd>PlayerHPDefines
 <ol>
 <li>Make any changes in the define files (Inside <kbd>Defines</kbd> folder) as needed, as it is possible to have one patch conflict the
 RAM address with another. If you make any changes after copying and pasting them in other ASM-related items to use this patch, make sure they're
-all up-to-date and reinsert. You'll be pasting the individual defines ASM files (not the folder itself containing all of them) and <kbd>incsrc</kbd>'ing in any places that would
-need the player HP patch to function with.<br><br>
+all up-to-date and reinsert. You'll be pasting the individual defines ASM files (not the folder itself containing them) and <kbd>incsrc</kbd>'ing in any places that would
+need the player HP patch to function with. For various ASM tools like uberasm tool, GPS, and Pixi, you paste the defines in the same area as the <kbd>.exe</kbd> programs are at (not in any subfolders).<br><br>
 
 Now you may be wondering why I have multiple separate define files and that some defines are not intuitively in some ASM text files. This is because this system uses a potentially general-purpose
 routines (the graphical bar and string (text)-handling system) that can be used for anything other than player HP. Most stuff specific to the player HP system are in <kbd>PlayerHPDefines.asm</kbd>,
-while routines and other things such as freeram for graphical bar, number displays, string handling system, and tiles to use (such as the slash character) are in other defines.
-
-For uberasm tool, pixi, most other stuff, you place the copy of the define asm files in the same directory (or area) as the .exe, not in any of the subfolders.<br><br>
+while routines and other things such as freeram for graphical bar, number displays, string handling system, and tiles to use (such as the slash character) are in other defines.<br><br>
 
 Note that <kbd>incsrc "&lt;path&gt;/StatusBarDefines.asm"</kbd> must be included first before any other <kbd>incsrc</kbd>s to include other define files, if you are creating your own ASM files using
 the said defines or modifying/updating my HP patches. This is because other define files uses asar's function included in <kbd>StatusBarDefines.asm</kbd>.<br><br>
 
-The description regarding how much bytes freeram they take are mostly formula-based due to the fact that they vary in size. For example:
+The description regarding how much bytes freeram they take are mostly formula-based due to the fact that they vary in size, depending on other settings. For example:
 <table><tr><td><pre>
 <span style="color: red">;[BytesUsed = 1 + !Setting_PlayerHP_TwoByte]</span>
 ;Player current HP.
@@ -206,28 +209,28 @@ Just remember, the order of the data of the sram table and the default tables ma
 default values (past the <span class="NoLineBreak">db $00,$00,$00,$00,$00</span>) should have the first item be the current HP's default value, and the second being the max HP's default value.<br><br>
 
 The reason why this is needed for RAM address that aren't necessary to be saved (have to be 0 when the game starts) is because empty untouched RAM when not initialized
-to a specific value will just be random values (<kbd>$55</kbd> in some emulators), which can cause glitches like when taking damage, your HP doesn't subtract until a strange
+to a specific value will just be random values (<kbd>$55</kbd> in some emulators), which can cause glitches like when taking damage with &ldquo;mother HP&rdquo; system used, your HP doesn't subtract until a strange
 number of frames passes then starts subtracting for the first time. After making necessary changes, insert the SRAM/BWRAM patch in your ROM (don't forget to erase your
 save file for the changes to apply if you already have started the save files.)</li><br>
 </ol>
 
 
 <li>Patch <kbd>PlayerHPPatch.asm</kbd> into your game. This installs the basic health system itself into your ROM, that itself does not modify other
-things like the heads-up display (status bar) as codes to be run every frames are tied to uberasm tool to minimize the risk of hijack conflicts (if it
+things like the heads-up display (status bar) as codes to be run every frame are tied to uberasm tool to minimize the risk of hijack conflicts (if it
 were to use a separate hijack). Be sure to check out the following informations:<br><br>
 <ul>
 <li><a name="InPatchTables" href="Readme_files/InPatchTables.html">Damage, knockback and other in-patch tables</a>.</li><br>
 <li><a name="OtherDamages" href="Readme_files/OtherDamages.html">How to damage the player by other types of sprites</a>.</li><br>
-</ul>
-<li>Patch Super Status Bar (advanced version) or any status bar patches (may need editing of the display code in this package, such as changing <kbd>!StatusbarFormat</kbd>
-(inside <kbd>StatusBarDefines.asm</kbd>) to have 1 byte per tile) into your ROM. This enables more change-able tiles and space for the HUD.</li><br>
+</ul></li>
+<li>Patch Super Status Bar (advanced version) or any status bar patches into your ROM. This enables more change-able tiles and space for the HUD. Make sure you have
+<kbd>StatusBarDefines.asm</kbd> and <kbd>PlayerHPDefines.asm</kbd> (especially with tile positions) properly set.</li><br>
 
 <li>Patch Overworld Border plus patch into your game (if you want the HP display on the overworld border). This allows easy tile write to the overworld border. Unlike writing to VRAM
 or stripe image, this avoids (or at least tries to) having vblank overflow (the flickering at the top of the screen) as well as tiles not properly written on certain
 emulators. If your hack doesn't or barely uses the overworld, you can simply avoid running <kbd>UberASMTool/DisplayPlayerHealthOverworld.asm</kbd> in your game.</li><br>
 
 <li>Uberasm tool. This mainly handles codes that runs every frame in either/or level and overworld. This handles HUD to display HP, stun effects, mother/earthbound
-&ldquo;rolling HP&rdquo; (if you enabled that mode), level loading to prevent respawning health upgrade pickups and other things. Inside the appropriately named folder in this package,
+&ldquo;rolling HP&rdquo; (if you enabled that mode), level loading to prevent respawning health upgrade pickups and other things. Inside the appropriately named folders in this package,
 I laid out where the ASM files should be at (as well as a <kbd>list.txt</kbd> showing what uberasm tool's list should be like).</li><br>
 <li>Custom blocks:</li><br>
 <ol>
@@ -274,7 +277,7 @@ and the older bypass methods for this level.&rdquo;. Then set the graphics slot 
 green poison mushroom (layer 3 gfx), and pretty much almost everything is the same here...</li><br>
 
 <li>...It is also the same thing with the overworld map, just submaps instead of levels, change their slots to use the provided graphics and you are
-golden. Again, the graphics files are conveniently named.</li>
+golden. Use the aforementioned table above to know what file to use and what level/overworld slot to insert into.</li>
 
 </ol>
 
@@ -285,8 +288,8 @@ golden. Again, the graphics files are conveniently named.</li>
 <ul>
 <li>This patch does not support 2-player mode. This means that both Mario and Luigi share the same health.<br><br>
 
-However, I do allow you to make any modifications to the patch to work with the character system (if you know ASM well). The easiest way to store separate health is to have
-<kbd>!Freeram_PlayerHP_CurrentHP</kbd> and <kbd>!Freeram_PlayerHP_MaxHP</kbd> be the current character's HP, and when switching characters, store the health data
+However, I do allow you to make any modifications to the patch to work with the multiple character system (if you know ASM well). The easiest way to store separate health is to have
+<kbd>!Freeram_PlayerHP_CurrentHP</kbd> and <kbd>!Freeram_PlayerHP_MaxHP</kbd> be the currently played character's HP, and when switching characters, store the health data
 the player is switching from into a RAM for that would be for character 1, and load the data of another character's (character 2) HP RAM data and
 write it to <kbd>!Freeram_PlayerHP_CurrentHP</kbd> and <kbd>!Freeram_PlayerHP_MaxHP</kbd> (for example, switching from Mario to Luigi, Mario's HP data gets stored in mario area
 and brings the luigi's HP data to the current player's HP). This works a lot like how SMW handles the lives, score, powerup for Mario and Luigi.</li><br>
@@ -298,7 +301,7 @@ patch is highly recommend if you want consistency such as knockbacks. Such codes
 (don't worry, I added comments to explain their purpose). </li><br>
 
 <li>As a hacker who is working on hacks for smw central, I highly recommend as you insert patches and other codes, make a note listing the RAM used (and have them in ascending order).
-This will help you avoid freeram conflicts between patches.</li><br>
+This will help you avoid freeram conflicts between patches. Furthermore, I have made <a href="https://www.smwcentral.net/?p=section&a=details&id=39887">address tracking tools</a> that will help track unused RAM and detecting conflicts.</li><br>
 
 <li>Be careful not to use the standard damage routine (<kbd>JSL $00F5B7</kbd>) for other than sprites and custom sprites, because that routine have been changed to check the sprite number (and the
 custom sprite bit at <kbd>$7FAB10</kbd> or <kbd>$6040</kbd> (sa-1)) as well as the X index to identify what amount of damage the player receives. Check out

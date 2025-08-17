@@ -193,7 +193,7 @@ endif
 		;Notes:
 		;About XY positions:
 		;Position are in units of tiles, not pixels. XY must be integers with X ranging from 0-31.
-		;When X increases when going rightwards, and Y increases when going downwards.
+		;X increases when going rightwards, and Y increases when going downwards.
 		;Y ranges depending on status bar type you using:
 		; - For vanilla SMW: Y can only be 2-3. And...
 		; -- When Y=2, X ranges 2-29.
@@ -624,7 +624,10 @@ endif
 			!Setting_PlayerHP_TrueMaximumHPAndDamageValue = min((10**!Setting_PlayerHP_MaxDigits)-1, (2**(8*(1+!Setting_PlayerHP_TwoByte)))-1)
 		;Check if low HP palette warning is possible
 			!Setting_PlayerHP_LowHPWarning_CanPaletteChange = and(!Setting_PlayerHP_LowHPWarning, !StatusBar_UsingCustomProperties)
-
+		;Override to disable bar animation if you disabled displaying the graphical bar.
+			if !Setting_PlayerHP_DisplayBarLevel == 0
+				!Setting_PlayerHP_BarAnimation = 0
+			endif
 	;Failsafe
 		assert !Setting_PlayerHP_MidwayRecoveryDividend != 0, "Invalid Dividend"
 		assert !Setting_PlayerHP_MidwayRecoveryDivisor > 1, "Invalid Divisor"

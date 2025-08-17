@@ -296,6 +296,7 @@ Things to do:
  -Readme changes:
  --now lets you easily copy codes via CTRL+double-click to select.
  --Removed depreciated HTML elements ("tt" tag are now replaced with "kbd")
+ --Improved the color scheme to make it pleasing to the eyes.
  -Status bar and OWB locations define now uses XY rather than address.
  -Removed MathMul32_32.asm since I actually don't need it (HPs are up to 16-bit, and MathMul16_16 have a
   32-bit product, nowhere possible to output an incorrect overflown value).
