@@ -176,7 +176,7 @@ main:
 			;Clear the tiles. To prevent leftover "ghost" tiles that should've
 			;disappear when the number of digits decreases (so when "10" becomes "9",
 			;won't display "90").
-			if !Setting_PlayerHP_DigitsAlignLevel != 0
+			if !IsUsingRightAlignedSingleNumber == 0
 				LDX.b #(((!Setting_PlayerHP_MaxDigits*2)+1)-1)*!StatusbarFormat	;>2 Setting_PlayerHP_MaxDigits due to 2 numbers displayed, plus 1 because of the "/" symbol.
 				-
 				LDA #!StatusBarBlankTile
