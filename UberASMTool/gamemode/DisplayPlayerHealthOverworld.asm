@@ -26,16 +26,14 @@ macro WriteTileAddress(TileLocation, PropLocation)
 	STA $01
 	LDA.b #<TileLocation>>>16
 	STA $02
-	if !StatusBar_UsingCustomProperties != 0
-		LDA.b #<PropLocation>
-		STA $03
-		LDA.b #<PropLocation>>>8
-		STA $04
-		LDA.b #<PropLocation>>>16
-		STA $05
-		LDA.b #!Setting_PlayerHP_CurrentAndMax_Overworld_Prop
-		STA $06
-	endif
+	LDA.b #<PropLocation>
+	STA $03
+	LDA.b #<PropLocation>>>8
+	STA $04
+	LDA.b #<PropLocation>>>16
+	STA $05
+	LDA.b #!Setting_PlayerHP_CurrentAndMax_Overworld_Prop
+	STA $06
 endmacro
 
 macro GetHealthDigits(ValueToDisplay)
@@ -142,11 +140,7 @@ main:
 					%WriteTileAddress(!Setting_PlayerHP_StringPosRightAligned_Owb_XYPos, !Setting_PlayerHP_StringPosRightAligned_Owb_XYPosProp)
 				endif
 				if !Setting_PlayerHP_DigitsAlignOverworld == 2 ;Right-aligned
-					if $02 == $01
-						%UberRoutine(ConvertToRightAligned)
-					else
-						%UberRoutine(ConvertToRightAlignedFormat2)
-					endif
+					%UberRoutine(ConvertToRightAlignedFormat2)
 				endif
 				%UberRoutine(WriteStringDigitsToHUDFormat2)
 				
@@ -168,20 +162,18 @@ main:
 			STA $01
 			LDA.b #!Setting_PlayerHP_GraphicalBarPos_Owb_XYPos>>16
 			STA $02
-			if !StatusBar_UsingCustomProperties != 0
-				LDA.b #!Setting_PlayerHP_GraphicalBarPos_Owb_XYPosProp
-				STA $03
-				LDA.b #!Setting_PlayerHP_GraphicalBarPos_Owb_XYPosProp>>8
-				STA $04
-				LDA.b #!Setting_PlayerHP_GraphicalBarPos_Owb_XYPosProp>>16
-				STA $05
-				if !Setting_PlayerHP_LeftwardsBarOverworld == 0
-					LDA.b #!Setting_PlayerHP_Bar_Overworld_Prop
-				else
-					LDA.b #(!Setting_PlayerHP_Bar_Overworld_Prop|(!Setting_PlayerHP_LeftwardsBarOverworld<<6))
-				endif
-				STA $06
+			LDA.b #!Setting_PlayerHP_GraphicalBarPos_Owb_XYPosProp
+			STA $03
+			LDA.b #!Setting_PlayerHP_GraphicalBarPos_Owb_XYPosProp>>8
+			STA $04
+			LDA.b #!Setting_PlayerHP_GraphicalBarPos_Owb_XYPosProp>>16
+			STA $05
+			if !Setting_PlayerHP_LeftwardsBarOverworld == 0
+				LDA.b #!Setting_PlayerHP_Bar_Overworld_Prop
+			else
+				LDA.b #(!Setting_PlayerHP_Bar_Overworld_Prop|(!Setting_PlayerHP_LeftwardsBarOverworld<<6))
 			endif
+			STA $06
 			if !Setting_PlayerHP_LeftwardsBarOverworld == 0
 				%UberRoutine(GraphicalBar_WriteToStatusBar_Format2)
 			else
