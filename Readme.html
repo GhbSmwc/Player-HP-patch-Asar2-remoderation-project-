@@ -79,9 +79,8 @@ a lot of features into it and released as a separate patch. These features inclu
 <li><a href="https://www.smwcentral.net/?p=section&a=details&id=16540">Uberasm tool v2.0+</a>, Although I could just have hijacks on codes that run once every
 frame in the main patch, I rather have it all in the same hijack produced by uberasm tool to avoid increased risk of incompatibility when another
 patch that also runs once every frame.</a></li></li>
-<li><a href="https://www.smwcentral.net/?p=section&a=details&id=16031">Super Status Bar patch</a> (optional, but strongly recommended, Other status bar
-patches should also work, make sure you understand how they work, this includes knowing their tile data tables format (the tile numbers, tile
-properties (YXPCCCTT), etc) as well as code writing tiles to the status bar included in this package.) Note that defines settings are in <kbd>StatusBarDefines.asm</kbd> for general status bar usage,
+<li><a href="https://www.smwcentral.net/?p=section&a=details&id=16031">Super Status Bar patch</a> or any other status bar patches that allow tile property (<kbd>%YXPCCCTT</kbd>) manipulation (the Super Status Bar patch is
+strongly recommended, Other status bar patches should also work. Note that defines settings are in <kbd>StatusBarDefines.asm</kbd> for general status bar usage,
 tile property manipulation, the left/right aligned text and tile table addresses, etc. For <kbd>PlayerHPDefines.asm</kbd>, it is settings specific for player HP. The default defines settings assumes
 you are using the super status bar patch.</li>
 <li><a href="https://www.smwcentral.net/?p=section&a=details&id=14762">SRAM and BW-RAM Plus patch</a> To prevent uninitialized (garbage) HP values.</li>
