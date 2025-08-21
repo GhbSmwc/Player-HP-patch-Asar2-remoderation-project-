@@ -1,8 +1,8 @@
 ;;This needs to be run under gamemode $0D-$0E so that the meter appears during fade rather
 ;;than abruptly after the overworld fully loads.
 
-incsrc "../GraphicalBarDefines.asm"
-incsrc "../StatusBarDefines.asm"
+incsrc "../GraphicalBarDefines.asm"		;\Needed first else defines are being used before they are set
+incsrc "../StatusBarDefines.asm"		;/
 incsrc "../PlayerHPDefines.asm"
 incsrc "../NumberDisplayRoutinesDefines.asm"
 incsrc "../MotherHPDefines.asm"
@@ -90,19 +90,19 @@ main:
 			;disappear when the number of digits decreases (so when "10" becomes "9",
 			;won't display "90").
 			if !IsUsingRightAlignedSingleNumber == 0
-				LDX.b #(((!Setting_PlayerHP_MaxDigits*2)+1)-1)*$02	;>2 Setting_PlayerHP_MaxDigits due to 2 numbers displayed, plus 1 because of the "/" symbol.
+				LDX.b #(!Setting_PlayerHP_Overworld_MaxStringLength-1)*$02	;>2 Setting_PlayerHP_MaxDigits due to 2 numbers displayed, plus 1 because of the "/" symbol.
 				-
 				LDA #!OverWorldBorderBlankTile
 				if !Setting_PlayerHP_DigitsAlignOverworld == 1
 					STA !Setting_PlayerHP_StringPos_Owb_XYPos,x
 				elseif !Setting_PlayerHP_DigitsAlignOverworld == 2
-					STA !Setting_PlayerHP_StringPosRightAligned_Owb_XYPos-((((!Setting_PlayerHP_MaxDigits*2)+1)-1)*$02),x
+					STA !Setting_PlayerHP_StringPosRightAligned_Owb_XYPos-((!Setting_PlayerHP_Overworld_MaxStringLength-1)*$02),x
 				endif
 				LDA.b #!Setting_PlayerHP_CurrentAndMax_Overworld_Prop
 				if !Setting_PlayerHP_DigitsAlignOverworld == 1
 					STA !Setting_PlayerHP_StringPos_Owb_XYPosProp,x
 				elseif !Setting_PlayerHP_DigitsAlignOverworld == 2
-					STA !Setting_PlayerHP_StringPosRightAligned_Owb_XYPosProp-((((!Setting_PlayerHP_MaxDigits*2)+1)-1)*$02),x
+					STA !Setting_PlayerHP_StringPosRightAligned_Owb_XYPosProp-((!Setting_PlayerHP_Overworld_MaxStringLength-1)*$02),x
 				endif
 				DEX #$02
 				BPL -
@@ -131,7 +131,7 @@ main:
 				endif
 				%UberRoutine(ConvertAlignedDigitToOWB)
 				if !Setting_PlayerHP_ExcessDigitProt != 0
-					CPX.b #(((!Setting_PlayerHP_MaxDigits*2)+1)+1)
+					CPX.b #(!Setting_PlayerHP_Overworld_MaxStringLength+1)
 					BCS ..TooMuchChar
 				endif
 				if !Setting_PlayerHP_DigitsAlignOverworld == 1

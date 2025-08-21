@@ -317,3 +317,6 @@ Things to do:
    "+1" on !ORA !Freeram_PlayerHP_CurrentHP to check the high byte.
  --Fixed various issues when the user sets the HP to be 8-bit instead of 16-bit (graphical bar not representing
    properly, CharacterCustomizePreset0.asm and CharacterCustomizePreset1.asm failing to insert).
+2025-08-20 - minor fixes
+ -Fixed an oversight where if the user decides to have left-aligned digits display with only current HP displayed,
+  would still clear [(MaxDigits*2)+1] tiles as if you set it to display current and max HP.

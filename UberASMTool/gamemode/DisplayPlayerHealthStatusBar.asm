@@ -3,8 +3,8 @@
 
 ;This code displays the player HP (numerical and/or as a bar) on the layer 3 status bar.
 
-incsrc "../GraphicalBarDefines.asm"
-incsrc "../StatusBarDefines.asm"
+incsrc "../GraphicalBarDefines.asm"		;\Needed first else defines are being used before they are set
+incsrc "../StatusBarDefines.asm"		;/
 incsrc "../PlayerHPDefines.asm"
 incsrc "../NumberDisplayRoutinesDefines.asm"
 incsrc "../MotherHPDefines.asm"
@@ -177,20 +177,20 @@ main:
 			;disappear when the number of digits decreases (so when "10" becomes "9",
 			;won't display "90").
 			if !IsUsingRightAlignedSingleNumber == 0
-				LDX.b #(((!Setting_PlayerHP_MaxDigits*2)+1)-1)*!StatusbarFormat	;>2 Setting_PlayerHP_MaxDigits due to 2 numbers displayed, plus 1 because of the "/" symbol.
+				LDX.b #(!Setting_PlayerHP_Level_MaxStringLength-1)*!StatusbarFormat	;>2 Setting_PlayerHP_MaxDigits due to 2 numbers displayed, plus 1 because of the "/" symbol.
 				-
 				LDA #!StatusBarBlankTile
 				if !Setting_PlayerHP_DigitsAlignLevel == 1
 					STA !Setting_PlayerHP_StringPos_Lvl_XYPos,x
 				elseif !Setting_PlayerHP_DigitsAlignLevel == 2
-					STA !Setting_PlayerHP_StringPosRightAligned_Lvl_XYPos-((((!Setting_PlayerHP_MaxDigits*2)+1)-1)*!StatusbarFormat),x
+					STA !Setting_PlayerHP_StringPosRightAligned_Lvl_XYPos-((!Setting_PlayerHP_Level_MaxStringLength-1)*!StatusbarFormat),x
 				endif
 				if !StatusBar_UsingCustomProperties != 0
 					LDA.b #!Setting_PlayerHP_CurrentAndMax_Level_Prop
 					if !Setting_PlayerHP_DigitsAlignLevel == 1
 						STA !Setting_PlayerHP_StringPos_Lvl_XYPosProp,x
 					elseif !Setting_PlayerHP_DigitsAlignLevel == 2
-						STA !Setting_PlayerHP_StringPosRightAligned_Lvl_XYPosProp-((((!Setting_PlayerHP_MaxDigits*2)+1)-1)*!StatusbarFormat),x
+						STA !Setting_PlayerHP_StringPosRightAligned_Lvl_XYPosProp-((!Setting_PlayerHP_Level_MaxStringLength-1)*!StatusbarFormat),x
 					endif
 				endif
 				DEX #!StatusbarFormat
@@ -217,7 +217,7 @@ main:
 					%UberRoutine(SuppressLeadingZeroes)
 				endif
 				if !Setting_PlayerHP_ExcessDigitProt
-					CPX.b #(((!Setting_PlayerHP_MaxDigits*2)+1)+1)
+					CPX.b #(!Setting_PlayerHP_Level_MaxStringLength+1)
 					BCS ..TooMuchChar
 				endif
 				if !Setting_PlayerHP_DigitsAlignLevel == 1

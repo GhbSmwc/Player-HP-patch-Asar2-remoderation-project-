@@ -620,6 +620,15 @@ endif
 			!Setting_PlayerHP_RecoverNumber_Prop = GetLayer3YXPCCCTT(0, 0, 1, !Setting_PlayerHP_RecoverNumberProp_Palette, !Setting_PlayerHP_RecoverNumberProp_Page)
 		;Maximum value for HP and damage display, to prevent overflows
 			!Setting_PlayerHP_TrueMaximumHPAndDamageValue = min((10**!Setting_PlayerHP_MaxDigits)-1, (2**(8*(1+!Setting_PlayerHP_TwoByte)))-1)
+		;Maximum string length failsafe
+			!Setting_PlayerHP_Level_MaxStringLength = !Setting_PlayerHP_MaxDigits
+			if !Setting_PlayerHP_DisplayNumericalLevel == 2
+				!Setting_PlayerHP_Level_MaxStringLength = (!Setting_PlayerHP_MaxDigits*2)+1
+			endif
+			!Setting_PlayerHP_Overworld_MaxStringLength = !Setting_PlayerHP_MaxDigits
+			if !Setting_PlayerHP_DisplayNumericalOverworld == 2
+				!Setting_PlayerHP_Overworld_MaxStringLength = (!Setting_PlayerHP_MaxDigits*2)+1
+			endif
 		;Check if low HP palette warning is possible
 			!Setting_PlayerHP_LowHPWarning_CanPaletteChange = and(!Setting_PlayerHP_LowHPWarning, !StatusBar_UsingCustomProperties)
 		;Override to disable bar animation if you disabled displaying the graphical bar.
