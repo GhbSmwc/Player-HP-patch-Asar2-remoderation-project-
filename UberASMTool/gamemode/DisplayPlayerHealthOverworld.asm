@@ -56,7 +56,7 @@ endmacro
 
 if !StaticSlashTileExist
 	init:
-		if !CPUMode
+		if !sa1
 			%invoke_sa1(.RunSA1)
 			RTL
 			.RunSA1
@@ -77,7 +77,7 @@ if !StaticSlashTileExist
 		RTL
 endif
 main:
-	if !CPUMode
+	if !sa1
 		%invoke_sa1(.RunSA1)
 		RTL
 		.RunSA1
