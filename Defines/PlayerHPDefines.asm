@@ -391,7 +391,7 @@ endif
 						;^How many frames the record effect (transparent effect) hangs
 						; before shrinking down to current HP, up to 255 is allowed.
 						; Set to 0 to disable (will also disable !Freeram_Setting_PlayerHP_BarChangeDelayTmr
-						; from being used,). Remember, the game runs 60 FPS. This also applies
+						; from being used). Remember, the game runs 60 FPS. This also applies
 						; to healing should !Setting_PlayerHP_ShowHealedTransparent be enabled.
 
 					!Setting_PlayerHP_ShowHealedTransparent		= 1
