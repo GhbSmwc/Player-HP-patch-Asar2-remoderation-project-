@@ -337,7 +337,7 @@ endif
 				;Avoid percentage bar from representing 0 or full when really close but not at those values:
 					!Setting_PlayerHP_GraphicalBar_RoundAwayEmptyFull	= 3
 						;^0 = allow bar to display 0% when HP is very close to zero and 100% when close to max.
-						; 1 = display 1 pixel or piece filled when low on HP and only 0 if HP is 0.
+						; 1 = display 1 pixel of piece filled when low on HP and only 0 if HP is 0.
 						; 2 = display MaxPieces-1 when nearly full.
 						; 3 = Display 1 piece or MaxPieces-1 if close to 0 or MaxPieces.
 				;Rounding the amount of fill settings:
