@@ -328,6 +328,7 @@ endif
 		;Graphical bar display settings.
 		;(these are arguments, which are specific values to set the bar's value).
 		;For modifying the scratch RAM used, see "GraphicalBarDefines.asm".
+		;If you don't know how the graphical bar system/term naming works, see the graphical bar documentation linked from the readme.
 			;Universal settings (applies both level and overworld)
 				;Number of pieces in each part of the graphical bar
 					!Setting_PlayerHP_GraphicalBar_LeftPieces                  = 3             ;\These will by default, set the RAM for the pieces for each section
@@ -431,9 +432,11 @@ endif
 	;HP recovery settings:
 	;In case if you're wondering, defines with "Dividend" and "Divisor"
 	;represents a fraction of the player's maximum HP when "RecoveryType"
-	;is set to 1 and unused when 0. For example: A player with 20 maximum HP
-	;with 2/5 recovery means a recovery of 8 HP (20*2/5 = 8). Note that if you get a
-	;fraction as the end result, it is rounded to the nearest integer, but not zero.
+	;is set to 1 and unused when 0. This means you can have recovery based
+	;on a "percentage" of max HP. For example: A player with 20 maximum HP
+	;with 2/5 recovery (40%) means a recovery of 8 HP (20*2/5 = 8). Note
+	;that if you get a fraction as the end result, it is rounded to the
+	;nearest integer, but not zero.
 		;Midway point
 			!Setting_PlayerHP_MidwayRecoveryType		= 1
 				;^0 = Recover by a fixed amount.
@@ -470,6 +473,8 @@ endif
 				; to nearest integer but not to zero).
 
 	;Damage-related stuff
+		;NOTE: If you want to modify damage received from sprites, including custom,
+		;as well as other sprite types, open "PlayerHPPatch.asm" and CTRL+F "Damage table".
 		!Setting_PlayerHP_LosePowerupOnDamage		= 1
 			;^0 = don't lose powerup
 			; 1 = lose powerup (becomes super mario).
@@ -479,7 +484,7 @@ endif
 			; 1 = using custom sprites
 			; If you're not using custom sprites in your hack, set this
 			; to 0 because in some emulators, untouched RAM addresses 
-			; have random values, and can cause glitches in the code that1
+			; have random values, and can cause glitches in the code that
 			; check if the sprite is custom.
 
 		!Setting_PlayerHP_VaryingDamage = 1
@@ -491,6 +496,9 @@ endif
 			;misc damage are located at the "Other" section.
 
 	;Knockback stuff
+	;NOTE: To align the knockback X position threshold (to determine which direction to knock
+	;the player), see "PlayerHPPatch.asm" and CTRL+F "Knockback displacement tables". If you don't
+	;know how this works, see "Readme_files/InPatchTables.html".
 		!Setting_PlayerHP_Knockback	= 2
 			;^0 = no knockback
 			; 1 = knockback (stun until timer runs out), regardless if the player is on

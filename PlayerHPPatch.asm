@@ -673,11 +673,17 @@ freecode
 ;basically reposition the following code to another
 ;freespace area).
 ;
-;Table is formated like this (also applies to knockback
+;Table is formatted like this (also applies to knockback
 ;displacements as well): Each sprite number is a number on
 ;the table. As you increase the sprite number, it goes to the
 ;next number on the table. I've added comments for convenience
-;for what sprite number the numbers on the table corresponds. 
+;for what sprite number the numbers on the table corresponds.
+;
+;NOTE: One damage from the Minor Extended Sprite, from the
+;boo stream (any part of its body besides the head) isn't
+;included here, since only 1 such sprite can damage the
+;player. See "PlayerHPDefines.asm" on
+;"!Setting_PlayerHP_DamageAmount_ReflectBooStream" instead.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 if !Setting_PlayerHP_VaryingDamage != 0
  SmwSpriteDamageTbl:
