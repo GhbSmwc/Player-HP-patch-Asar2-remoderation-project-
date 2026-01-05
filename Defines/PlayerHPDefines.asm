@@ -425,7 +425,7 @@ endif
 		; - 1 = 16-bit (HP up to 65535).
 			!Setting_PlayerHP_TwoByte	= 1
 		;The maximum number of digits to be displayed. Obviously you
-		;wouldn't set this above 3 for 8-bit HP and above 5 or 16-bit.
+		;wouldn't set this above 3 for 8-bit HP and above 5 for 16-bit.
 			!Setting_PlayerHP_MaxDigits	= 3
 
 
