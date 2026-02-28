@@ -83,9 +83,9 @@
 	?.RoundHalfUp
 	?..Rounding
 		REP #$20
-		LDA !Scratchram_GraphicalBar_FillByteTbl+2	;>Max Quantity
-		LSR						;>Divide by 2 (halfway point of max).. (LSR would shift bit 0 into carry, thus if number is odd, carry is set)
-		BCC ?...ExactHalfPoint				;>Should a remainder in the carry is 0 (no remainder), don't round the 1/2 point
+		LDA !Scratchram_GraphicalBar_FillByteTbl+2	;>Max Quantity (denominator, D). After Quantity*TotalPieces, let that be N. Following code gets 1/2 = (D/2)/D set up needed to check if >= half.
+		LSR						;>Divide by 2 (halfway point of max)... (LSR would shift bit 0 into carry, thus if number is odd, carry is set, note that A is rounded down by default).
+		BCC ?...ExactHalfPoint				;>Should a remainder in the carry is 0 (no remainder, meaning denominator is an even number), don't round the 1/2 point
 		INC						;>Round the 1/2 point...
 			;^Reason 1/2 point must be rounded up, is so to truly check if remainder is greater or equal to half of MaxQuantity, to round the pieces filled up,
 			; when MaxQuantity is odd. e.g. 1 Quantity * 62 pieces / 5 MaxQuantity = Q:12 R:2, which is 12 and 2/5, or 12.4. The 1/2 point of 5 is EXACTLY 2.5,
@@ -93,9 +93,9 @@
 			; pieces filled would be 3.
 
 		?...ExactHalfPoint
-			CMP $04						;>Half of max compares with remainder
-			BEQ ?...RoundDivQuotient				;>If HalfPoint = Remainder, round upwards
-			BCS ?...NoRoundDivQuotient			;>If HalfPoint > remainder (or remainder < HalfPoint), round down (if exactly full, this branch is taken).
+			CMP $04						;>Half of D compares with R
+			BEQ ?...RoundDivQuotient			;>If Ceiling(D/2) = R, round upwards
+			BCS ?...NoRoundDivQuotient			;>If Ceiling(D/2) > R (or R < D/2), round down (if exactly full, this branch is taken).
 
 		?...RoundDivQuotient
 			;^this also gets branched to if the value is already an exact integer number of pieces (so if the
