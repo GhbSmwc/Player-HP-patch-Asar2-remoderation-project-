@@ -512,7 +512,7 @@ endif
 
 		!Setting_PlayerHP_KnockbackHorizSpd		= $29
 			;^How fast Mario gets flung horizontally after taking damage. Use values
-			;$01-$7F only (Negative speeds already calculated).
+			;$01-$7F only (Negative speeds already calculated). $7F is the fastest.
 
 		!Setting_PlayerHP_KnockbackUpwardsSpd	= $D7
 			;^How fast Mario flies upward after taking damage. Use values $80-$FF only
@@ -536,7 +536,8 @@ endif
 			;^Fix tilting platform teleportation bug with the Iggy and Larry
 			; boss fight? 
 			; - 0 = no (use this option if you are not using Iggy or Larry)
-			; - 1 = yes (this will disable the knockback entirely)
+			; - 1 = yes (this will disable the knockback entirely during the
+			;   boss fight)
 	;Other
 		!Setting_PlayerHP_DamageAmount_ReflectBooStream	= 3
 			;^Due to only the boo stream itself (not the head) being the only

@@ -19,8 +19,8 @@
 ;right/down or "Horiz" speeds, use only values #$01-#$7F with #$7F being the fastest speed.
 	!MuncherKnockbackUp		= $C0
 	!MuncherKnockbackDown		= $70
-	!MuncherKnockbackHorizSpd	= !Setting_PlayerHP_KnockbackHorizSpd
-	!MuncherKnockbackHorizUpSpd	= !Setting_PlayerHP_KnockbackUpwardsSpd ;>horizontal upwards speed.
+	!MuncherKnockbackHorizSpd	= !Setting_PlayerHP_KnockbackHorizSpd ;>Horizontal speed when hitting side of block (use $01-$7F only, negative is calculated automatically)
+	!MuncherKnockbackHorizUpSpd	= !Setting_PlayerHP_KnockbackUpwardsSpd ;>Vertical speed when hitting side of block
 
 ;Enable (set to 1) or disable (set to 0) damage on specific side.
 	!Damage_Top		= 1
