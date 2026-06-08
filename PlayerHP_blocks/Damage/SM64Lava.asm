@@ -17,7 +17,8 @@
 ;Damage when touching the block, only used  when !DamageType == 0.
 	!FixedDamageAmount			= 10
 ;Proportion of max HP damage when touching the block, only used when
-;!DamageType == 1
+;!DamageType == 1.
+;Note: Divisor cannot be zero.
 	!DamageDividend	= 2
 	!DamageDivisor	= 5
 
@@ -38,6 +39,12 @@ JMP TopCorner : JMP BodyInside : JMP HeadInside
 incsrc "../../../StatusBarDefines.asm"
 incsrc "../../../PlayerHPDefines.asm"
 incsrc "../../../MotherHPDefines.asm"
+
+;Don't touch
+	if !DamageType == 1
+		assert !DamageDividend > 0, "Invalid damage dividend value."
+		assert !DamageDivisor > 0, "Invalid damage divisor value."
+	endif
 
 	MarioAbove:
 	TopCorner:

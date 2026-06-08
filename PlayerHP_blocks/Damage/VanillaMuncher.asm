@@ -55,6 +55,11 @@ JMP MarioFireBall : JMP MarioAbove : JMP BodyInside : JMP HeadInside
 incsrc "../../../StatusBarDefines.asm"
 incsrc "../../../PlayerHPDefines.asm"
 incsrc "../../../MotherHPDefines.asm"
+;Don't touch
+	if !DamageType == 1
+		assert !DamageDividend > 0, "Invalid damage dividend value."
+		assert !DamageDivisor > 0, "Invalid damage divisor value."
+	endif
 
 ;========================================================================================
 MarioAbove:

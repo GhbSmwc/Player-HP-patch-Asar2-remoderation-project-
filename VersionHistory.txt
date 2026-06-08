@@ -302,13 +302,14 @@ Things to do:
   32-bit product, nowhere possible to output an incorrect overflown value).
  -Added graphical bar rounding options rather than just round to nearest.
  -Max HP upgrade blocks now caps the maximum HP to [9, 99, 999, 9999] based on how many digits or
-  [255, 65535] based on the HP size, whichever of the 2 groups are lower.
- -Added an optional feature that custom blocks that deal damage to the player (save for the SlowDamage
-  block) can now deal a proportion of max HP.
- -Fixed Iggy and Larry knockback teleportation bug (knockback is disabled), to save space, if you are not
-  using those bosses, have !Setting_PlayerHP_BugFix_IggyLarryKnockbackFix set to 0.
- -Added an optional feature: low HP warning when at or below 25% HP.
- -Various fixes:
+  [255, 65535] based on the HP size, whichever of the 2 numbers are lower.
+ -Optional features added:
+ --Low HP warning by HP digits and bar flashing red when at or below 25% HP.
+ --Custom blocks that deal damage to the player (save for the SlowDamage block) can now deal a proportion of
+   max HP.
+ --Taking damage or recovering to display amount lost or recovered on the status bar (will display accumulating
+   if player takes a multiple of them).
+ -Fixes:
  --Fixed an issue where the player's invulnerability timer wasn't set due to forgetting the "|!addr" on SA-1.
  --Fixed a game crashing error due to an oversight on fixed-healing amounts for mushroom and the custom block
    equivalent.
@@ -317,6 +318,10 @@ Things to do:
    "+1" on !ORA !Freeram_PlayerHP_CurrentHP to check the high byte.
  --Fixed various issues when the user sets the HP to be 8-bit instead of 16-bit (graphical bar not representing
    properly, CharacterCustomizePreset0.asm and CharacterCustomizePreset1.asm failing to insert).
+ --Fixed Iggy and Larry knockback teleportation bug (knockback is disabled), to save space, if you are not
+   using those bosses, have !Setting_PlayerHP_BugFix_IggyLarryKnockbackFix set to 0.
 2025-08-20 - minor fixes
  -Fixed an oversight where if the user decides to have left-aligned digits display with only current HP displayed,
   would still clear [(MaxDigits*2)+1] tiles as if you set it to display current and max HP.
+2026-06-08 - defines dividend and divisor failsafes
+ -Improved the failsafe for invalid heal/damage proportional to max HP.

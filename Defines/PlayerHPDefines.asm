@@ -434,9 +434,13 @@ endif
 	;represents a fraction of the player's maximum HP when "RecoveryType"
 	;is set to 1 and unused when 0. This means you can have recovery based
 	;on a "percentage" of max HP. For example: A player with 20 maximum HP
-	;with 2/5 recovery (40%) means a recovery of 8 HP (20*2/5 = 8). Note
-	;that if you get a fraction as the end result, it is rounded to the
-	;nearest integer, but not zero.
+	;with 2/5 recovery (40%) means a recovery of 8 HP (20*2/5 = 8).
+	;Notes:
+	; - If you get a fraction as the end result, it is rounded to the
+	;   nearest integer, but not zero.
+	; - Divisor cannot be zero.
+	; - It would be pointless if the dividend is zero, as it will recover
+	;   0 HP.
 		;Midway point
 			!Setting_PlayerHP_MidwayRecoveryType		= 1
 				;^0 = Recover by a fixed amount.
@@ -462,7 +466,7 @@ endif
 
 			!Setting_PlayerHP_MushroomRecoveryType	= 1
 				;^0 = Recover by a fixed amount.
-				; 1 = recover by a fraction of max HP.
+				; 1 = Recover by a fraction of max HP.
 
 			!Setting_PlayerHP_MushroomRecoveryFixedAmt	= 5
 				;^Fixed amount of HP to recover.
@@ -577,7 +581,7 @@ endif
 		; the block appear in the level. Currently, it uses LM's conditional map16
 		;($7FC060~$7FC06F (16 bytes; 128 bits)).
 
-;Don't touch these
+;Don't touch these unless you know what you're doing.
 	;this is to determine if a table is 8 or 16-bit HP
 		!PlayerHPDataTableSize = "db"
 		if !Setting_PlayerHP_TwoByte != 0
@@ -645,8 +649,14 @@ endif
 				!Setting_PlayerHP_BarAnimation = 0
 			endif
 	;Failsafe
-		assert !Setting_PlayerHP_MidwayRecoveryDividend != 0, "Invalid Dividend"
-		assert !Setting_PlayerHP_MidwayRecoveryDivisor > 1, "Invalid Divisor"
+		if !Setting_PlayerHP_MidwayRecoveryType == 1
+			assert !Setting_PlayerHP_MidwayRecoveryDividend > 0, "Invalid midway recovery dividend."
+			assert !Setting_PlayerHP_MidwayRecoveryDivisor > 0, "Invalid midway recovery divisor."
+		endif
+		if !Setting_PlayerHP_MushroomRecoveryType == 1
+			assert !Setting_PlayerHP_MushroomRecoveryDividend > 0, "Invalid mushroom recovery dividend."
+			assert !Setting_PlayerHP_MushroomRecoveryDivisor > 0, "Invalid mushroom recovery divisor."
+		endif
 		assert !Setting_PlayerHP_KnockbackHorizSpd < $80, "Use only $01-$7F, negative values automatically calculated."
 
 

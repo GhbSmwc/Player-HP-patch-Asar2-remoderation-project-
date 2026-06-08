@@ -1,6 +1,6 @@
 ;Act as $025 (best to have all sides to heal the player for a passable block) or $130.
 
-;Note: Will instantly recovers the player's HP, regardless
+;Note: Will instantly fully recovers the player's HP, regardless
 ;if you enabled rolling HP or not.
 
 ;Fully recover HP on specific side
@@ -27,7 +27,7 @@ JMP TopCorner : JMP BodyInside : JMP HeadInside
  if or(notequal(!FullRecoverLeft, 0), notequal(!FullRecoverRight, 0))
   !SideEnabled = 1
  endif
- assert or(!FullRecoverTop, or(!FullRecoverBottom, or(!FullRecoverLeft, !FullRecoverRight))) == 1, "Usless block, this doesn't heal the player at all."
+ assert or(!FullRecoverTop, or(!FullRecoverBottom, or(!FullRecoverLeft, !FullRecoverRight))) == 1, "Useless block, this doesn't heal the player at all."
 
 incsrc "../../../StatusBarDefines.asm"
 incsrc "../../../PlayerHPDefines.asm"

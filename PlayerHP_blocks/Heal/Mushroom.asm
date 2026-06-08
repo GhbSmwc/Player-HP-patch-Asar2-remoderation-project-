@@ -11,6 +11,7 @@
 ;Recover HP by Dividend/Divisor of max HP (rounded
 ;to nearest integer but not to zero). Used when
 ;!Setting_PlayerHP_BlockMushroomRecoveryType == 1.
+;Note: Divisor cannot be zero.
 	!Setting_PlayerHP_BlockMushroomRecoveryDividend = 2
 	!Setting_PlayerHP_BlockMushroomRecoveryDivisor = 5
 
@@ -24,6 +25,12 @@ JMP TopCorner : JMP BodyInside : JMP HeadInside
 incsrc "../../../StatusBarDefines.asm"
 incsrc "../../../PlayerHPDefines.asm"
 incsrc "../../../MotherHPDefines.asm"
+
+;Don't touch.
+	if !Setting_PlayerHP_BlockMushroomRecoveryType == 1
+		assert !Setting_PlayerHP_BlockMushroomRecoveryDividend > 0, "Invalid Mushroom block recovery dividend."
+		assert !Setting_PlayerHP_BlockMushroomRecoveryDivisor > 0, "Invalid Mushroom block recovery divisor."
+	endif
 
 	MarioBelow:
 	MarioAbove:

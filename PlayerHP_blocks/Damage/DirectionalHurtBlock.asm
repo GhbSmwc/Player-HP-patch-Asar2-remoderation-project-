@@ -11,16 +11,17 @@
 ;How much HP loss from touching this block on the harmful side (when !DamageType == 0).
 	!FixedDamageAmount		= 5
 ;Proportion of max HP damage when touching the block, only used when
-;!Sm64DamageType == 1
+;!DamageType == 1.
+;Note: Divisor cannot be zero.
 	!DamageDividend	= 2
 	!DamageDivisor	= 5
 
 ;Knockback speeds. For left and up speeds, use only values #$80-#$FF with #$80 being the fastest, for
-;right/down speeds, use only values #$01-#$7F with #$7F being the fastest speed.
+;right/down or "Horiz" speeds, use only values #$01-#$7F with #$7F being the fastest speed.
 	!MuncherKnockbackUp		= $C0
 	!MuncherKnockbackDown		= $70
-	!MuncherKnockbackHorizSpd	= !Setting_PlayerHP_KnockbackHorizSpd
-	!MuncherKnockbackHorizUpSpd	= !Setting_PlayerHP_KnockbackUpwardsSpd ;>horizontal upwards speed.
+	!MuncherKnockbackHorizSpd	= !Setting_PlayerHP_KnockbackHorizSpd ;>Horizontal speed when hitting side of block (use $01-$7F only, negative is calculated automatically)
+	!MuncherKnockbackHorizUpSpd	= !Setting_PlayerHP_KnockbackUpwardsSpd ;>Vertical speed when hitting side of block
 
 ;Enable (set to 1) or disable (set to 0) damage on specific side.
 	!Damage_Top		= 1
@@ -39,6 +40,11 @@ JMP MarioFireBall : JMP MarioAbove : JMP BodyInside : JMP HeadInside
 incsrc "../../../StatusBarDefines.asm"
 incsrc "../../../PlayerHPDefines.asm"
 incsrc "../../../MotherHPDefines.asm"
+;Don't touch.
+	if !DamageType == 1
+		assert !DamageDividend > 0, "Invalid damage dividend value."
+		assert !DamageDivisor > 0, "Invalid damage divisor value."
+	endif
 
 ;========================================================================================
 MarioAbove:
