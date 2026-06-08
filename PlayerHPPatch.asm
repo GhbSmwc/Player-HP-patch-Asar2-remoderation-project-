@@ -774,8 +774,8 @@ endif
 ;Knockback displacement tables.
 ;
 ;These tables are displacement values that marks the vertical line boundary
-;that determines which direction should knock the player left or right.
-;To position this vertical line, it simply does this formula:
+;of a sprite that determines which direction should knock the player left or
+;right. To position this vertical line, it simply does this formula:
 ;
 ;SpriteCenterXPos = SpriteXPos + DisplacementValue
 ;^DisplacementValue can be a negative value ($8000-$FFFF), which position the

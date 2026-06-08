@@ -496,9 +496,9 @@ endif
 			;misc damage are located at the "Other" section.
 
 	;Knockback stuff
-	;NOTE: To align the knockback X position threshold (to determine which direction to knock
-	;the player), see "PlayerHPPatch.asm" and CTRL+F "Knockback displacement tables". If you don't
-	;know how this works, see "Readme_files/InPatchTables.html".
+	;NOTE: For sprites, to align the knockback X position threshold (to determine which direction
+	;to knock the player), see "PlayerHPPatch.asm" and CTRL+F "Knockback displacement tables". If
+	;you don't know how this works, see "Readme_files/InPatchTables.html".
 		!Setting_PlayerHP_Knockback	= 2
 			;^0 = no knockback
 			; 1 = knockback (stun until timer runs out), regardless if the player is on
